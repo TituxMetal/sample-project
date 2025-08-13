@@ -1,0 +1,35 @@
+---
+import type { UserResponseDto } from '@packages/types'
+
+import MainLayout from '~layouts/MainLayout.astro'
+import { Welcome } from '~ui/Welcome'
+
+// TODO: For demo purposes, remove this when starting to really implement the auth system
+const response = await fetch('http://localhost:3000/users')
+const users = await response.json()
+const user =
+  users[0] ??
+  ({
+    id: '1',
+    email: 'john.doe@example.com'
+  } as UserResponseDto)
+
+const title = 'Basic Profile Page'
+const mode = Astro.url.searchParams.get('mode') ?? 'display'
+---
+
+<MainLayout title={title}>
+  <Welcome server:defer client:load title={title} user={user}>
+    <section class='flex flex-col gap-4 text-lg'>
+      <p>
+        This page will be used to <a class='link' href='?mode=display'>display</a> the user's profile
+        information
+      </p>
+      <p>
+        This page will also be used to <a class='link' href='?mode=edit'>edit</a> the user's profile
+        information.
+      </p>
+      <p class='font-bold'>Mode: {mode}</p>
+    </section>
+  </Welcome>
+</MainLayout>

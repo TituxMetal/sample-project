@@ -1,0 +1,25 @@
+---
+import MainLayout from '~layouts/MainLayout.astro'
+import { Welcome } from '~ui/Welcome'
+
+// TODO: For demo purposes, remove this when starting to really implement the auth system
+const response = await fetch('http://localhost:3000/users')
+const users = await response.json()
+const user = users[0] ?? {
+  id: '1',
+  email: 'john.doe@example.com',
+  createdAt: new Date(),
+  updatedAt: new Date()
+}
+
+const title = 'Basic Home Page'
+const pageDescription = `
+This is a robust example of a fullstack authentication system using Monorepo architecture with NestJs as backend, Astro as frontend, shared types and configuration.
+`
+---
+
+<MainLayout title={title}>
+  <Welcome server:defer client:load title={title} pageDescription={pageDescription} user={user}>
+    <p>It uses React integration with Astro and TailwindCSS for styling.</p>
+  </Welcome>
+</MainLayout>

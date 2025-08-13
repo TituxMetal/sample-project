@@ -1,0 +1,25 @@
+---
+import '~/styles/global.css'
+import Footer from './Footer.astro'
+import { NavBar } from './NavBar'
+
+const { title } = Astro.props
+---
+
+<!doctype html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width' />
+    <link rel='icon' type='image/svg+xml' href='favicon.svg' />
+    <meta name='generator' content={Astro.generator} />
+    <title>Fullstack Auth System {title && `| ${title}`}</title>
+  </head>
+  <body class='min-h-screen'>
+    <NavBar server:defer client:load />
+    <main class='mx-auto flex w-full max-w-screen-xl flex-1 flex-col py-6'>
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

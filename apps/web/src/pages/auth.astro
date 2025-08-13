@@ -1,0 +1,17 @@
+---
+import MainLayout from '~layouts/MainLayout.astro'
+import { Welcome } from '~ui/Welcome'
+
+const title = 'Basic Auth Page'
+const mode = Astro.url.searchParams.get('mode') ?? 'login'
+---
+
+<MainLayout title={title}>
+  <Welcome server:defer client:load title={title}>
+    <p class='text-lg'>
+      This page will be used to <a class='link' href='?mode=login'> log in </a>{' '}
+      users and/or <a class='link' href='?mode=signup'> sign up </a> new users.
+    </p>
+    <p class='text-lg'>Mode: {mode}</p>
+  </Welcome>
+</MainLayout>

@@ -1,0 +1,14 @@
+---
+import MainLayout from '~layouts/MainLayout.astro'
+import { Welcome } from '~ui/Welcome'
+
+const title = 'Logout Action'
+const pageDescription =
+  'This is not intended to be a page, but an action that will be used to log users out by resetting the cookie.'
+---
+
+<MainLayout title={title}>
+  <Welcome server:defer client:load title={title}>
+    <p class='text-lg font-bold text-yellow-500'>{pageDescription}</p>
+  </Welcome>
+</MainLayout>
