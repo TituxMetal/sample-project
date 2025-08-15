@@ -219,8 +219,26 @@ yarn workspace @app/web docker:build
 
 The project includes Dockerfiles to build containerized versions of both applications:
 
-- **API**: `lgdweb/fullstack-nest-api:prod`
-- **Web**: `lgdweb/fullstack-astro-web:prod`
+- **API**: `ghcr.io/tituxmetal/sample-project-api`
+- **Web**: `ghcr.io/tituxmetal/sample-project-web`
+
+### CI/CD Pipeline
+
+Docker images are automatically built and pushed to GitHub Container Registry when:
+
+- Code is pushed to `main` branch (tagged as `latest` and `prod`)
+- Code is pushed to `feature/**`, `fix/**`, or `hotfix/**` branches (tagged with branch name)
+
+The CI workflow:
+
+1. **Validates** code (lint, test, typecheck, build)
+2. **Builds** Docker images with proper environment variables
+3. **Pushes** to GitHub Container Registry (ghcr.io)
+
+Images are available at:
+
+- `ghcr.io/tituxmetal/sample-project-api:latest`
+- `ghcr.io/tituxmetal/sample-project-web:latest`
 
 ### Environment Variables
 
@@ -243,11 +261,16 @@ API_URL=http://localhost:3000
 
 # For production deployment
 PUBLIC_API_URL=/api
-API_URL=http://fullstack-nest-api:3000
+API_URL=http://sample-project-api:3000
 ```
 
-> **Note**: The code uses fallback pattern:
-> `import.meta.env.API_URL || 'http://fullstack-nest-api:3000'`
+> **Note**: The code uses environment variable fallback pattern:
+> `import.meta.env.API_URL || process.env.API_URL`
+>
+> **Build Arguments**: Docker images are built with these environment variables:
+>
+> - `API_URL=http://sample-project-api:3000` (for container-to-container communication)
+> - `PUBLIC_API_URL=/api` (for frontend requests through nginx proxy)
 
 ### Deployment
 
@@ -307,16 +330,18 @@ This project follows **Clean Architecture** principles:
 
    ```bash
    git checkout -b feature/your-feature-name
+   # Supported patterns: feature/*, fix/*, hotfix/*
    ```
 
 2. **Make your changes** following the coding standards
 
-3. **Run quality checks**:
+3. **Run quality checks locally**:
 
    ```bash
    yarn lint           # Check for linting errors
    yarn typecheck      # Check for TypeScript errors
    yarn test           # Run all tests
+   yarn build          # Ensure build succeeds
    ```
 
 4. **Commit your changes**:
@@ -325,11 +350,18 @@ This project follows **Clean Architecture** principles:
    yarn commit         # Use conventional commits
    ```
 
-5. **Push and create a PR**:
+5. **Push your branch**:
 
    ```bash
    git push origin feature/your-feature-name
    ```
+
+   **The CI pipeline will automatically**:
+   - ✅ Run all validation checks (lint, typecheck, test, build)
+   - 🐳 Build Docker images (for supported branch patterns)
+   - 📦 Push images to GitHub Container Registry
+
+6. **Create a Pull Request** from your branch to `main`
 
 ### Code Style
 
