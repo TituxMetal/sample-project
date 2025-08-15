@@ -6,7 +6,12 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main]
+    branches:
+      - main
+      - 'feature/**'
+      - 'fix/**'
+      - 'hotfix/**'
+  workflow_dispatch:
 
 jobs:
   validate:
@@ -113,3 +118,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            PUBLIC_API_URL=${{ matrix.service == 'web' && '/api' || '' }}
+            API_URL=${{ matrix.service == 'web' && format('http://{0}-api:3000', github.event.repository.name) || '' }}
