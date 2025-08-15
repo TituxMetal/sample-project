@@ -15,6 +15,12 @@
       "dependsOn": ["build"],
       "persistent": true
     },
+    "docker:build": {
+      "cache": false
+    },
+    "docker:push": {
+      "cache": false
+    },
     "test": {
       "dependsOn": ["^build"]
     },

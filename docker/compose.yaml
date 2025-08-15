@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  fullstack-nest-api:
+    image: lgdweb/fullstack-nest-api:prod
+    container_name: fullstack-nest-api
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      SESSION_TTL: ${SESSION_TTL}
+      RUN_MIGRATIONS: 'true'
+    volumes:
+      - data:/data
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    networks:
+      - reverse-proxy-nw
+      - default-nw
+    restart: unless-stopped
+
+  fullstack-astro-web:
+    image: lgdweb/fullstack-astro-web:prod
+    container_name: fullstack-astro-web
+    environment:
+      API_URL: ${API_URL}
+      PUBLIC_API_URL: ${PUBLIC_API_URL}
+    networks:
+      - reverse-proxy-nw
+      - default-nw
+    restart: unless-stopped
+    depends_on:
+      - fullstack-nest-api
+
+volumes:
+  data:
+
+networks:
+  default-nw:
+    external: true
+  reverse-proxy-nw:
+    external: true

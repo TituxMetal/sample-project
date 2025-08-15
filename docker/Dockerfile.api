@@ -1,0 +1,87 @@
+# Stage 1: Install dependencies and generate Prisma client
+FROM node:22-alpine AS deps
+
+WORKDIR /app
+
+# Enable Corepack, set Yarn 4.9.1 and add node_modules linker
+RUN corepack enable && corepack prepare yarn@4.9.1 --activate
+RUN echo 'nodeLinker: "node-modules"' > ./.yarnrc.yml
+
+COPY package.json yarn.lock ./
+COPY apps/api/ ./apps/api/
+COPY apps/web/ ./apps/web/
+COPY packages/ ./packages/
+
+RUN yarn workspace @app/api install --immutable
+
+WORKDIR /app/apps/api
+
+RUN yarn workspace @app/api prisma generate
+
+# Stage 2: Build the application
+FROM node:22-alpine AS build
+
+WORKDIR /app
+
+# Enable Corepack, set Yarn 4.9.1 and add node_modules linker
+RUN corepack enable && corepack prepare yarn@4.9.1 --activate
+RUN echo 'nodeLinker: "node-modules"' > ./.yarnrc.yml
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package.json ./
+COPY --from=deps /app/yarn.lock ./
+COPY --from=deps /app/apps/api ./apps/api/
+COPY --from=deps /app/packages ./packages/
+
+WORKDIR /app/apps/api
+
+RUN yarn build
+
+# Stage 3: Production image
+FROM node:22-alpine AS production
+
+# Create non-root user and group
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+WORKDIR /app
+
+# Enable Corepack, set Yarn 4.9.1 and add node_modules linker
+RUN corepack enable && corepack prepare yarn@4.9.1 --activate
+RUN echo 'nodeLinker: "node-modules"' > ./.yarnrc.yml
+
+# Copy minimal files for production
+COPY --from=build /app/yarn.lock ./
+COPY --from=build /app/package.json ./
+COPY --from=build /app/apps/api/package.json ./apps/api/
+COPY --from=build /app/packages ./packages/
+
+RUN yarn workspaces focus @app/api --production
+
+RUN mkdir -p ./apps/api/prisma
+
+# Copy built app, Prisma files and start script
+COPY --from=build /app/apps/api/dist ./apps/api/dist
+COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=build /app/apps/api/prisma/schema.prisma ./apps/api/prisma/
+COPY --from=build /app/apps/api/prisma/migrations ./apps/api/prisma/migrations
+COPY docker/start.sh ./
+
+# Set environment variables for production runtime
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV DATABASE_URL="file:/data/dev.db"
+
+# Set up data directory and permissions
+RUN mkdir -p /data && \
+    chown -R appuser:appgroup /data && \
+    chown -R appuser:appgroup /app
+
+EXPOSE ${PORT}
+
+USER appuser
+
+VOLUME ["/data"]
+
+# Start the application
+CMD ["/app/start.sh"]
