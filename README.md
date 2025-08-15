@@ -1,4 +1,4 @@
-# Fullstack App - NestJS API + Astro Frontend
+# Sample Project - NestJS API + Astro Frontend
 
 A modern fullstack application built with NestJS backend and Astro frontend, featuring clean
 architecture, TypeScript, and Docker containerization.
@@ -45,7 +45,7 @@ Before you begin, ensure you have the following installed:
 
 ```bash
 git clone <repository-url>
-cd sample-project
+cd {project-name}
 ```
 
 ### 2. Install Dependencies
@@ -125,7 +125,7 @@ yarn workspace @app/web dev
 ## 📁 Project Structure
 
 ```text
-sample-project/
+{project-name}/
 ├── apps/
 │   ├── api/                 # NestJS backend application
 │   │   ├── src/
@@ -208,9 +208,13 @@ yarn workspace @app/web test:watch   # Run tests in watch mode
 
 ```bash
 # Build all Docker images
-yarn docker:build
+yarn docker:build:all
 
 # Build individual images
+yarn docker:build:api
+yarn docker:build:web
+
+# Or build from workspace
 yarn workspace @app/api docker:build
 yarn workspace @app/web docker:build
 ```
@@ -219,8 +223,8 @@ yarn workspace @app/web docker:build
 
 The project includes Dockerfiles to build containerized versions of both applications:
 
-- **API**: `ghcr.io/tituxmetal/sample-project-api`
-- **Web**: `ghcr.io/tituxmetal/sample-project-web`
+- **API**: `ghcr.io/{your-username}/{project-name}-api`
+- **Web**: `ghcr.io/{your-username}/{project-name}-web`
 
 ### CI/CD Pipeline
 
@@ -237,8 +241,20 @@ The CI workflow:
 
 Images are available at:
 
-- `ghcr.io/tituxmetal/sample-project-api:latest`
-- `ghcr.io/tituxmetal/sample-project-web:latest`
+- `ghcr.io/{your-username}/{project-name}-api:latest`
+- `ghcr.io/{your-username}/{project-name}-web:latest`
+
+### Local Development vs Production
+
+The project uses a **dual registry approach** for flexibility:
+
+- **Local Development**: Images built with `scripts/docker-build.sh` use Docker Hub
+  (`{your-dockerhub-org}/{project-name}-*`) for quick testing and iteration
+- **Production Releases**: CI automatically builds and pushes to GitHub Container Registry
+  (`ghcr.io/{your-username}/{project-name}-*`) for official releases
+
+This allows developers to test locally without polluting the production registry, while maintaining
+clean CI/CD for production deployments.
 
 ### Environment Variables
 
@@ -261,7 +277,7 @@ API_URL=http://localhost:3000
 
 # For production deployment
 PUBLIC_API_URL=/api
-API_URL=http://sample-project-api:3000
+API_URL=http://{project-name}-api:3000
 ```
 
 > **Note**: The code uses environment variable fallback pattern:
@@ -269,7 +285,7 @@ API_URL=http://sample-project-api:3000
 >
 > **Build Arguments**: Docker images are built with these environment variables:
 >
-> - `API_URL=http://sample-project-api:3000` (for container-to-container communication)
+> - `API_URL=http://{project-name}-api:3000` (for container-to-container communication)
 > - `PUBLIC_API_URL=/api` (for frontend requests through nginx proxy)
 
 ### Deployment
