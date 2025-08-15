@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "astro build",
-    "docker:build": "docker build -f ../../docker/Dockerfile.web --build-arg PUBLIC_API_URL=\"/api\" -t lgdweb/fullstack-astro-web:prod ../../",
-    "docker:push": "docker push lgdweb/fullstack-astro-web:prod",
+    "docker:build": "../../scripts/docker-build.sh web",
+    "docker:push": "docker push lgdweb/sample-project-web:latest",
     "dev": "astro dev",
     "start": "astro preview",
     "lint": "eslint . --fix",

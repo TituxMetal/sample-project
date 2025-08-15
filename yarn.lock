@@ -8251,27 +8251,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fullstack-app@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "fullstack-app@workspace:."
-  dependencies:
-    "@changesets/cli": "npm:^2.29.5"
-    "@commitlint/cli": "npm:^19.8.1"
-    "@commitlint/config-conventional": "npm:^19.8.1"
-    "@types/node": "npm:^22.17.1"
-    commitizen: "npm:^4.3.1"
-    cz-conventional-changelog: "npm:^3.3.0"
-    eslint: "npm:^9.33.0"
-    husky: "npm:^9.1.7"
-    lint-staged: "npm:^16.1.5"
-    prettier: "npm:^3.6.2"
-    prettier-plugin-astro: "npm:^0.14.1"
-    prettier-plugin-tailwindcss: "npm:^0.6.14"
-    turbo: "npm:^2.5.5"
-    typescript: "npm:^5.9.2"
-  languageName: unknown
-  linkType: soft
-
 "function-bind@npm:^1.1.2":
   version: 1.1.2
   resolution: "function-bind@npm:1.1.2"
@@ -13629,6 +13608,27 @@ __metadata:
   checksum: 10c0/7e3c8b2e88a1841c9671094bbaeebd94448111dd90a81a1f606f3f67708a6ec57763b3b47f06da09fc6054193e0e6709e77325415dc8422b04497a8070fa02d4
   languageName: node
   linkType: hard
+
+"sample-project@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "sample-project@workspace:."
+  dependencies:
+    "@changesets/cli": "npm:^2.29.5"
+    "@commitlint/cli": "npm:^19.8.1"
+    "@commitlint/config-conventional": "npm:^19.8.1"
+    "@types/node": "npm:^22.17.1"
+    commitizen: "npm:^4.3.1"
+    cz-conventional-changelog: "npm:^3.3.0"
+    eslint: "npm:^9.33.0"
+    husky: "npm:^9.1.7"
+    lint-staged: "npm:^16.1.5"
+    prettier: "npm:^3.6.2"
+    prettier-plugin-astro: "npm:^0.14.1"
+    prettier-plugin-tailwindcss: "npm:^0.6.14"
+    turbo: "npm:^2.5.5"
+    typescript: "npm:^5.9.2"
+  languageName: unknown
+  linkType: soft
 
 "sass-formatter@npm:^0.7.6":
   version: 0.7.9

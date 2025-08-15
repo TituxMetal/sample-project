@@ -1,5 +1,5 @@
 {
-  "name": "fullstack-app",
+  "name": "sample-project",
   "version": "0.1.0",
   "private": true,
   "description": "Fullstack app with NestJS api and Astro frontend",
@@ -22,7 +22,9 @@
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
     "start": "turbo run start",
-    "docker:build": "turbo run docker:build --parallel",
+    "docker:build:all": "scripts/docker-build.sh all",
+    "docker:build:api": "scripts/docker-build.sh api",
+    "docker:build:web": "scripts/docker-build.sh web",
     "docker:push": "turbo run docker:push --parallel",
     "test": "turbo run test",
     "test:coverage": "turbo run test:coverage",

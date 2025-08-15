@@ -5,8 +5,8 @@
   "description": "NestJS api with clean architecture for fullstack app",
   "scripts": {
     "build": "nest build",
-    "docker:build": "docker build -f ../../docker/Dockerfile.api -t lgdweb/fullstack-nest-api:prod ../../",
-    "docker:push": "docker push lgdweb/fullstack-nest-api:prod",
+    "docker:build": "../../scripts/docker-build.sh api",
+    "docker:push": "docker push lgdweb/sample-project-api:latest",
     "dev": "nest start --watch",
     "start": "nest start",
     "start:prod": "node dist/main.js",
