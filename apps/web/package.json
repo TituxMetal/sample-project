@@ -19,9 +19,9 @@
     "clean": "rm -rf node_modules coverage dist .astro .turbo"
   },
   "dependencies": {
-    "@astrojs/node": "^9.4.1",
+    "@astrojs/node": "^9.4.2",
     "@astrojs/react": "^4.3.0",
-    "astro": "^5.13.0",
+    "astro": "^5.13.2",
     "astro-icon": "^1.1.5",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
