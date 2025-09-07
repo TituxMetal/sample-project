@@ -129,16 +129,20 @@ yarn workspace @app/web dev
 ├── apps/
 │   ├── api/                 # NestJS backend application
 │   │   ├── src/
+│   │   │   ├── auth/        # Authentication module (Clean Architecture)
 │   │   │   ├── users/       # User module (Clean Architecture)
 │   │   │   ├── shared/      # Shared domain/infrastructure
 │   │   │   └── main.ts      # Application entry point
-│   │   └── prisma/          # Database schema and migrations
+│   │   ├── prisma/          # Database schema and migrations
+│   │   └── README.md        # API documentation
 │   └── web/                 # Astro frontend application
 │       ├── src/
 │       │   ├── components/  # React/Astro components
 │       │   ├── pages/       # Astro pages
+│       │   ├── services/    # API communication services
 │       │   └── styles/      # Global styles
-│       └── public/          # Static assets
+│       ├── public/          # Static assets
+│       └── README.md        # Web documentation
 ├── packages/
 │   ├── shared-types/        # Shared TypeScript types
 │   ├── eslint-config/       # Shared ESLint configuration
@@ -146,6 +150,13 @@ yarn workspace @app/web dev
 ├── docker/                  # Docker configuration files
 └── scripts/                 # Utility scripts
 ```
+
+### 📚 Application Documentation
+
+Each application has detailed documentation:
+
+- **[API Documentation](apps/api/README.md)** - NestJS backend with Clean Architecture
+- **[Web Documentation](apps/web/README.md)** - Astro frontend with React integration
 
 ## 🔧 Available Scripts
 
@@ -388,11 +399,10 @@ This project follows **Clean Architecture** principles:
 
 ## 📚 Additional Resources
 
-- [NestJS Documentation](https://docs.nestjs.com/)
-- [Astro Documentation](https://docs.astro.build/)
-- [Prisma Documentation](https://www.prisma.io/docs/)
-- [TailwindCSS Documentation](https://tailwindcss.com/docs)
-- [Turbo Documentation](https://turbo.build/repo/docs)
+- [Turbo Documentation](https://turbo.build/repo/docs) - Monorepo build system
+- [Yarn Workspaces](https://yarnpkg.com/features/workspaces) - Package management
+- [Conventional Commits](https://www.conventionalcommits.org/) - Commit message format
+- [GitHub Actions](https://docs.github.com/en/actions) - CI/CD workflows
 
 ## 📄 License
 
