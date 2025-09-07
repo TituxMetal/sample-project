@@ -13,7 +13,7 @@
   ],
   "author": "Titux Metal",
   "license": "MIT",
-  "packageManager": "yarn@4.9.1",
+  "packageManager": "yarn@4.9.4",
   "workspaces": [
     "apps/*",
     "packages/*"
