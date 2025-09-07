@@ -15,6 +15,15 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     css: { devSourcemap: false },
-    build: { cssCodeSplit: false }
+    build: { cssCodeSplit: false },
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3000',
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/api/, '')
+        }
+      }
+    }
   }
 })

@@ -1,36 +1,36 @@
 ---
-import type { UserResponseDto } from '@packages/types'
+import { getSecret } from 'astro:env/server'
 
-import MainLayout from '~layouts/MainLayout.astro'
-import { Welcome } from '~ui/Welcome'
+import { EditProfileForm } from '~/components/EditProfileForm'
+import Main from '~/layouts/Main.astro'
+import { apiRequest } from '~/services/api.service'
+import type { User } from '~/types/user.types'
 
-// TODO: For demo purposes, remove this when starting to really implement the auth system
-const apiUrl = import.meta.env.API_URL || process.env.API_URL
-const response = await fetch(`${apiUrl}/users`)
-const users = await response.json()
-const user =
-  users[0] ??
-  ({
-    id: '1',
-    email: 'john.doe@example.com'
-  } as UserResponseDto)
+const { user } = Astro.locals
 
-const title = 'Basic Profile Page'
-const mode = Astro.url.searchParams.get('mode') ?? 'display'
+if (!user) {
+  Astro.redirect('/login')
+}
+
+const API_URL = getSecret('API_URL')
+const headers = {
+  cookie: Astro.request.headers.get('cookie') ?? ''
+}
+
+const { data, success } = await apiRequest<User>(`${API_URL}/users/me`, {
+  headers
+})
+
+if (!success || !data) {
+  Astro.redirect('/login')
+}
+
+const userData = data as NonNullable<typeof data>
 ---
 
-<MainLayout title={title}>
-  <Welcome server:defer client:load title={title} user={user}>
-    <section class='flex flex-col gap-4 text-lg'>
-      <p>
-        This page will be used to <a class='link' href='?mode=display'>display</a> the user's profile
-        information
-      </p>
-      <p>
-        This page will also be used to <a class='link' href='?mode=edit'>edit</a> the user's profile
-        information.
-      </p>
-      <p class='font-bold'>Mode: {mode}</p>
-    </section>
-  </Welcome>
-</MainLayout>
+<Main title='Profile'>
+  <section class='container mx-auto px-4 py-8'>
+    <h1 class='mb-8 text-center text-4xl font-bold text-zinc-100'>Welcome {userData.username}</h1>
+    <EditProfileForm client:load userData={userData} />
+  </section>
+</Main>

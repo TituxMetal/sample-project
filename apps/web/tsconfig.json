@@ -10,9 +10,7 @@
       "~forms/*": ["src/components/forms/*"],
       "~ui/*": ["src/components/ui/*"],
       "~hooks/*": ["src/hooks/*"],
-      "~utils/*": ["src/utils/*"],
-      "@packages/types": ["../../packages/shared-types/src"],
-      "@packages/types/*": ["../../packages/shared-types/src/*"]
+      "~utils/*": ["src/utils/*"]
     }
   },
   "include": ["src/**/*", "*.ts", "*.tsx", "**/*.astro", "**/*.d.ts", "**/*.spec.tsx"],

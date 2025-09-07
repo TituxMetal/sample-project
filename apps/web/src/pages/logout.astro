@@ -1,14 +1,21 @@
 ---
-import MainLayout from '~layouts/MainLayout.astro'
-import { Welcome } from '~ui/Welcome'
+import { getSecret } from 'astro:env/server'
 
-const title = 'Logout Action'
-const pageDescription =
-  'This is not intended to be a page, but an action that will be used to log users out by resetting the cookie.'
+import { apiRequest } from '~/services/api.service'
+
+const API_URL = getSecret('API_URL')
+
+try {
+  const { success, message } = await apiRequest(`${API_URL}/auth/logout`, {
+    method: 'POST'
+  })
+
+  Astro.cookies.delete('auth_token')
+
+  success ? console.log('Logged out successfully') : console.error('Error logging out', message)
+} catch (error) {
+  console.error('Error during logout:', error)
+}
+
+return Astro.redirect('/')
 ---
-
-<MainLayout title={title}>
-  <Welcome server:defer client:load title={title}>
-    <p class='text-lg font-bold text-yellow-500'>{pageDescription}</p>
-  </Welcome>
-</MainLayout>

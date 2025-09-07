@@ -1,17 +1,32 @@
 ---
-import MainLayout from '~layouts/MainLayout.astro'
-import { Welcome } from '~ui/Welcome'
+import { AuthForm } from '~/components/AuthForm'
+import Main from '~/layouts/Main.astro'
+import { isValidAuthMode } from '~/types/auth.types'
 
-const title = 'Basic Auth Page'
+const AUTH_TEXT = {
+  login: {
+    title: 'Login',
+    heading: 'Login to your account'
+  },
+  signup: {
+    title: 'Sign Up',
+    heading: 'Create your account'
+  }
+} as const
+
 const mode = Astro.url.searchParams.get('mode') ?? 'login'
+const redirectPath = Astro.url.searchParams.get('redirectPath') ?? undefined
+if (mode !== null && !isValidAuthMode(mode)) {
+  return Astro.redirect('/auth')
+}
+
+const authMode = isValidAuthMode(mode) ? mode : 'login'
+const { title, heading } = AUTH_TEXT[authMode]
 ---
 
-<MainLayout title={title}>
-  <Welcome server:defer client:load title={title}>
-    <p class='text-lg'>
-      This page will be used to <a class='link' href='?mode=login'> log in </a>{' '}
-      users and/or <a class='link' href='?mode=signup'> sign up </a> new users.
-    </p>
-    <p class='text-lg'>Mode: {mode}</p>
-  </Welcome>
-</MainLayout>
+<Main title={title}>
+  <section class='container mx-auto px-4 py-8'>
+    <h1 class='mb-8 text-center text-4xl font-bold text-zinc-100'>{heading}</h1>
+    <AuthForm client:load mode={authMode} redirectPath={redirectPath} />
+  </section>
+</Main>

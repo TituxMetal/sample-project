@@ -1,0 +1,95 @@
+---
+import { Icon } from 'astro-icon/components'
+import '~/styles/globals.css'
+
+const isProduction = import.meta.env.PROD
+const { title } = Astro.props
+const { user } = Astro.locals
+---
+
+<!doctype html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width' />
+    <link rel='icon' type='image/svg+xml' href='/favicon.svg' />
+    <meta name='generator' content={Astro.generator} />
+    <title>Fullstack Nest + Astro {title && `| ${title}`}</title>
+
+    {
+      isProduction && (
+        <script
+          is:inline
+          defer
+          data-domain='fab.tuxlab.fr'
+          src='https://analitycs.tuxlab.fr/js/script.outbound-links.js'
+        />
+      )
+    }
+  </head>
+  <body class='min-h-screen'>
+    <header
+      class='flex items-center justify-between bg-indigo-700/80 p-6 font-semibold text-zinc-100'
+    >
+      <nav class='mx-auto flex w-full max-w-screen-xl gap-4'>
+        <ul class='flex w-full items-center gap-4'>
+          <li>
+            <a href='/'>Home</a>
+          </li>
+          {
+            user ? (
+              <>
+                <li>
+                  <a href='/profile'>
+                    {user.username.charAt(0).toUpperCase() + user.username.slice(1)}
+                  </a>
+                </li>
+                <li>
+                  <a href='/logout'>Logout</a>
+                </li>
+              </>
+            ) : (
+              <li>
+                <a href='/auth'>Login</a>
+              </li>
+            )
+          }
+        </ul>
+      </nav>
+    </header>
+    <main class='mx-auto flex w-full max-w-screen-xl flex-1 flex-col py-6'>
+      <slot />
+    </main>
+    <footer
+      class='flex flex-col items-center justify-center gap-2 bg-indigo-700/80 p-6 text-amber-200'
+    >
+      <p class='flex items-center justify-center gap-1 font-semibold'>
+        <Icon
+          name='copy-left'
+          aria-label='copy left icon'
+          title='copy left'
+          class='inline size-4 text-amber-200'
+        />
+        {new Date().getFullYear()} Fullstack Nest + Astro.
+      </p>
+      <p>
+        Built by <a
+          class='font-semibold text-amber-300 hover:text-amber-200 hover:underline'
+          href='https://github.com/TituxMetal'
+          target='_blank'
+          rel='noopener noreferrer'>Lgdweb</a
+        > with <Icon
+          name='heart'
+          aria-label='heart icon'
+          title='love'
+          class='inline size-6 text-red-600/80'
+        /> and lots of <Icon
+          name='coffee'
+          title='coffee'
+          aria-label='coffee icon'
+          class='inline size-6 text-amber-600/80'
+        />.
+      </p>
+    </footer>
+  </body>
+</html>

@@ -7,12 +7,16 @@
   }
 
   html {
-    @apply h-full overflow-y-scroll;
+    @apply h-full;
+    /* Prevent layout shift */
+    overflow-y: scroll;
   }
 
   body {
-    @apply flex min-h-screen flex-col;
-    @apply m-0 bg-zinc-900 p-0 font-sans text-neutral-100 antialiased;
+    @apply flex min-h-screen flex-col bg-zinc-900 font-sans text-neutral-100 antialiased;
+    /* Prevent FOUC by ensuring body is styled immediately */
+    margin: 0;
+    padding: 0;
   }
 
   /* Ensure color scheme is set immediately */
@@ -29,20 +33,14 @@
 
   /* Fix browser warning about sectioned h1 elements */
   h1 {
-    @apply text-2xl font-bold;
-  }
-}
-
-@layer components {
-  .icon {
-    @apply inline size-5;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0.67em 0;
+    line-height: 1.2;
   }
 
-  .navLink {
-    @apply flex flex-col items-center gap-2 hover:text-amber-200 lg:flex-row;
-  }
-
-  .link {
-    @apply font-bold text-sky-300 hover:text-amber-200;
+  /* Prevent layout shifts from missing elements */
+  .min-h-screen {
+    min-height: 100vh;
   }
 }

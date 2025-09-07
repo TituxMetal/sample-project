@@ -22,9 +22,7 @@ export default defineConfig({
       '~forms': path.resolve(__dirname, './src/components/forms'),
       '~ui': path.resolve(__dirname, './src/components/ui'),
       '~hooks': path.resolve(__dirname, './src/hooks'),
-      '~utils': path.resolve(__dirname, './src/utils'),
-      '@packages/types': path.resolve(__dirname, '../../packages/shared-types/src'),
-      '@packages/types/*': path.resolve(__dirname, '../../packages/shared-types/src/*')
+      '~utils': path.resolve(__dirname, './src/utils')
     }
   }
 })
