@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "Astro with React integration for fullstack app",
+  "author": "Titux Metal",
   "type": "module",
   "scripts": {
     "build": "astro build",
@@ -19,30 +20,35 @@
     "clean": "rm -rf node_modules coverage dist .astro .turbo"
   },
   "dependencies": {
-    "@astrojs/node": "^9.4.2",
+    "@astrojs/node": "^9.4.3",
     "@astrojs/react": "^4.3.0",
-    "astro": "^5.13.2",
+    "@hookform/resolvers": "^5.2.1",
+    "@nanostores/react": "^1.0.0",
+    "astro": "^5.13.5",
     "astro-icon": "^1.1.5",
+    "nanostores": "^1.0.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-icons": "^5.5.0"
+    "react-hook-form": "^7.62.0",
+    "react-icons": "^5.5.0",
+    "zod": "^4.1.5"
   },
   "devDependencies": {
     "@packages/eslint-config": "workspace:*",
     "@packages/ts-config": "workspace:*",
-    "@packages/types": "workspace:*",
-    "@tailwindcss/vite": "^4.1.12",
+    "@tailwindcss/vite": "^4.1.13",
     "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.7.0",
+    "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
-    "@types/react": "^19.1.10",
-    "@types/react-dom": "^19.1.7",
-    "@vitejs/plugin-react": "^5.0.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.2",
     "@vitest/coverage-v8": "^3.2.4",
     "jsdom": "^26.1.0",
-    "tailwindcss": "^4.1.12",
+    "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2",
-    "vite": "^7.1.2",
+    "vite": "^7.1.4",
     "vitest": "^3.2.4"
   }
 }
