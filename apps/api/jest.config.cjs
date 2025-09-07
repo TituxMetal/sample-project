@@ -1,7 +1,7 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  testMatch: ['**/*.spec.ts'],
+  testMatch: ['**/*.spec.ts', '**/*.e2e-spec.ts'],
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.spec.ts',
@@ -12,9 +12,7 @@ module.exports = {
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
   moduleNameMapper: {
-    '^~/(.*)$': '<rootDir>/src/$1',
-    '^@packages/types$': '<rootDir>/../../packages/shared-types/src/index',
-    '^@packages/types/(.*)$': '<rootDir>/../../packages/shared-types/src/$1'
+    '^~/(.*)$': '<rootDir>/src/$1'
   },
   setupFilesAfterEnv: [],
   testTimeout: 10000,

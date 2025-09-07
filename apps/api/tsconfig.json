@@ -4,9 +4,7 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "~/*": ["src/*"],
-      "@packages/types": ["../../packages/shared-types/src/index"],
-      "@packages/types/*": ["../../packages/shared-types/src/*"]
+      "~/*": ["src/*"]
     }
   },
   "include": ["src/**/*", "test/**/*", "jest.config.cjs"],
