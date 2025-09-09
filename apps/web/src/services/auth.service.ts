@@ -1,32 +1,47 @@
-// import { PUBLIC_API_URL } from 'astro:env/client'
 import type { LoginSchema, SignupSchema } from '~/schemas/auth.schema'
-import { apiRequest } from '~/services/api.service'
-import type { AuthMode } from '~/types/auth.types'
+import { api } from '~/lib/apiRequest'
 import type { User } from '~/types/user.types'
 
 /**
- * Authenticates a user through the API
- * @param data - The authentication data (login or signup schema)
- * @param mode - The authentication mode (login or signup)
- * @returns API response with user data on success
+ * Login user with credentials
  */
-export const authenticateUser = async (data: LoginSchema | SignupSchema, mode: AuthMode) => {
-  const endpoint = mode === 'login' ? 'login' : 'register'
-  // const API_URL = PUBLIC_API_URL
-  const API_URL = import.meta.env.PUBLIC_API_URL || '/api'
-  console.log('API_URL in auth.service', API_URL)
+export const login = async (credentials: LoginSchema) => {
+  const requestData = {
+    emailOrUsername: credentials.identifier,
+    password: credentials.password
+  }
 
-  // Transform the data for login to match backend expectations
-  const requestData =
-    mode === 'login' && 'identifier' in data
-      ? { emailOrUsername: data.identifier, password: data.password }
-      : data
+  const result = await api.post<{ user: User }>('/auth/login', requestData)
 
-  return apiRequest<User>(`${API_URL}/auth/${endpoint}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(requestData)
-  })
+  if (result.success && result.data?.user) {
+    return { ...result, data: result.data.user }
+  }
+  return result as any
+}
+
+/**
+ * Register new user
+ */
+export const register = async (data: SignupSchema) => {
+  const result = await api.post<{ user: User }>('/auth/register', data)
+
+  if (result.success && result.data?.user) {
+    return { ...result, data: result.data.user }
+  }
+
+  return result as any
+}
+
+/**
+ * Logout current user
+ */
+export const logout = async () => {
+  return api.post<void>('/auth/logout')
+}
+
+/**
+ * Get current authenticated user
+ */
+export const getCurrentUser = async () => {
+  return api.get<User>('/users/me')
 }

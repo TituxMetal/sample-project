@@ -1,36 +1,20 @@
 ---
-import { getSecret } from 'astro:env/server'
-
-import { EditProfileForm } from '~/components/EditProfileForm'
+import { EditProfileContainer } from '~/components/containers/EditProfileContainer'
 import Main from '~/layouts/Main.astro'
-import { apiRequest } from '~/services/api.service'
 import type { User } from '~/types/user.types'
 
 const { user } = Astro.locals
 
 if (!user) {
-  Astro.redirect('/login')
+  return Astro.redirect('/auth')
 }
 
-const API_URL = getSecret('API_URL')
-const headers = {
-  cookie: Astro.request.headers.get('cookie') ?? ''
-}
-
-const { data, success } = await apiRequest<User>(`${API_URL}/users/me`, {
-  headers
-})
-
-if (!success || !data) {
-  Astro.redirect('/login')
-}
-
-const userData = data as NonNullable<typeof data>
+const userData = user as User
 ---
 
 <Main title='Profile'>
   <section class='container mx-auto px-4 py-8'>
     <h1 class='mb-8 text-center text-4xl font-bold text-zinc-100'>Welcome {userData.username}</h1>
-    <EditProfileForm client:load userData={userData} />
+    <EditProfileContainer client:load userData={userData} />
   </section>
 </Main>

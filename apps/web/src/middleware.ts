@@ -1,14 +1,11 @@
 import type { APIContext, MiddlewareNext } from 'astro'
-// import { getSecret } from 'astro:env/server'
-// import { PUBLIC_API_URL } from 'astro:env/client'
-import { apiRequest } from './services/api.service'
+import { apiRequest } from './lib/apiRequest'
 import type { User } from './types/user.types'
 
 export const onRequest = async (context: APIContext, next: MiddlewareNext) => {
   const token = context.cookies.get('auth_token')
 
   if (!token) {
-    console.log('No auth token found in cookies')
     return next()
   }
 
@@ -16,31 +13,24 @@ export const onRequest = async (context: APIContext, next: MiddlewareNext) => {
     return next()
   }
 
-  const API_URL = process.env.API_URL || 'http://localhost:3000'
-
   try {
-    const { success, data, message } = await apiRequest<User>(`${API_URL}/users/me`, {
+    const result = await apiRequest('/users/me', {
       method: 'GET',
-      credentials: 'include',
       headers: {
         Authorization: `Bearer ${token.value}`
       }
     })
 
-    if (!success) {
-      console.log('API request failed:', message)
-
-      if (message?.includes('Unauthorized')) {
-        console.log('Invalid token, clearing cookie')
+    if (!result.success) {
+      if (result.message?.includes('Unauthorized')) {
         context.cookies.delete('auth_token')
       }
-
       return next()
     }
 
-    context.locals.user = data
+    context.locals.user = result.data as User
   } catch (error) {
-    console.error('Error in middleware:', error)
+    // Silently handle middleware errors, continue to next()
   }
 
   return next()

@@ -58,6 +58,10 @@ jobs:
         # Installs dependencies for all workspaces in the monorepo.
         run: yarn install --immutable
 
+      - name: Generate Prisma Client
+        # Generate Prisma client for TypeScript type checking
+        run: yarn workspace @app/api prisma generate
+
       - name: Run Validation Checks
         run: |
           yarn format:check

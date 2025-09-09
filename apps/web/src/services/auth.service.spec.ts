@@ -1,75 +1,73 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import * as apiService from '~/lib/apiRequest'
 import type { LoginSchema, SignupSchema } from '~/schemas/auth.schema'
 
-import * as apiService from './api.service'
-import { authenticateUser } from './auth.service'
+import { login, register } from './auth.service'
 
-vi.mock('./api.service', () => ({
-  apiRequest: vi.fn()
+vi.mock('~/lib/apiRequest', () => ({
+  api: {
+    post: vi.fn(),
+    get: vi.fn()
+  }
 }))
 
-describe('authenticateUser', () => {
-  it('should call apiRequest with login endpoint for login mode', async () => {
+describe('auth service', () => {
+  it('should call api.post with login endpoint for login', async () => {
     const mockLoginData: LoginSchema = {
       identifier: 'testuser',
       password: 'password123'
     }
-    vi.mocked(apiService.apiRequest).mockResolvedValueOnce({
+    vi.mocked(apiService.api.post).mockResolvedValueOnce({
       success: true,
-      data: { id: '1', username: 'testuser' }
+      data: { user: { id: '1', username: 'testuser' } }
     })
 
-    await authenticateUser(mockLoginData, 'login')
+    await login(mockLoginData)
 
-    expect(apiService.apiRequest).toHaveBeenCalledWith('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ emailOrUsername: 'testuser', password: 'password123' })
+    expect(apiService.api.post).toHaveBeenCalledWith('/auth/login', {
+      emailOrUsername: 'testuser',
+      password: 'password123'
     })
   })
 
-  it('should call apiRequest with register endpoint for signup mode', async () => {
+  it('should call api.post with register endpoint for signup', async () => {
     const mockSignupData: SignupSchema = {
       username: 'newuser',
       email: 'new@example.com',
       password: 'password123'
     }
-    vi.mocked(apiService.apiRequest).mockResolvedValueOnce({
+    vi.mocked(apiService.api.post).mockResolvedValueOnce({
       success: true,
-      data: { id: '2', username: 'newuser' }
+      data: { user: { id: '2', username: 'newuser' } }
     })
 
-    await authenticateUser(mockSignupData, 'signup')
+    await register(mockSignupData)
 
-    expect(apiService.apiRequest).toHaveBeenCalledWith('/api/auth/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(mockSignupData)
-    })
+    expect(apiService.api.post).toHaveBeenCalledWith('/auth/register', mockSignupData)
   })
 
-  it('should return the API response directly', async () => {
+  it('should extract user from response', async () => {
+    const mockUser = {
+      id: '1',
+      username: 'testuser',
+      email: 'test@example.com'
+    }
     const mockResponse = {
       success: true,
-      data: {
-        id: '1',
-        username: 'testuser',
-        email: 'test@example.com'
-      }
+      data: { user: mockUser }
     }
-    vi.mocked(apiService.apiRequest).mockResolvedValueOnce(mockResponse)
+    vi.mocked(apiService.api.post).mockResolvedValueOnce(mockResponse)
     const mockLoginData: LoginSchema = {
       identifier: 'testuser',
       password: 'password123'
     }
 
-    const result = await authenticateUser(mockLoginData, 'login')
+    const result = await login(mockLoginData)
 
-    expect(result).toEqual(mockResponse)
+    expect(result).toEqual({
+      success: true,
+      data: mockUser
+    })
   })
 })

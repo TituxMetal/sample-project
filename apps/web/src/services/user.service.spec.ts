@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import * as apiService from '~/lib/apiRequest'
 import type { UpdateProfileSchema } from '~/schemas/user.schema'
 
-import * as apiService from './api.service'
 import { updateProfile } from './user.service'
 
 describe('updateProfile', () => {
@@ -27,9 +27,7 @@ describe('updateProfile', () => {
     mockApiRequest.mockResolvedValue({ success: true })
     await updateProfile(data)
 
-    expect(['https://api.example.com/users/me', '/api/users/me']).toContain(
-      mockApiRequest.mock.calls[0][0]
-    )
+    expect(mockApiRequest.mock.calls[0][0]).toBe('/users/me')
   })
 
   it('returns the result of apiRequest', async () => {
@@ -52,8 +50,7 @@ describe('updateProfile', () => {
       expect.any(String),
       expect.objectContaining({
         headers: expect.objectContaining({
-          Authorization: 'Bearer token',
-          'Content-Type': 'application/json'
+          Authorization: 'Bearer token'
         })
       })
     )
@@ -69,7 +66,7 @@ describe('updateProfile', () => {
     mockApiRequest.mockResolvedValue({ success: true })
     await updateProfile(data)
 
-    expect(mockApiRequest).toHaveBeenCalledWith('/api/users/me', expect.any(Object))
+    expect(mockApiRequest).toHaveBeenCalledWith('/users/me', expect.any(Object))
   })
 
   it('serializes only provided fields for partial update', async () => {

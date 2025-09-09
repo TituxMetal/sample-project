@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
 import type { LoginSchema, SignupSchema } from '~/schemas/auth.schema'
-import type { authenticateUser } from '~/services/auth.service'
 import type { ApiResponse } from './api.types'
 import type { User } from './user.types'
 
@@ -45,7 +44,7 @@ export interface FormWrapperProps {
 }
 
 export interface FormComponentProps {
-  onAuthenticate: typeof authenticateUser
+  onAuthenticate: AuthenticateFunction
   redirectPath?: string
 }
 

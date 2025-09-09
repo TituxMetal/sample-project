@@ -6,6 +6,8 @@ declare namespace App {
 
 interface ImportMetaEnv {
   readonly PUBLIC_API_URL: string
+  readonly DEV: boolean
+  readonly PROD: boolean
 }
 
 interface ImportMeta {

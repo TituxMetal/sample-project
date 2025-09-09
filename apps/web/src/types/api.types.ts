@@ -1,6 +1,5 @@
 /**
  * Represents a standardized API response structure
- * @template T - The type of data returned in a successful response
  */
 export type ApiResponse<T = unknown> = {
   /** Indicates whether the request was successful */
@@ -9,4 +8,6 @@ export type ApiResponse<T = unknown> = {
   message?: string
   /** Optional response data in case of success */
   data?: T
+  /** Optional HTTP status code */
+  status?: number
 }

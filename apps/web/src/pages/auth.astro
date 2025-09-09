@@ -1,5 +1,5 @@
 ---
-import { AuthForm } from '~/components/AuthForm'
+import { AuthContainer } from '~/components/containers/AuthContainer'
 import Main from '~/layouts/Main.astro'
 import { isValidAuthMode } from '~/types/auth.types'
 
@@ -27,6 +27,6 @@ const { title, heading } = AUTH_TEXT[authMode]
 <Main title={title}>
   <section class='container mx-auto px-4 py-8'>
     <h1 class='mb-8 text-center text-4xl font-bold text-zinc-100'>{heading}</h1>
-    <AuthForm client:load mode={authMode} redirectPath={redirectPath} />
+    <AuthContainer client:load mode={authMode} redirectPath={redirectPath} />
   </section>
 </Main>

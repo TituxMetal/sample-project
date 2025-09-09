@@ -1,20 +1,14 @@
 ---
-import { getSecret } from 'astro:env/server'
-
-import { apiRequest } from '~/services/api.service'
-
-const API_URL = getSecret('API_URL')
+import { apiRequest } from '~/lib/apiRequest'
 
 try {
-  const { success, message } = await apiRequest(`${API_URL}/auth/logout`, {
+  await apiRequest('/auth/logout', {
     method: 'POST'
   })
 
   Astro.cookies.delete('auth_token')
-
-  success ? console.log('Logged out successfully') : console.error('Error logging out', message)
 } catch (error) {
-  console.error('Error during logout:', error)
+  // Silently handle logout errors
 }
 
 return Astro.redirect('/')

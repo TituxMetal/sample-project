@@ -8,7 +8,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, className = '', fullWidth = false, id, ...props }, ref) => {
+  ({ label, error, className = '', fullWidth = false, id, type = 'text', ...props }, ref) => {
     const generatedId = useId()
     const inputId = id || `input-${generatedId}`
 
@@ -27,6 +27,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           id={inputId}
+          type={type}
           className={`${baseInputClasses} ${error ? errorInputClasses : ''} ${widthClass} ${className}`}
           aria-invalid={error ? 'true' : 'false'}
           aria-describedby={error ? `${inputId}-error` : undefined}

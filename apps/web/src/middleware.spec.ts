@@ -1,12 +1,26 @@
+import type { APIContext, MiddlewareNext } from 'astro'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { apiRequest } from './lib/apiRequest'
 import { onRequest } from './middleware'
-import * as apiService from './services/api.service'
+import type { User } from './types/user.types'
 
 // Mock the api service
-vi.mock('./services/api.service', () => ({
+vi.mock('./lib/apiRequest', () => ({
   apiRequest: vi.fn()
 }))
+
+// Create proper mock context type
+const createMockContext = (overrides: Partial<APIContext> = {}): APIContext =>
+  ({
+    cookies: {
+      get: vi.fn(),
+      delete: vi.fn()
+    } as unknown as APIContext['cookies'],
+    locals: {},
+    url: new URL('http://localhost/any-route'),
+    ...overrides
+  }) as APIContext
 
 describe('Authentication Middleware', () => {
   beforeEach(() => {
@@ -16,14 +30,14 @@ describe('Authentication Middleware', () => {
   })
 
   it('continues without user when no token exists', async () => {
-    const context = {
+    const mockGet = vi.fn().mockReturnValue(undefined)
+    const context = createMockContext({
       cookies: {
-        get: vi.fn().mockReturnValue(undefined)
-      },
-      locals: {},
-      url: new URL('http://localhost/any-route')
-    } as any
-    const next = vi.fn().mockResolvedValue('next-result')
+        get: mockGet,
+        delete: vi.fn()
+      } as unknown as APIContext['cookies']
+    })
+    const next = vi.fn().mockResolvedValue('next-result') as MiddlewareNext
 
     const result = await onRequest(context, next)
 
@@ -33,36 +47,55 @@ describe('Authentication Middleware', () => {
   })
 
   it('skips API call when user already exists in locals', async () => {
-    const mockUser = { id: '1', username: 'test' }
-    const context = {
+    const mockUser: User = {
+      id: '1',
+      username: 'test',
+      email: 'test@example.com',
+      firstName: 'Test',
+      lastName: 'User',
+      confirmed: true,
+      createdAt: '2023-01-01T00:00:00Z',
+      updatedAt: '2023-01-01T00:00:00Z'
+    }
+    const mockGet = vi.fn().mockReturnValue({ value: 'token-value' })
+    const context = createMockContext({
       cookies: {
-        get: vi.fn().mockReturnValue({ value: 'token-value' })
-      },
-      locals: { user: mockUser },
-      url: new URL('http://localhost/any-route')
-    } as any
-    const next = vi.fn().mockResolvedValue('next-result')
+        get: mockGet,
+        delete: vi.fn()
+      } as unknown as APIContext['cookies'],
+      locals: { user: mockUser }
+    })
+    const next = vi.fn().mockResolvedValue('next-result') as MiddlewareNext
 
     const result = await onRequest(context, next)
 
-    expect(apiService.apiRequest).not.toHaveBeenCalled()
+    expect(apiRequest).not.toHaveBeenCalled()
     expect(next).toHaveBeenCalled()
     expect(result).toBe('next-result')
   })
 
   it('sets user in locals when token is valid', async () => {
-    const mockUser = { id: '1', username: 'test' }
-    const context = {
+    const mockUser: User = {
+      id: '1',
+      username: 'test',
+      email: 'test@example.com',
+      firstName: 'Test',
+      lastName: 'User',
+      confirmed: true,
+      createdAt: '2023-01-01T00:00:00Z',
+      updatedAt: '2023-01-01T00:00:00Z'
+    }
+    const mockGet = vi.fn().mockReturnValue({ value: 'token-value' })
+    const mockDelete = vi.fn()
+    const context = createMockContext({
       cookies: {
-        get: vi.fn().mockReturnValue({ value: 'token-value' }),
-        delete: vi.fn()
-      },
-      locals: {},
-      url: new URL('http://localhost/any-route')
-    } as any
-    const next = vi.fn().mockResolvedValue('next-result')
+        get: mockGet,
+        delete: mockDelete
+      } as unknown as APIContext['cookies']
+    })
+    const next = vi.fn().mockResolvedValue('next-result') as MiddlewareNext
 
-    vi.mocked(apiService.apiRequest).mockResolvedValueOnce({
+    vi.mocked(apiRequest).mockResolvedValueOnce({
       success: true,
       data: mockUser,
       message: ''
@@ -70,11 +103,10 @@ describe('Authentication Middleware', () => {
 
     const result = await onRequest(context, next)
 
-    expect(apiService.apiRequest).toHaveBeenCalledWith(
-      'http://localhost:3000/users/me',
+    expect(apiRequest).toHaveBeenCalledWith(
+      '/users/me',
       expect.objectContaining({
         method: 'GET',
-        credentials: 'include',
         headers: {
           Authorization: 'Bearer token-value'
         }
@@ -86,25 +118,25 @@ describe('Authentication Middleware', () => {
   })
 
   it('clears auth cookie when token is unauthorized', async () => {
-    const context = {
+    const mockGet = vi.fn().mockReturnValue({ value: 'invalid-token' })
+    const mockDelete = vi.fn()
+    const context = createMockContext({
       cookies: {
-        get: vi.fn().mockReturnValue({ value: 'invalid-token' }),
-        delete: vi.fn()
-      },
-      locals: {},
-      url: new URL('http://localhost/any-route')
-    } as any
-    const next = vi.fn().mockResolvedValue('next-result')
+        get: mockGet,
+        delete: mockDelete
+      } as unknown as APIContext['cookies']
+    })
+    const next = vi.fn().mockResolvedValue('next-result') as MiddlewareNext
 
-    vi.mocked(apiService.apiRequest).mockResolvedValueOnce({
+    vi.mocked(apiRequest).mockResolvedValueOnce({
       success: false,
-      data: null,
+      data: undefined,
       message: 'Unauthorized: Token is invalid'
     })
 
     const result = await onRequest(context, next)
 
-    expect(context.cookies.delete).toHaveBeenCalledWith('auth_token')
+    expect(mockDelete).toHaveBeenCalledWith('auth_token')
     expect(context.locals.user).toBeUndefined()
     expect(next).toHaveBeenCalled()
     expect(result).toBe('next-result')
