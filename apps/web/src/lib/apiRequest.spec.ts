@@ -102,7 +102,8 @@ describe('apiRequest', () => {
 
     expect(result).toEqual({
       success: false,
-      message: 'Network error'
+      message: 'Network error',
+      status: 0
     })
   })
 

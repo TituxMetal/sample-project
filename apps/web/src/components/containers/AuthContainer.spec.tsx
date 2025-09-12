@@ -13,9 +13,14 @@ const mockUseAuth = {
   login: vi.fn(),
   register: vi.fn(),
   logout: vi.fn(),
+  refresh: vi.fn(),
+  clearError: vi.fn(),
+  silentRefresh: vi.fn(),
   isLoading: false,
   user: null,
   isAuthenticated: false,
+  error: null,
+  hasError: false,
   updateProfile: vi.fn()
 }
 

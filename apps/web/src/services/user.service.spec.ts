@@ -1,92 +1,94 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import * as apiService from '~/lib/apiRequest'
 import type { UpdateProfileSchema } from '~/schemas/user.schema'
+import type { User } from '~/types/user.types'
 
 import { updateProfile } from './user.service'
 
-describe('updateProfile', () => {
-  const mockApiRequest = vi.spyOn(apiService, 'apiRequest')
-  const validData: UpdateProfileSchema = {
-    username: 'valid_user',
-    firstName: 'John',
-    lastName: 'Doe'
+vi.mock('~/lib/apiRequest', () => ({
+  api: {
+    patch: vi.fn()
   }
+}))
 
-  beforeEach(() => {
-    mockApiRequest.mockReset()
-    Object.defineProperty(import.meta, 'env', {
-      value: { PUBLIC_API_URL: 'https://api.example.com' },
-      writable: true
+describe('updateProfile', () => {
+  it('calls api.patch with correct endpoint and data', async () => {
+    const data: UpdateProfileSchema = {
+      username: 'valid_user',
+      firstName: 'John',
+      lastName: 'Doe'
+    }
+    const mockUser: User = {
+      id: '1',
+      username: 'valid_user',
+      email: 'test@example.com',
+      firstName: 'John',
+      lastName: 'Doe',
+      confirmed: true,
+      createdAt: '2024-01-01',
+      updatedAt: '2024-01-01'
+    }
+
+    vi.mocked(apiService.api.patch).mockResolvedValueOnce({
+      success: true,
+      data: mockUser
     })
-  })
 
-  it('calls apiRequest with correct endpoint, method, headers, and body', async () => {
-    const data = validData
-
-    mockApiRequest.mockResolvedValue({ success: true })
-    await updateProfile(data)
-
-    expect(mockApiRequest.mock.calls[0][0]).toBe('/users/me')
-  })
-
-  it('returns the result of apiRequest', async () => {
-    const data = validData
-
-    mockApiRequest.mockResolvedValue({ success: true, data: { foo: 'bar' } })
     const result = await updateProfile(data)
 
-    expect(result).toEqual({ success: true, data: { foo: 'bar' } })
+    expect(apiService.api.patch).toHaveBeenCalledWith('/users/me', data)
+    expect(result).toEqual(mockUser)
   })
 
-  it('passes custom headers if provided', async () => {
-    const data = validData
-    const customHeaders = { Authorization: 'Bearer token' }
-
-    mockApiRequest.mockResolvedValue({ success: true })
-    await updateProfile(data, customHeaders)
-
-    expect(mockApiRequest).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        headers: expect.objectContaining({
-          Authorization: 'Bearer token'
-        })
-      })
-    )
-  })
-
-  it('falls back to /api if PUBLIC_API_URL is not set', async () => {
-    const data = validData
-
-    Object.defineProperty(import.meta, 'env', {
-      value: {},
-      writable: true
-    })
-    mockApiRequest.mockResolvedValue({ success: true })
-    await updateProfile(data)
-
-    expect(mockApiRequest).toHaveBeenCalledWith('/users/me', expect.any(Object))
-  })
-
-  it('serializes only provided fields for partial update', async () => {
+  it('handles partial updates', async () => {
     const data: UpdateProfileSchema = { firstName: 'Jane' }
+    const mockUser: User = {
+      id: '1',
+      username: 'testuser',
+      email: 'test@example.com',
+      firstName: 'Jane',
+      lastName: 'Doe',
+      confirmed: true,
+      createdAt: '2024-01-01',
+      updatedAt: '2024-01-01'
+    }
 
-    mockApiRequest.mockResolvedValue({ success: true })
-    await updateProfile(data)
+    vi.mocked(apiService.api.patch).mockResolvedValueOnce({
+      success: true,
+      data: mockUser
+    })
 
-    expect(mockApiRequest).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        body: JSON.stringify(data)
-      })
-    )
+    const result = await updateProfile(data)
+
+    expect(apiService.api.patch).toHaveBeenCalledWith('/users/me', data)
+    expect(result).toEqual(mockUser)
   })
 
-  it('handles apiRequest errors', async () => {
-    const data = validData
+  it('throws error on failed update', async () => {
+    const data: UpdateProfileSchema = {
+      username: 'invalid_user',
+      firstName: 'John',
+      lastName: 'Doe'
+    }
 
-    mockApiRequest.mockRejectedValue(new Error('Network error'))
+    vi.mocked(apiService.api.patch).mockResolvedValueOnce({
+      success: false,
+      message: 'Validation failed'
+    })
+
+    await expect(updateProfile(data)).rejects.toThrow('Validation failed')
+  })
+
+  it('handles network errors', async () => {
+    const data: UpdateProfileSchema = {
+      username: 'testuser',
+      firstName: 'John',
+      lastName: 'Doe'
+    }
+
+    vi.mocked(apiService.api.patch).mockRejectedValue(new Error('Network error'))
+
     await expect(updateProfile(data)).rejects.toThrow('Network error')
   })
 })

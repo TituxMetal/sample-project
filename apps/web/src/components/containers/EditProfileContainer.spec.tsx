@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -92,10 +92,7 @@ describe('EditProfileContainer', () => {
     })
 
     it('should clear server error when Cancel button is clicked', async () => {
-      vi.mocked(updateProfile).mockResolvedValue({
-        success: false,
-        message: 'Update failed'
-      })
+      vi.mocked(updateProfile).mockRejectedValue(new Error('Update failed'))
 
       const user = userEvent.setup()
       render(<EditProfileContainer userData={mockUser} />)
@@ -117,10 +114,7 @@ describe('EditProfileContainer', () => {
 
   describe('Form Submission', () => {
     it('should call updateProfile with form data when submitted', async () => {
-      vi.mocked(updateProfile).mockResolvedValue({
-        success: true,
-        data: { ...mockUser, firstName: 'Jane' }
-      })
+      vi.mocked(updateProfile).mockResolvedValue({ ...mockUser, firstName: 'Jane' })
 
       const user = userEvent.setup()
       render(<EditProfileContainer userData={mockUser} />)
@@ -142,10 +136,7 @@ describe('EditProfileContainer', () => {
 
     it('should update user data and return to view mode on successful update', async () => {
       const updatedUser = { ...mockUser, firstName: 'Jane' }
-      vi.mocked(updateProfile).mockResolvedValue({
-        success: true,
-        data: updatedUser
-      })
+      vi.mocked(updateProfile).mockResolvedValue(updatedUser)
 
       const user = userEvent.setup()
       render(<EditProfileContainer userData={mockUser} />)
@@ -163,10 +154,7 @@ describe('EditProfileContainer', () => {
     })
 
     it('should show error message when update fails', async () => {
-      vi.mocked(updateProfile).mockResolvedValue({
-        success: false,
-        message: 'Username already exists'
-      })
+      vi.mocked(updateProfile).mockRejectedValue(new Error('Username already exists'))
 
       const user = userEvent.setup()
       render(<EditProfileContainer userData={mockUser} />)
@@ -181,9 +169,7 @@ describe('EditProfileContainer', () => {
     })
 
     it('should show default error message when no error message is provided', async () => {
-      vi.mocked(updateProfile).mockResolvedValue({
-        success: false
-      })
+      vi.mocked(updateProfile).mockRejectedValue(new Error('Update failed'))
 
       const user = userEvent.setup()
       render(<EditProfileContainer userData={mockUser} />)

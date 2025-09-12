@@ -1,21 +1,21 @@
 import { useStore } from '@nanostores/react'
 import type { LoginSchema, SignupSchema } from '~/schemas/auth.schema'
+import { $error, $hasError, $isAuthenticated, $isLoading, $user, authActions } from '~/stores/auth'
 import type { User } from '~/types/user.types'
 import { redirect } from '~/utils/navigation'
-import { $user, $isAuthenticated, $isLoading, authStore } from '~/stores/auth'
-import {
-  login as loginService,
-  register as registerService,
-  logout as logoutService
-} from '~/services/auth.service'
 
 export interface UseAuthReturn {
   user: User | null
   isAuthenticated: boolean
   isLoading: boolean
+  error: string | null
+  hasError: boolean
   login: (credentials: LoginSchema, redirectPath?: string) => Promise<void>
   register: (data: SignupSchema, redirectPath?: string) => Promise<void>
   logout: (redirectPath?: string) => Promise<void>
+  refresh: () => Promise<void>
+  clearError: () => void
+  silentRefresh: () => Promise<void>
   updateProfile: (updates: Partial<User>) => void
 }
 
@@ -23,85 +23,52 @@ export const useAuth = (): UseAuthReturn => {
   const user = useStore($user)
   const isAuthenticated = useStore($isAuthenticated)
   const isLoading = useStore($isLoading)
+  const error = useStore($error)
+  const hasError = useStore($hasError)
 
   const login = async (credentials: LoginSchema, redirectPath?: string) => {
-    authStore.setLoading(true)
+    await authActions.login(credentials)
 
-    try {
-      const result = await loginService(credentials)
-
-      if (!result.success || !result.data) {
-        throw new Error(result.message || 'Login failed')
-      }
-
-      authStore.setUser(result.data)
-
-      if (typeof window !== 'undefined') {
-        // Small delay to ensure state updates are processed
-        setTimeout(() => {
-          redirect(redirectPath || '/')
-        }, 100)
-      }
-    } catch (err) {
-      throw err
-    } finally {
-      authStore.setLoading(false)
+    if (typeof window !== 'undefined') {
+      // Small delay to ensure state updates are processed
+      setTimeout(() => {
+        redirect(redirectPath || '/')
+      }, 100)
     }
   }
 
   const register = async (data: SignupSchema, redirectPath?: string) => {
-    authStore.setLoading(true)
+    await authActions.register(data)
 
-    try {
-      const result = await registerService(data)
-
-      if (!result.success || !result.data) {
-        throw new Error(result.message || 'Registration failed')
-      }
-
-      authStore.setUser(result.data)
-
-      if (typeof window !== 'undefined') {
-        redirect(redirectPath || '/')
-      }
-    } catch (err) {
-      throw err
-    } finally {
-      authStore.setLoading(false)
+    if (typeof window !== 'undefined') {
+      redirect(redirectPath || '/')
     }
   }
 
   const logout = async (redirectPath?: string) => {
-    authStore.setLoading(true)
+    await authActions.logout()
 
-    try {
-      await logoutService()
-      authStore.clearUser()
-
-      if (typeof window !== 'undefined') {
-        redirect(redirectPath || '/auth')
-      }
-    } catch (err) {
-      authStore.clearUser()
-      if (typeof window !== 'undefined') {
-        redirect(redirectPath || '/auth')
-      }
-    } finally {
-      authStore.setLoading(false)
+    if (typeof window !== 'undefined') {
+      redirect(redirectPath || '/auth')
     }
   }
 
   const updateProfile = (updates: Partial<User>) => {
-    authStore.updateUser(updates)
+    authActions.updateUser(updates)
   }
 
   return {
     user,
     isAuthenticated,
     isLoading,
+    error,
+    hasError,
     login,
     register,
     logout,
+    refresh: authActions.refresh,
+    clearError: authActions.clearError,
+    silentRefresh: authActions.silentRefresh,
     updateProfile
   }
 }

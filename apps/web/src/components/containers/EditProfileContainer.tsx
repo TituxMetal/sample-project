@@ -2,10 +2,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { Button } from '~/components/ui'
-import { FormWrapper } from '~/components/ui/FormWrapper'
 import { EditProfileForm } from '~/components/forms/EditProfileForm'
 import { ProfileView } from '~/components/ProfileView'
+import { Button } from '~/components/ui'
+import { FormWrapper } from '~/components/ui/FormWrapper'
 import { updateProfileSchema, type UpdateProfileSchema } from '~/schemas/user.schema'
 import { updateProfile } from '~/services/user.service'
 import type { User } from '~/types/user.types'
@@ -43,21 +43,19 @@ export const EditProfileContainer = ({ userData }: EditProfileContainerProps) =>
   const handleSubmit = form.handleSubmit(async (values: UpdateProfileSchema) => {
     setServerError(null)
 
-    const result = await updateProfile(values)
+    try {
+      const updatedUser = await updateProfile(values)
+      setCurrentUser(updatedUser)
+      setIsEditing(false)
 
-    if (!result.success || !result.data) {
-      setServerError(result.message || 'Update failed')
-      return
+      form.reset({
+        username: updatedUser.username,
+        firstName: updatedUser.firstName || '',
+        lastName: updatedUser.lastName || ''
+      })
+    } catch (error) {
+      setServerError(error instanceof Error ? error.message : 'Update failed')
     }
-
-    setCurrentUser(result.data)
-    setIsEditing(false)
-
-    form.reset({
-      username: result.data.username,
-      firstName: result.data.firstName || '',
-      lastName: result.data.lastName || ''
-    })
   })
 
   if (!isEditing) {
