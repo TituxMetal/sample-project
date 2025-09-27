@@ -8,9 +8,9 @@ on:
   push:
     branches:
       - main
-      - 'feature/**'
-      - 'fix/**'
-      - 'hotfix/**'
+      - "feature/**"
+      - "fix/**"
+      - "hotfix/**"
   workflow_dispatch:
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
 
       # This MUST run before `setup-node` so that the correct Yarn version is used for caching.
       - name: Enable Corepack
-        run: corepack enable && corepack prepare yarn@4.9.1 --activate
+        run: corepack enable && corepack prepare yarn@4.10.3 --activate
 
       - name: Minimal Yarn config
         run: |
@@ -40,7 +40,7 @@ jobs:
       - name: Set up Node.js and cache dependencies
         uses: actions/setup-node@v4
         with:
-          cache: 'yarn'
+          cache: "yarn"
 
       # The node:bookworm-slim container is minimal and needs extra dependencies for our tools.
       - name: Install System Dependencies

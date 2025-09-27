@@ -35,7 +35,7 @@ architecture, TypeScript, and Docker containerization.
 Before you begin, ensure you have the following installed:
 
 - **Node.js** `>=22.17.0`
-- **Yarn** `>=4.9.1`
+- **Yarn** `>=4.10.3`
 - **Git** (latest version)
 - **Docker** and **Docker Compose** (for containerized deployment)
 
