@@ -43,8 +43,6 @@
     "@nestjs/testing": "^11.1.6",
     "@packages/eslint-config": "workspace:*",
     "@packages/ts-config": "workspace:*",
-    "@swc/cli": "^0.7.8",
-    "@swc/core": "^1.13.20",
     "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.18.6",
