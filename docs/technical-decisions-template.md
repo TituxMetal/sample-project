@@ -4,7 +4,8 @@ _Auto-updated during discovery and planning sessions - you can also add informat
 
 ## Purpose
 
-This document captures technical decisions, preferences, and constraints discovered during project discussions. It serves as input for solution-architecture.md and solution design documents.
+This document captures technical decisions, preferences, and constraints discovered during project
+discussions. It serves as input for solution-architecture.md and solution design documents.
 
 ## Confirmed Decisions
 
