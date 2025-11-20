@@ -1,0 +1,38 @@
+# Assess Skill Level Workflow
+name: assess-skill-level
+description: "Determine appropriate coaching depth through interactive skill assessment. Helps Morgan understand your experience level and adapt guidance accordingly."
+author: "BME Developer Coaching"
+
+# Critical variables from config
+config_source: "{project-root}/.bmad/bme/config.yaml"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+default_skill_level: "{config_source}:default_skill_level"
+learning_output_path: "{config_source}:learning_output_path"
+date: system-generated
+
+# Workflow components
+installed_path: "{project-root}/.bmad/bme/workflows/assess-skill-level"
+instructions: "{installed_path}/instructions.md"
+template: "{installed_path}/template.md"
+checklist: "{installed_path}/checklist.md"
+
+# Output configuration
+output_file: "{learning_output_path}/skill-assessment-{date}.md"
+memories_file: "{project-root}/.bmad/bme/agents/morgan-sidecar/memories.md"
+
+# Assessment dimensions
+skill_dimensions:
+  - programming_fundamentals
+  - problem_solving
+  - code_organization
+  - testing_practices
+  - debugging_skills
+  - architecture_thinking
+  - domain_knowledge
+
+# Skill levels
+skill_levels:
+  - beginner: "Learning fundamentals, needs foundational explanations"
+  - intermediate: "Comfortable with basics, ready for advanced concepts"
+  - advanced: "Experienced developer, seeks mastery and nuance"

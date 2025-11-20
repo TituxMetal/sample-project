@@ -1,0 +1,43 @@
+# Guided Story Implementation - Coaching Workflow
+name: guided-story
+description: "Step-by-step implementation coaching where YOU write the code with Morgan's guidance. Replaces dev-story's auto-implementation with learning-focused pair programming."
+author: "BME Developer Coaching"
+
+# Critical variables from config
+config_source: "{project-root}/.bmad/bme/config.yaml"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+default_skill_level: "{config_source}:default_skill_level"
+coaching_style: "{config_source}:coaching_style"
+include_theory: "{config_source}:include_theory"
+learning_output_path: "{config_source}:learning_output_path"
+date: system-generated
+
+# Story context (optional - can work without BMM)
+story_path: runtime-provided
+story_context_path: runtime-provided
+
+# Workflow components
+installed_path: "{project-root}/.bmad/bme/workflows/guided-story"
+instructions: "{installed_path}/instructions.md"
+template: "{installed_path}/template.md"
+checklist: "{installed_path}/checklist.md"
+
+# Output configuration
+session_notes_file: "{learning_output_path}/session-{date}.md"
+memories_file: "{project-root}/.bmad/bme/agents/morgan-sidecar/memories.md"
+
+# Coaching modes
+guidance_levels:
+  minimal: "Brief hints, maximum independence"
+  balanced: "Mix of guidance and independence (recommended)"
+  detailed: "Thorough explanations, step-by-step"
+
+# Implementation phases
+phases:
+  - understand_requirements
+  - architectural_thinking
+  - break_down_tasks
+  - guided_implementation
+  - testing_guidance
+  - reflection
