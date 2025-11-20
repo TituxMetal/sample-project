@@ -1,0 +1,90 @@
+{
+  "workflow_version": "1.2.0",
+  "timestamps": {
+    "started": "2025-11-16T00:00:00.000Z",
+    "last_updated": "2025-11-16T10:40:00.000Z",
+    "completed": "2025-11-16T10:40:00.000Z"
+  },
+  "mode": "initial_scan",
+  "scan_level": "quick",
+  "project_root": "/home/titux/webdev/labo/sample-project",
+  "output_folder": "/home/titux/webdev/labo/sample-project/docs",
+  "completed_steps": [
+    {
+      "step": "step_1",
+      "status": "completed",
+      "timestamp": "2025-11-16T10:00:00.000Z",
+      "summary": "Classified as monorepo with 2 parts"
+    },
+    {
+      "step": "step_2",
+      "status": "completed",
+      "timestamp": "2025-11-16T10:05:00.000Z",
+      "summary": "Found 7 existing docs"
+    },
+    {
+      "step": "step_3",
+      "status": "completed",
+      "timestamp": "2025-11-16T10:10:00.000Z",
+      "summary": "Tech stack: NestJS on Node.js, Astro on React"
+    },
+    {
+      "step": "step_4",
+      "status": "completed",
+      "timestamp": "2025-11-16T10:15:00.000Z",
+      "summary": "Conditional analysis complete, pattern-based scan"
+    },
+    {
+      "step": "step_5",
+      "status": "completed",
+      "timestamp": "2025-11-16T10:20:00.000Z",
+      "summary": "Source tree documented"
+    },
+    {
+      "step": "step_6_to_10",
+      "status": "completed",
+      "timestamp": "2025-11-16T10:30:00.000Z",
+      "summary": "All supporting docs and master index generated"
+    },
+    {
+      "step": "step_11",
+      "status": "completed",
+      "timestamp": "2025-11-16T10:35:00.000Z",
+      "summary": "Validation and review complete"
+    },
+    {
+      "step": "step_12",
+      "status": "completed",
+      "timestamp": "2025-11-16T10:40:00.000Z",
+      "summary": "Workflow complete"
+    }
+  ],
+  "current_step": "completed",
+  "findings": {
+    "project_classification": "Monorepo, 2 parts, NestJS+Astro",
+    "existing_docs_count": 7,
+    "technology_stack": {
+      "api": "NestJS 11.x, Prisma, SQLite, JWT",
+      "web": "Astro 5.x, React 19.x, Tailwind, Vitest"
+    }
+  },
+  "project_types": [
+    {
+      "part_id": "api",
+      "project_type_id": "backend",
+      "display_name": "Backend Service (NestJS)"
+    },
+    {
+      "part_id": "web",
+      "project_type_id": "web",
+      "display_name": "Web Application (Astro+React)"
+    }
+  ],
+  "outputs_generated": [
+    "project-scan-report.json",
+    "source-tree-analysis.md",
+    "project-overview.md",
+    "index.md"
+  ],
+  "resume_instructions": "Workflow completed successfully"
+}
