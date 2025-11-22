@@ -34,8 +34,8 @@ architecture, TypeScript, and Docker containerization.
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** `>=22.17.0`
-- **Yarn** `>=4.10.3`
+- **Node.js** `>=24.11.0`
+- **Yarn** `>=4.11.0`
 - **Git** (latest version)
 - **Docker** and **Docker Compose** (for containerized deployment)
 
@@ -417,7 +417,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### 🚀 Getting Started Checklist
 
 - [ ] Clone the repository
-- [ ] Install Node.js (>=22.17.0) and Yarn (>=4.9.1)
+- [ ] Install Node.js (>=24.11.0) and Yarn (>=4.11.0)
 - [ ] Run `yarn install`
 - [ ] Set up environment variables
 - [ ] Run database migrations

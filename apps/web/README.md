@@ -58,8 +58,8 @@ src/
 
 ## Prerequisites
 
-- Node.js >= 22.17.0
-- Yarn >= 4.9.1
+- Node.js >= 24.11.0
+- Yarn >= 4.11.0
 
 ## Quick Start
 
