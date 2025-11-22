@@ -1,10 +1,10 @@
 # Stage 1: Install dependencies and generate Prisma client
-FROM node:22-alpine AS deps
+FROM node:24-alpine AS deps
 
 WORKDIR /app
 
-# Enable Corepack, set Yarn 4.10.3 and add node_modules linker
-RUN corepack enable && corepack prepare yarn@4.10.3 --activate
+# Enable Corepack, set Yarn 4.11.0 and add node_modules linker
+RUN corepack enable && corepack prepare yarn@4.11.0 --activate
 RUN echo 'nodeLinker: "node-modules"' > ./.yarnrc.yml
 
 COPY package.json yarn.lock ./
@@ -19,12 +19,12 @@ WORKDIR /app/apps/api
 RUN yarn workspace @app/api prisma generate
 
 # Stage 2: Build the application
-FROM node:22-alpine AS build
+FROM node:24-alpine AS build
 
 WORKDIR /app
 
-# Enable Corepack, set Yarn 4.10.3 and add node_modules linker
-RUN corepack enable && corepack prepare yarn@4.10.3 --activate
+# Enable Corepack, set Yarn 4.11.0 and add node_modules linker
+RUN corepack enable && corepack prepare yarn@4.11.0 --activate
 RUN echo 'nodeLinker: "node-modules"' > ./.yarnrc.yml
 
 COPY --from=deps /app/node_modules ./node_modules
@@ -38,15 +38,15 @@ WORKDIR /app/apps/api
 RUN yarn build
 
 # Stage 3: Production image
-FROM node:22-alpine AS production
+FROM node:24-alpine AS production
 
 # Create non-root user and group
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 WORKDIR /app
 
-# Enable Corepack, set Yarn 4.10.3 and add node_modules linker
-RUN corepack enable && corepack prepare yarn@4.10.3 --activate
+# Enable Corepack, set Yarn 4.11.0 and add node_modules linker
+RUN corepack enable && corepack prepare yarn@4.11.0 --activate
 RUN echo 'nodeLinker: "node-modules"' > ./.yarnrc.yml
 
 # Copy minimal files for production

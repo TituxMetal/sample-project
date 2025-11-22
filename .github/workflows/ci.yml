@@ -21,7 +21,7 @@ jobs:
     container:
       # Use an official Node.js image based on Debian 12, ensuring
       # our CI environment matches production.
-      image: node:22-bookworm-slim
+      image: node:24-bookworm-slim
 
     steps:
       - name: Checkout Repository
@@ -31,7 +31,7 @@ jobs:
 
       # This MUST run before `setup-node` so that the correct Yarn version is used for caching.
       - name: Enable Corepack
-        run: corepack enable && corepack prepare yarn@4.10.3 --activate
+        run: corepack enable && corepack prepare yarn@4.11.0 --activate
 
       - name: Minimal Yarn config
         run: |

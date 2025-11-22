@@ -104,8 +104,8 @@ These documents were created by the project team and provide valuable context:
 
 ### Prerequisites
 
-- Node.js >= 22.17.0
-- Yarn >= 4.10.3
+- Node.js >= 24.11.0
+- Yarn >= 4.11.0
 - Git (latest)
 - Docker & Docker Compose (optional, for deployment)
 
