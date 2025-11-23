@@ -1,4 +1,4 @@
-import type { User } from '@prisma/client'
+import type { User } from '@generated'
 
 import { AuthUserEntity } from '~/auth/domain/entities'
 import { EmailValueObject, PasswordValueObject } from '~/auth/domain/value-objects'

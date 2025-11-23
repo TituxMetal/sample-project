@@ -1,5 +1,5 @@
+import type { User } from '@generated'
 import { Injectable } from '@nestjs/common'
-import type { User } from '@prisma/client'
 
 import { AuthUserEntity } from '~/auth/domain/entities'
 import type { IAuthUserRepository } from '~/auth/domain/repositories'

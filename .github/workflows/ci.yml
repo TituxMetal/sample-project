@@ -2,6 +2,9 @@
 
 name: CI
 
+env:
+  DATABASE_URL: "file:./dev.db"
+
 on:
   pull_request:
     branches: [main]

@@ -1,6 +1,6 @@
+import type { User } from '@generated'
 import { Test } from '@nestjs/testing'
 import type { TestingModule } from '@nestjs/testing'
-import type { User } from '@prisma/client'
 
 import { AuthUserEntity } from '~/auth/domain/entities'
 import { EmailValueObject, PasswordValueObject } from '~/auth/domain/value-objects'

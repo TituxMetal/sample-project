@@ -8,6 +8,7 @@ const compat = new FlatCompat({
 })
 
 module.exports = [
+  { ignores: ['generated/**'] },
   ...compat.config({
     extends: ['@packages/eslint-config/node']
   })
