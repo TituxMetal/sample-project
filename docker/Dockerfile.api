@@ -16,6 +16,7 @@ RUN yarn workspace @app/api install --immutable
 
 WORKDIR /app/apps/api
 
+ENV DATABASE_URL="file:./dev.db"
 RUN yarn workspace @app/api prisma generate
 
 # Stage 2: Build the application
