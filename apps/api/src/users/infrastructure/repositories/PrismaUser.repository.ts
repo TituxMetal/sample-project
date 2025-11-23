@@ -1,3 +1,4 @@
+import { Prisma } from '@generated'
 import { Injectable } from '@nestjs/common'
 
 import type { PrismaProvider } from '~/shared/infrastructure/database'
@@ -19,7 +20,7 @@ export class PrismaUserRepository implements IUserRepository {
       data: {
         ...prismaData,
         hash: '' // Password management is Auth module's responsibility
-      }
+      } as Prisma.UserCreateInput
     })
     return UserInfrastructureMapper.toDomain(prismaUser)
   }

@@ -4,9 +4,10 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
+      "@generated": ["./generated/prisma/client.ts"],
       "~/*": ["src/*"]
     }
   },
-  "include": ["src/**/*", "test/**/*", "jest.config.cjs"],
+  "include": ["src/**/*", "test/**/*", "jest.config.cjs", "prisma.config.ts"],
   "exclude": ["node_modules", "dist", "coverage", ".turbo"]
 }

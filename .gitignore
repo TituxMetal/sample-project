@@ -18,6 +18,7 @@ dist
 
 # prisma
 *.db*
+**/generated/**/*
 
 # TypeScript incremental compilation
 *.tsbuildinfo
