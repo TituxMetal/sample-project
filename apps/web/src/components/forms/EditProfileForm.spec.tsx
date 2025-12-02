@@ -1,11 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { render, screen } from '@testing-library/react'
+import { beforeEach, describe, expect, it } from 'bun:test'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { describe, expect, it } from 'vitest'
 
 import { updateProfileSchema } from '~/schemas/user.schema'
 import type { UpdateProfileSchema } from '~/schemas/user.schema'
+import { cleanup, render, screen } from '~/test-utils'
 
 import { EditProfileForm } from './EditProfileForm'
 
@@ -24,6 +24,11 @@ const TestWrapper = ({ defaultValues }: { defaultValues?: Partial<UpdateProfileS
 }
 
 describe('EditProfileForm', () => {
+  beforeEach(() => {
+    cleanup()
+    document.body.innerHTML = ''
+  })
+
   it('should render username, firstName, and lastName fields', () => {
     render(<TestWrapper />)
 

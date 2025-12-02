@@ -1,4 +1,5 @@
 import { atom, computed } from 'nanostores'
+
 import type { LoginSchema, SignupSchema } from '~/schemas/auth.schema'
 import { getCurrentUser, login, logout, register } from '~/services/auth.service'
 import type { User } from '~/types/user.types'

@@ -1,11 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { render, screen } from '@testing-library/react'
+import { beforeEach, describe, expect, it } from 'bun:test'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { describe, expect, it } from 'vitest'
 
 import { loginSchema } from '~/schemas/auth.schema'
 import type { LoginSchema } from '~/schemas/auth.schema'
+import { cleanup, render, screen } from '~/test-utils'
 
 import { LoginForm } from './LoginForm'
 
@@ -23,6 +23,11 @@ const TestWrapper = ({ defaultValues }: { defaultValues?: Partial<LoginSchema> }
 }
 
 describe('LoginForm', () => {
+  beforeEach(() => {
+    cleanup()
+    document.body.innerHTML = ''
+  })
+
   it('should render identifier and password fields', () => {
     render(<TestWrapper />)
 

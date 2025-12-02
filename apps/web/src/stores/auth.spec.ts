@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import * as authService from '~/services/auth.service'
 import {
@@ -13,11 +13,11 @@ import {
 import type { User } from '~/types/user.types'
 
 // Mock services
-vi.mock('~/services/auth.service', () => ({
-  login: vi.fn(),
-  register: vi.fn(),
-  logout: vi.fn(),
-  getCurrentUser: vi.fn()
+mock.module('~/services/auth.service', () => ({
+  login: mock(() => Promise.resolve(null)),
+  register: mock(() => Promise.resolve(null)),
+  logout: mock(() => Promise.resolve(undefined)),
+  getCurrentUser: mock(() => Promise.resolve(null))
 }))
 
 const mockUser: User = {
@@ -33,7 +33,10 @@ const mockUser: User = {
 
 describe('Auth Store', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    ;(authService.login as ReturnType<typeof mock>).mockClear()
+    ;(authService.register as ReturnType<typeof mock>).mockClear()
+    ;(authService.logout as ReturnType<typeof mock>).mockClear()
+    ;(authService.getCurrentUser as ReturnType<typeof mock>).mockClear()
     // Reset store state
     $user.set(null)
     $isLoading.set(false)
@@ -41,7 +44,7 @@ describe('Auth Store', () => {
   })
 
   afterEach(() => {
-    vi.restoreAllMocks()
+    // Restore mocks
   })
 
   describe('State Atoms', () => {
@@ -169,7 +172,7 @@ describe('Auth Store', () => {
   describe('authActions', () => {
     describe('refresh', () => {
       it('should call getCurrentUser and set user on success', async () => {
-        vi.mocked(authService.getCurrentUser).mockResolvedValue(mockUser)
+        ;(authService.getCurrentUser as ReturnType<typeof mock>).mockResolvedValue(mockUser)
 
         await authActions.refresh()
 
@@ -181,7 +184,7 @@ describe('Auth Store', () => {
 
       it('should handle API errors gracefully', async () => {
         const error = new Error('API Error')
-        vi.mocked(authService.getCurrentUser).mockRejectedValue(error)
+        ;(authService.getCurrentUser as ReturnType<typeof mock>).mockRejectedValue(error)
 
         await authActions.refresh()
 
@@ -193,7 +196,7 @@ describe('Auth Store', () => {
 
       it('should not set error for 401 responses', async () => {
         const error = new Error('401')
-        vi.mocked(authService.getCurrentUser).mockRejectedValue(error)
+        ;(authService.getCurrentUser as ReturnType<typeof mock>).mockRejectedValue(error)
 
         await authActions.refresh()
 
@@ -203,7 +206,7 @@ describe('Auth Store', () => {
       })
 
       it('should set loading state during refresh', async () => {
-        vi.mocked(authService.getCurrentUser).mockImplementation(
+        ;(authService.getCurrentUser as ReturnType<typeof mock>).mockImplementation(
           () =>
             new Promise(resolve => {
               expect($isLoading.get()).toBe(true)
@@ -223,7 +226,7 @@ describe('Auth Store', () => {
       const loginCredentials = { identifier: 'test@example.com', password: 'password' }
 
       it('should call login service and set user on success', async () => {
-        vi.mocked(authService.login).mockResolvedValue(mockUser)
+        ;(authService.login as ReturnType<typeof mock>).mockResolvedValue(mockUser)
 
         await authActions.login(loginCredentials)
 
@@ -235,7 +238,7 @@ describe('Auth Store', () => {
 
       it('should handle login errors and set error state', async () => {
         const error = new Error('Invalid credentials')
-        vi.mocked(authService.login).mockRejectedValue(error)
+        ;(authService.login as ReturnType<typeof mock>).mockRejectedValue(error)
 
         await expect(authActions.login(loginCredentials)).rejects.toThrow('Invalid credentials')
 
@@ -245,7 +248,7 @@ describe('Auth Store', () => {
       })
 
       it('should set loading state during login', async () => {
-        vi.mocked(authService.login).mockImplementation(
+        ;(authService.login as ReturnType<typeof mock>).mockImplementation(
           () =>
             new Promise(resolve => {
               expect($isLoading.get()).toBe(true)
@@ -269,7 +272,7 @@ describe('Auth Store', () => {
       }
 
       it('should call register service and set user on success', async () => {
-        vi.mocked(authService.register).mockResolvedValue(mockUser)
+        ;(authService.register as ReturnType<typeof mock>).mockResolvedValue(mockUser)
 
         await authActions.register(registerData)
 
@@ -281,7 +284,7 @@ describe('Auth Store', () => {
 
       it('should handle registration errors and set error state', async () => {
         const error = new Error('Email already exists')
-        vi.mocked(authService.register).mockRejectedValue(error)
+        ;(authService.register as ReturnType<typeof mock>).mockRejectedValue(error)
 
         await expect(authActions.register(registerData)).rejects.toThrow('Email already exists')
 
@@ -295,7 +298,7 @@ describe('Auth Store', () => {
       it('should call logout service and clear user state', async () => {
         $user.set(mockUser)
         $error.set('Some error')
-        vi.mocked(authService.logout).mockResolvedValue(undefined)
+        ;(authService.logout as ReturnType<typeof mock>).mockResolvedValue(undefined)
 
         await authActions.logout()
 
@@ -308,7 +311,9 @@ describe('Auth Store', () => {
       it('should clear user state even if logout service fails', async () => {
         $user.set(mockUser)
         $error.set('Some error')
-        vi.mocked(authService.logout).mockRejectedValue(new Error('Logout failed'))
+        ;(authService.logout as ReturnType<typeof mock>).mockRejectedValue(
+          new Error('Logout failed')
+        )
 
         await authActions.logout()
 
@@ -318,7 +323,7 @@ describe('Auth Store', () => {
       })
 
       it('should set loading state during logout', async () => {
-        vi.mocked(authService.logout).mockImplementation(
+        ;(authService.logout as ReturnType<typeof mock>).mockImplementation(
           () =>
             new Promise(resolve => {
               expect($isLoading.get()).toBe(true)
@@ -368,7 +373,7 @@ describe('Auth Store', () => {
 
     describe('silentRefresh', () => {
       it('should call getCurrentUser without affecting loading state', async () => {
-        vi.mocked(authService.getCurrentUser).mockResolvedValue(mockUser)
+        ;(authService.getCurrentUser as ReturnType<typeof mock>).mockResolvedValue(mockUser)
 
         await authActions.silentRefresh()
 
@@ -379,7 +384,9 @@ describe('Auth Store', () => {
       })
 
       it('should handle errors silently', async () => {
-        vi.mocked(authService.getCurrentUser).mockRejectedValue(new Error('Silent error'))
+        ;(authService.getCurrentUser as ReturnType<typeof mock>).mockRejectedValue(
+          new Error('Silent error')
+        )
 
         await authActions.silentRefresh()
 

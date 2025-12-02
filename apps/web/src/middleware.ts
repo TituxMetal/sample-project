@@ -1,4 +1,5 @@
 import type { APIContext, MiddlewareNext } from 'astro'
+
 import { apiRequest } from './lib/apiRequest'
 import type { User } from './types/user.types'
 

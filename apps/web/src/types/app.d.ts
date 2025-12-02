@@ -1,15 +1,11 @@
-declare namespace App {
-  interface Locals {
-    user: import('./user.types').User | undefined
+import type { User } from './user.types'
+
+declare global {
+  namespace App {
+    interface Locals {
+      user: User | undefined
+    }
   }
 }
 
-interface ImportMetaEnv {
-  readonly PUBLIC_API_URL: string
-  readonly DEV: boolean
-  readonly PROD: boolean
-}
-
-interface ImportMeta {
-  readonly env: ImportMetaEnv
-}
+export {}

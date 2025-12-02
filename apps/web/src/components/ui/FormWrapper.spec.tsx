@@ -1,11 +1,17 @@
-import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+
+import { cleanup, fireEvent, render, screen } from '~/test-utils'
 
 import { FormWrapper } from './FormWrapper'
 
 describe('FormWrapper', () => {
+  beforeEach(() => {
+    cleanup()
+    document.body.innerHTML = ''
+  })
+
   it('should render children correctly', () => {
-    const handleSubmit = vi.fn()
+    const handleSubmit = mock(() => {})
 
     render(
       <FormWrapper onSubmit={handleSubmit}>
@@ -19,7 +25,7 @@ describe('FormWrapper', () => {
   })
 
   it('should call onSubmit when form is submitted', () => {
-    const handleSubmit = vi.fn(e => e.preventDefault())
+    const handleSubmit = mock(e => e.preventDefault())
 
     render(
       <FormWrapper onSubmit={handleSubmit}>
@@ -32,7 +38,7 @@ describe('FormWrapper', () => {
   })
 
   it('should display error message when error prop is provided', () => {
-    const handleSubmit = vi.fn()
+    const handleSubmit = mock(() => {})
     const errorMessage = 'Something went wrong'
 
     render(
@@ -48,7 +54,7 @@ describe('FormWrapper', () => {
   })
 
   it('should not display error message when error is null', () => {
-    const handleSubmit = vi.fn()
+    const handleSubmit = mock(() => {})
 
     render(
       <FormWrapper onSubmit={handleSubmit} error={null}>
@@ -60,7 +66,7 @@ describe('FormWrapper', () => {
   })
 
   it('should not display error message when error is not provided', () => {
-    const handleSubmit = vi.fn()
+    const handleSubmit = mock(() => {})
 
     render(
       <FormWrapper onSubmit={handleSubmit}>
@@ -72,7 +78,7 @@ describe('FormWrapper', () => {
   })
 
   it('should apply custom className when provided', () => {
-    const handleSubmit = vi.fn()
+    const handleSubmit = mock(() => {})
     const customClass = 'custom-form-class'
 
     render(
@@ -86,7 +92,7 @@ describe('FormWrapper', () => {
   })
 
   it('should apply default className when no className provided', () => {
-    const handleSubmit = vi.fn()
+    const handleSubmit = mock(() => {})
 
     render(
       <FormWrapper onSubmit={handleSubmit}>
@@ -98,7 +104,7 @@ describe('FormWrapper', () => {
   })
 
   it('should be accessible with proper form role', () => {
-    const handleSubmit = vi.fn()
+    const handleSubmit = mock(() => {})
 
     render(
       <FormWrapper onSubmit={handleSubmit}>
