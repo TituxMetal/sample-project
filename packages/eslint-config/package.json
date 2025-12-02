@@ -3,26 +3,23 @@
   "version": "0.1.0",
   "private": true,
   "description": "Shared ESLint configuration for the fullstack app monorepo",
-  "type": "commonjs",
-  "main": "src/index.js",
+  "type": "module",
   "exports": {
-    "./base": "./src/base.js",
-    "./node": "./src/node.js",
-    "./web": "./src/web.js"
+    "./base": "./src/base.mjs",
+    "./node": "./src/node.mjs",
+    "./web": "./src/web.mjs"
   },
   "files": [
     "src"
   ],
   "dependencies": {
-    "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.39.1",
-    "@typescript-eslint/eslint-plugin": "^8.47.0",
-    "@typescript-eslint/parser": "^8.47.0",
     "astro-eslint-parser": "^1.2.2",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-astro": "^1.5.0",
     "eslint-plugin-import": "^2.32.0",
+    "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.5.0",
