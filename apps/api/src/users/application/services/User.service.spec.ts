@@ -1,4 +1,6 @@
 import { Test } from '@nestjs/testing'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import type { Mock } from 'bun:test'
 
 import { TestDataFactory } from '~/shared/infrastructure/testing'
 import { CreateUserDto, GetUserProfileDto, UpdateUserProfileDto } from '~/users/application/dtos'
@@ -14,32 +16,42 @@ import { UserService } from './User.service'
 
 describe('UserService', () => {
   let service: UserService
-  let mockGetUserProfileUseCase: jest.Mocked<GetUserProfileUseCase>
-  let mockUpdateUserProfileUseCase: jest.Mocked<UpdateUserProfileUseCase>
-  let mockDeleteUserAccountUseCase: jest.Mocked<DeleteUserAccountUseCase>
-  let mockCreateUserUseCase: jest.Mocked<CreateUserUseCase>
-  let mockGetAllUsersUseCase: jest.Mocked<GetAllUsersUseCase>
+  let mockGetUserProfileUseCase: {
+    execute: Mock<typeof GetUserProfileUseCase.prototype.execute>
+  }
+  let mockUpdateUserProfileUseCase: {
+    execute: Mock<typeof UpdateUserProfileUseCase.prototype.execute>
+  }
+  let mockDeleteUserAccountUseCase: {
+    execute: Mock<typeof DeleteUserAccountUseCase.prototype.execute>
+  }
+  let mockCreateUserUseCase: {
+    execute: Mock<typeof CreateUserUseCase.prototype.execute>
+  }
+  let mockGetAllUsersUseCase: {
+    execute: Mock<typeof GetAllUsersUseCase.prototype.execute>
+  }
 
   beforeEach(async () => {
     mockGetUserProfileUseCase = {
-      execute: jest.fn()
-    } as unknown as jest.Mocked<GetUserProfileUseCase>
+      execute: mock(() => {}) as unknown as Mock<typeof GetUserProfileUseCase.prototype.execute>
+    }
 
     mockUpdateUserProfileUseCase = {
-      execute: jest.fn()
-    } as unknown as jest.Mocked<UpdateUserProfileUseCase>
+      execute: mock(() => {}) as unknown as Mock<typeof UpdateUserProfileUseCase.prototype.execute>
+    }
 
     mockDeleteUserAccountUseCase = {
-      execute: jest.fn()
-    } as unknown as jest.Mocked<DeleteUserAccountUseCase>
+      execute: mock(() => {}) as unknown as Mock<typeof DeleteUserAccountUseCase.prototype.execute>
+    }
 
     mockCreateUserUseCase = {
-      execute: jest.fn()
-    } as unknown as jest.Mocked<CreateUserUseCase>
+      execute: mock(() => {}) as unknown as Mock<typeof CreateUserUseCase.prototype.execute>
+    }
 
     mockGetAllUsersUseCase = {
-      execute: jest.fn()
-    } as unknown as jest.Mocked<GetAllUsersUseCase>
+      execute: mock(() => {}) as unknown as Mock<typeof GetAllUsersUseCase.prototype.execute>
+    }
 
     const module = await Test.createTestingModule({
       providers: [

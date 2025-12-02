@@ -1,5 +1,6 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common'
-import { ClassConstructor, plainToClass } from 'class-transformer'
+import type { ClassConstructor } from 'class-transformer'
+import { plainToClass } from 'class-transformer'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 

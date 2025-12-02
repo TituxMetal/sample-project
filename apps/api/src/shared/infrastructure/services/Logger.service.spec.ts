@@ -1,44 +1,30 @@
 import { Logger } from '@nestjs/common'
+import { beforeEach, describe, expect, it, spyOn } from 'bun:test'
 
 import { LoggerService } from './Logger.service'
 
-jest.mock('@nestjs/common', () => ({
-  ...jest.requireActual('@nestjs/common'),
-  Logger: jest.fn().mockImplementation(() => ({
-    log: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn()
-  }))
-}))
-
 describe('LoggerService', () => {
   let loggerService: LoggerService
-  let mockNestLogger: jest.Mocked<Logger>
+  let logSpy: ReturnType<typeof spyOn>
+  let warnSpy: ReturnType<typeof spyOn>
+  let errorSpy: ReturnType<typeof spyOn>
+  let debugSpy: ReturnType<typeof spyOn>
 
   beforeEach(() => {
-    mockNestLogger = {
-      log: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
-      debug: jest.fn()
-    } as unknown as jest.Mocked<Logger>
-
-    const mockLogger = Logger as unknown as jest.Mock
-    mockLogger.mockImplementation(() => mockNestLogger)
-
     loggerService = new LoggerService('TestContext')
-  })
 
-  afterEach(() => {
-    jest.clearAllMocks()
+    // Spy on the internal logger methods
+    logSpy = spyOn(Logger.prototype, 'log').mockImplementation(() => {})
+    warnSpy = spyOn(Logger.prototype, 'warn').mockImplementation(() => {})
+    errorSpy = spyOn(Logger.prototype, 'error').mockImplementation(() => {})
+    debugSpy = spyOn(Logger.prototype, 'debug').mockImplementation(() => {})
   })
 
   describe('info', () => {
     it('should log info message without context', () => {
       loggerService.info('Test message')
 
-      expect(mockNestLogger.log).toHaveBeenCalledWith('Test message')
+      expect(logSpy).toHaveBeenCalledWith('Test message')
     })
 
     it('should log info message with context', () => {
@@ -46,9 +32,7 @@ describe('LoggerService', () => {
 
       loggerService.info('Test message', context)
 
-      expect(mockNestLogger.log).toHaveBeenCalledWith(
-        'Test message {"userId":"123","action":"login"}'
-      )
+      expect(logSpy).toHaveBeenCalledWith('Test message {"userId":"123","action":"login"}')
     })
 
     it('should sanitize sensitive data in context', () => {
@@ -60,7 +44,7 @@ describe('LoggerService', () => {
 
       loggerService.info('Test message', context)
 
-      expect(mockNestLogger.log).toHaveBeenCalledWith(
+      expect(logSpy).toHaveBeenCalledWith(
         'Test message {"userId":"123","password":"secr***","token":"jwt.***"}'
       )
     })
@@ -75,7 +59,7 @@ describe('LoggerService', () => {
 
       loggerService.warn('Warning message', context)
 
-      expect(mockNestLogger.warn).toHaveBeenCalledWith(
+      expect(warnSpy).toHaveBeenCalledWith(
         'Warning message {"email":"test@example.com","authorization":"Bear***"}'
       )
     })
@@ -88,7 +72,7 @@ describe('LoggerService', () => {
 
       loggerService.error('Error message', context, trace)
 
-      expect(mockNestLogger.error).toHaveBeenCalledWith(
+      expect(errorSpy).toHaveBeenCalledWith(
         'Error message {"error":"Database connection failed"}',
         trace
       )
@@ -101,7 +85,7 @@ describe('LoggerService', () => {
 
       loggerService.debug('Debug message', context)
 
-      expect(mockNestLogger.debug).toHaveBeenCalledWith('Debug message {"debugInfo":"some data"}')
+      expect(debugSpy).toHaveBeenCalledWith('Debug message {"debugInfo":"some data"}')
     })
   })
 
@@ -121,7 +105,7 @@ describe('LoggerService', () => {
       loggerService.info('Test nested', context)
 
       // Only top-level password should be sanitized, nested ones remain as-is
-      expect(mockNestLogger.log).toHaveBeenCalledWith(
+      expect(logSpy).toHaveBeenCalledWith(
         'Test nested {"user":{"id":"123","password":"secret123","profile":{"token":"nested.token.here"}},"password":"topl***"}'
       )
     })
@@ -136,7 +120,7 @@ describe('LoggerService', () => {
 
       loggerService.info('Test empty values', context)
 
-      expect(mockNestLogger.log).toHaveBeenCalledWith(
+      expect(logSpy).toHaveBeenCalledWith(
         'Test empty values {"emptyString":"","nullValue":null,"password":"[REDACTED]","token":"[REDACTED]"}'
       )
     })
@@ -151,7 +135,7 @@ describe('LoggerService', () => {
 
       loggerService.info('Test case insensitive', context)
 
-      expect(mockNestLogger.log).toHaveBeenCalledWith(
+      expect(logSpy).toHaveBeenCalledWith(
         'Test case insensitive {"PASSWORD":"secr***","Token":"jwt-***","AUTHORIZATION":"bear***","secret_key":"my-s***"}'
       )
     })

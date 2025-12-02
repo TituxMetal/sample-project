@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'bun:test'
+
 import { RegisterDto } from './Register.dto'
 
 describe('RegisterDto', () => {

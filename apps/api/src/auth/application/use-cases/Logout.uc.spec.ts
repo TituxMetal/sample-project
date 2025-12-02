@@ -1,12 +1,15 @@
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import type { Mock } from 'bun:test'
+
 import { LogoutUseCase } from './Logout.uc'
 
 describe('LogoutUseCase', () => {
   let logoutUseCase: LogoutUseCase
-  let mockTokenBlacklistService: { blacklistToken: jest.Mock }
+  let mockTokenBlacklistService: { blacklistToken: Mock<() => Promise<void>> }
 
   beforeEach(() => {
     mockTokenBlacklistService = {
-      blacklistToken: jest.fn()
+      blacklistToken: mock(() => Promise.resolve())
     }
 
     logoutUseCase = new LogoutUseCase(mockTokenBlacklistService)

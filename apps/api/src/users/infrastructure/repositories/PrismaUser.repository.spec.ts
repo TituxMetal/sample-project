@@ -1,3 +1,6 @@
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import type { Mock } from 'bun:test'
+
 import type { PrismaProvider } from '~/shared/infrastructure/database'
 import { TestDataFactory } from '~/shared/infrastructure/testing'
 import { UserEntity } from '~/users/domain/entities'
@@ -13,20 +16,28 @@ import { PrismaUserRepository } from './PrismaUser.repository'
 
 describe('PrismaUserRepository', () => {
   let repository: PrismaUserRepository
-  let mockPrismaService: jest.Mocked<PrismaProvider>
+  let mockPrismaService: {
+    user: {
+      create: Mock<(args: any) => Promise<any>>
+      findUnique: Mock<(args: any) => Promise<any>>
+      findMany: Mock<(args?: any) => Promise<any>>
+      update: Mock<(args: any) => Promise<any>>
+      delete: Mock<(args: any) => Promise<any>>
+    }
+  }
 
   beforeEach(() => {
     mockPrismaService = {
       user: {
-        create: jest.fn(),
-        findUnique: jest.fn(),
-        findMany: jest.fn(),
-        update: jest.fn(),
-        delete: jest.fn()
+        create: mock(() => {}) as unknown as Mock<(args: any) => Promise<any>>,
+        findUnique: mock(() => {}) as unknown as Mock<(args: any) => Promise<any>>,
+        findMany: mock(() => {}) as unknown as Mock<(args?: any) => Promise<any>>,
+        update: mock(() => {}) as unknown as Mock<(args: any) => Promise<any>>,
+        delete: mock(() => {}) as unknown as Mock<(args: any) => Promise<any>>
       }
-    } as unknown as jest.Mocked<PrismaProvider>
+    }
 
-    repository = new PrismaUserRepository(mockPrismaService)
+    repository = new PrismaUserRepository(mockPrismaService as unknown as PrismaProvider)
   })
 
   describe('create', () => {
@@ -44,7 +55,7 @@ describe('PrismaUserRepository', () => {
         hash: 'hashed-password'
       }
 
-      const mockCreate = mockPrismaService.user.create as jest.Mock
+      const mockCreate = mockPrismaService.user.create as Mock<typeof mockPrismaService.user.create>
       mockCreate.mockResolvedValue(prismaUser)
 
       const result = await repository.create(userEntity)
@@ -75,7 +86,9 @@ describe('PrismaUserRepository', () => {
         hash: 'hashed-password'
       }
 
-      const mockFindUnique = mockPrismaService.user.findUnique as jest.Mock
+      const mockFindUnique = mockPrismaService.user.findUnique as Mock<
+        typeof mockPrismaService.user.findUnique
+      >
       mockFindUnique.mockResolvedValue(prismaUser)
 
       const result = await repository.findById(userId)
@@ -88,7 +101,9 @@ describe('PrismaUserRepository', () => {
 
     it('should return null when user not found', async () => {
       const userId = new UserIdValueObject('123e4567-e89b-12d3-a456-426614174000')
-      const mockFindUnique = mockPrismaService.user.findUnique as jest.Mock
+      const mockFindUnique = mockPrismaService.user.findUnique as Mock<
+        typeof mockPrismaService.user.findUnique
+      >
       mockFindUnique.mockResolvedValue(null)
 
       const result = await repository.findById(userId)
@@ -113,7 +128,9 @@ describe('PrismaUserRepository', () => {
         hash: 'hashed-password'
       }
 
-      const mockFindUnique = mockPrismaService.user.findUnique as jest.Mock
+      const mockFindUnique = mockPrismaService.user.findUnique as Mock<
+        typeof mockPrismaService.user.findUnique
+      >
       mockFindUnique.mockResolvedValue(prismaUser)
 
       const result = await repository.findByEmail(email)
@@ -125,7 +142,9 @@ describe('PrismaUserRepository', () => {
     })
 
     it('should return null when user not found by email', async () => {
-      const mockFindUnique = mockPrismaService.user.findUnique as jest.Mock
+      const mockFindUnique = mockPrismaService.user.findUnique as Mock<
+        typeof mockPrismaService.user.findUnique
+      >
       mockFindUnique.mockResolvedValue(null)
 
       const result = await repository.findByEmail('nonexistent@example.com')
@@ -150,7 +169,9 @@ describe('PrismaUserRepository', () => {
         hash: 'hashed-password'
       }
 
-      const mockFindUnique = mockPrismaService.user.findUnique as jest.Mock
+      const mockFindUnique = mockPrismaService.user.findUnique as Mock<
+        typeof mockPrismaService.user.findUnique
+      >
       mockFindUnique.mockResolvedValue(prismaUser)
 
       const result = await repository.findByUsername(username)
@@ -179,7 +200,9 @@ describe('PrismaUserRepository', () => {
         }
       ]
 
-      const mockFindMany = mockPrismaService.user.findMany as jest.Mock
+      const mockFindMany = mockPrismaService.user.findMany as Mock<
+        typeof mockPrismaService.user.findMany
+      >
       mockFindMany.mockResolvedValue(prismaUsers)
 
       const result = await repository.findAll()
@@ -208,7 +231,7 @@ describe('PrismaUserRepository', () => {
         hash: 'hashed-password'
       }
 
-      const mockUpdate = mockPrismaService.user.update as jest.Mock
+      const mockUpdate = mockPrismaService.user.update as Mock<typeof mockPrismaService.user.update>
       mockUpdate.mockResolvedValue(prismaUser)
 
       const result = await repository.update(userEntity)
@@ -225,7 +248,7 @@ describe('PrismaUserRepository', () => {
     it('should delete user', async () => {
       const userId = new UserIdValueObject('123e4567-e89b-12d3-a456-426614174000')
 
-      const mockDelete = mockPrismaService.user.delete as jest.Mock
+      const mockDelete = mockPrismaService.user.delete as Mock<typeof mockPrismaService.user.delete>
       mockDelete.mockResolvedValue({} as unknown as { id: string })
 
       await repository.delete(userId)
@@ -239,7 +262,9 @@ describe('PrismaUserRepository', () => {
   describe('exists', () => {
     it('should return true when user exists', async () => {
       const userId = new UserIdValueObject('123e4567-e89b-12d3-a456-426614174000')
-      const mockFindUnique = mockPrismaService.user.findUnique as jest.Mock
+      const mockFindUnique = mockPrismaService.user.findUnique as Mock<
+        typeof mockPrismaService.user.findUnique
+      >
       mockFindUnique.mockResolvedValue({} as unknown as { id: string })
 
       const result = await repository.exists(userId)
@@ -249,7 +274,9 @@ describe('PrismaUserRepository', () => {
 
     it('should return false when user does not exist', async () => {
       const userId = new UserIdValueObject('123e4567-e89b-12d3-a456-426614174000')
-      const mockFindUnique = mockPrismaService.user.findUnique as jest.Mock
+      const mockFindUnique = mockPrismaService.user.findUnique as Mock<
+        typeof mockPrismaService.user.findUnique
+      >
       mockFindUnique.mockResolvedValue(null)
 
       const result = await repository.exists(userId)

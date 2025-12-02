@@ -1,5 +1,5 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, Res, UseGuards, Req } from '@nestjs/common'
-import { Response, Request } from 'express'
+import type { Response, Request } from 'express'
 
 type RequestWithCookies = Request & {
   cookies?: Record<string, string>

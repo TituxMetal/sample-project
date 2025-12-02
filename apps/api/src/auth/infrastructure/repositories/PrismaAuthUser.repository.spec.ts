@@ -1,6 +1,9 @@
-import type { User } from '@generated'
 import { Test } from '@nestjs/testing'
 import type { TestingModule } from '@nestjs/testing'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import type { Mock } from 'bun:test'
+
+import type { User } from '@generated'
 
 import { AuthUserEntity } from '~/auth/domain/entities'
 import { EmailValueObject, PasswordValueObject } from '~/auth/domain/value-objects'
@@ -14,10 +17,10 @@ describe('PrismaAuthUserRepository', () => {
 
   const mockPrismaProvider = {
     user: {
-      findUnique: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn()
+      findUnique: mock(() => {}) as unknown as Mock<(args: unknown) => Promise<User | null>>,
+      create: mock(() => {}) as unknown as Mock<(args: unknown) => Promise<User>>,
+      update: mock(() => {}) as unknown as Mock<(args: unknown) => Promise<User>>,
+      delete: mock(() => {}) as unknown as Mock<(args: unknown) => Promise<User>>
     }
   }
 
@@ -47,7 +50,10 @@ describe('PrismaAuthUserRepository', () => {
 
     repository = module.get<PrismaAuthUserRepository>(PrismaAuthUserRepository)
     prismaService = module.get<PrismaProvider>(PrismaProvider)
-    jest.clearAllMocks()
+    mockPrismaProvider.user.findUnique.mockClear()
+    mockPrismaProvider.user.create.mockClear()
+    mockPrismaProvider.user.update.mockClear()
+    mockPrismaProvider.user.delete.mockClear()
   })
 
   it('should be defined', () => {
@@ -63,9 +69,9 @@ describe('PrismaAuthUserRepository', () => {
       expect(result).toBeInstanceOf(AuthUserEntity)
       expect(result?.id).toBe('user-id')
       expect(result?.email.value).toBe('test@example.com')
-      const findUniqueCalls = (prismaService.user.findUnique as jest.Mock).mock.calls as [
-        { where: { id: string } }
-      ][]
+      const findUniqueCalls = (
+        prismaService.user.findUnique as unknown as Mock<(args: unknown) => Promise<User | null>>
+      ).mock.calls as [{ where: { id: string } }][]
       expect(findUniqueCalls).toHaveLength(1)
       expect(findUniqueCalls[0]?.[0]).toEqual({ where: { id: 'user-id' } })
     })
@@ -88,9 +94,9 @@ describe('PrismaAuthUserRepository', () => {
 
       expect(result).toBeInstanceOf(AuthUserEntity)
       expect(result?.email.value).toBe('test@example.com')
-      const findUniqueCalls = (prismaService.user.findUnique as jest.Mock).mock.calls as [
-        { where: { email: string } }
-      ][]
+      const findUniqueCalls = (
+        prismaService.user.findUnique as unknown as Mock<(args: unknown) => Promise<User | null>>
+      ).mock.calls as [{ where: { email: string } }][]
       expect(findUniqueCalls).toHaveLength(1)
       expect(findUniqueCalls[0]?.[0]).toEqual({ where: { email: 'test@example.com' } })
     })
@@ -113,9 +119,9 @@ describe('PrismaAuthUserRepository', () => {
 
       expect(result).toBeInstanceOf(AuthUserEntity)
       expect(result?.username).toBe('testuser')
-      const findUniqueCalls = (prismaService.user.findUnique as jest.Mock).mock.calls as [
-        { where: { username: string } }
-      ][]
+      const findUniqueCalls = (
+        prismaService.user.findUnique as unknown as Mock<(args: unknown) => Promise<User | null>>
+      ).mock.calls as [{ where: { username: string } }][]
       expect(findUniqueCalls).toHaveLength(1)
       expect(findUniqueCalls[0]?.[0]).toEqual({ where: { username: 'testuser' } })
     })
@@ -146,9 +152,9 @@ describe('PrismaAuthUserRepository', () => {
       const result = await repository.save(authUser)
 
       expect(result).toBeInstanceOf(AuthUserEntity)
-      const createCalls = (prismaService.user.create as jest.Mock).mock.calls as [
-        { data: unknown }
-      ][]
+      const createCalls = (
+        prismaService.user.create as unknown as Mock<(args: unknown) => Promise<User>>
+      ).mock.calls as [{ data: unknown }][]
       expect(createCalls).toHaveLength(1)
       expect(createCalls[0]?.[0]).toEqual({
         data: {
@@ -181,9 +187,9 @@ describe('PrismaAuthUserRepository', () => {
       const result = await repository.update(authUser)
 
       expect(result).toBeInstanceOf(AuthUserEntity)
-      const updateCalls = (prismaService.user.update as jest.Mock).mock.calls as [
-        { where: { id: string }; data: unknown }
-      ][]
+      const updateCalls = (
+        prismaService.user.update as unknown as Mock<(args: unknown) => Promise<User>>
+      ).mock.calls as [{ where: { id: string }; data: unknown }][]
       expect(updateCalls).toHaveLength(1)
       expect(updateCalls[0]?.[0]).toEqual({
         where: { id: 'user-id' },
@@ -206,9 +212,9 @@ describe('PrismaAuthUserRepository', () => {
 
       await repository.delete('user-id')
 
-      const deleteCalls = (prismaService.user.delete as jest.Mock).mock.calls as [
-        { where: { id: string } }
-      ][]
+      const deleteCalls = (
+        prismaService.user.delete as unknown as Mock<(args: unknown) => Promise<User>>
+      ).mock.calls as [{ where: { id: string } }][]
       expect(deleteCalls).toHaveLength(1)
       expect(deleteCalls[0]?.[0]).toEqual({ where: { id: 'user-id' } })
     })

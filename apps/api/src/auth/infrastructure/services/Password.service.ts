@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common'
-import * as argon2 from 'argon2'
 
 @Injectable()
 export class PasswordService {
   async hash(plainPassword: string): Promise<string> {
-    return argon2.hash(plainPassword)
+    return Bun.password.hash(plainPassword, {
+      algorithm: 'argon2id',
+      memoryCost: 65536, // 64 MiB
+      timeCost: 3
+    })
   }
 
   async compare(plainPassword: string, hashedPassword: string): Promise<boolean> {
     try {
-      return await argon2.verify(hashedPassword, plainPassword)
+      return await Bun.password.verify(plainPassword, hashedPassword)
     } catch {
       return false
     }

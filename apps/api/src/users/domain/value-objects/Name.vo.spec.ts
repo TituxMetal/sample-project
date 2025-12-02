@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'bun:test'
+
 import { NameValueObject } from './Name.vo'
 
 describe('NameValueObject', () => {

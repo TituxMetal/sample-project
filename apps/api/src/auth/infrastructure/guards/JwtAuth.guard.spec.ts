@@ -2,6 +2,8 @@ import { UnauthorizedException } from '@nestjs/common'
 import type { ExecutionContext } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import type { TestingModule } from '@nestjs/testing'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import type { Mock } from 'bun:test'
 
 import { JwtService } from '~/auth/infrastructure/services'
 
@@ -12,7 +14,9 @@ describe('JwtAuthGuard', () => {
   let jwtService: JwtService
 
   const mockJwtService = {
-    verifyToken: jest.fn()
+    verifyToken: mock(() => {}) as unknown as Mock<
+      (token: string) => { sub: string; email: string; username: string } | null
+    >
   }
 
   beforeEach(async () => {
@@ -28,7 +32,7 @@ describe('JwtAuthGuard', () => {
 
     guard = module.get<JwtAuthGuard>(JwtAuthGuard)
     jwtService = module.get<JwtService>(JwtService)
-    jest.clearAllMocks()
+    mockJwtService.verifyToken.mockClear()
   })
 
   const createMockExecutionContext = (request: unknown): ExecutionContext =>
@@ -61,7 +65,8 @@ describe('JwtAuthGuard', () => {
       const result = guard.canActivate(context)
 
       expect(result).toBe(true)
-      const verifyTokenCalls = (jwtService.verifyToken as jest.Mock).mock.calls as [string][]
+      const verifyTokenCalls = (jwtService.verifyToken as Mock<typeof jwtService.verifyToken>).mock
+        .calls as [string][]
       expect(verifyTokenCalls).toHaveLength(1)
       expect(verifyTokenCalls[0]?.[0]).toBe('valid-token')
       expect((mockRequest as unknown as { user: unknown }).user).toEqual(mockPayload)
@@ -85,7 +90,8 @@ describe('JwtAuthGuard', () => {
       const result = guard.canActivate(context)
 
       expect(result).toBe(true)
-      const verifyTokenCalls = (jwtService.verifyToken as jest.Mock).mock.calls as [string][]
+      const verifyTokenCalls = (jwtService.verifyToken as Mock<typeof jwtService.verifyToken>).mock
+        .calls as [string][]
       expect(verifyTokenCalls).toHaveLength(1)
       expect(verifyTokenCalls[0]?.[0]).toBe('valid-token')
     })
@@ -136,7 +142,8 @@ describe('JwtAuthGuard', () => {
       const result = guard.canActivate(context)
 
       expect(result).toBe(true)
-      const verifyTokenCalls = (jwtService.verifyToken as jest.Mock).mock.calls as [string][]
+      const verifyTokenCalls = (jwtService.verifyToken as Mock<typeof jwtService.verifyToken>).mock
+        .calls as [string][]
       expect(verifyTokenCalls).toHaveLength(1)
       expect(verifyTokenCalls[0]?.[0]).toBe('cookie-token')
     })

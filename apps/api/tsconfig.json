@@ -3,11 +3,14 @@
   "compilerOptions": {
     "outDir": "./dist",
     "baseUrl": "./",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "paths": {
-      "@generated": ["./generated/prisma/client.ts"],
-      "~/*": ["src/*"]
+      "@generated": ["./generated/prisma/client"],
+      "~/*": ["src/*"],
+      "@prisma/client-runtime-utils": ["./node_modules/@prisma/client-runtime-utils"]
     }
   },
-  "include": ["src/**/*", "test/**/*", "jest.config.cjs", "prisma.config.ts"],
+  "include": ["src/**/*", "test/**/*", "prisma.config.ts", "test-setup.ts"],
   "exclude": ["node_modules", "dist", "coverage", ".turbo"]
 }
