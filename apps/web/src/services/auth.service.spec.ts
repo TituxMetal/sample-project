@@ -1,19 +1,26 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, spyOn } from 'bun:test'
+import type { Mock } from 'bun:test'
 
-import * as apiService from '~/lib/apiRequest'
+import { api } from '~/lib/apiRequest'
 import type { LoginSchema, SignupSchema } from '~/schemas/auth.schema'
 import type { User } from '~/types/user.types'
 
 import { getCurrentUser, login, logout, register } from './auth.service'
 
-vi.mock('~/lib/apiRequest', () => ({
-  api: {
-    post: vi.fn(),
-    get: vi.fn()
-  }
-}))
-
 describe('auth service', () => {
+  let postSpy: Mock<typeof api.post>
+  let getSpy: Mock<typeof api.get>
+
+  beforeEach(() => {
+    postSpy = spyOn(api, 'post')
+    getSpy = spyOn(api, 'get')
+  })
+
+  afterEach(() => {
+    postSpy.mockRestore()
+    getSpy.mockRestore()
+  })
+
   it('should call api.post with login endpoint for login', async () => {
     const mockLoginData: LoginSchema = {
       identifier: 'testuser',
@@ -29,14 +36,14 @@ describe('auth service', () => {
       createdAt: '2024-01-01',
       updatedAt: '2024-01-01'
     }
-    vi.mocked(apiService.api.post).mockResolvedValueOnce({
+    postSpy.mockResolvedValueOnce({
       success: true,
       data: { user: mockUser }
     })
 
     const result = await login(mockLoginData)
 
-    expect(apiService.api.post).toHaveBeenCalledWith('/auth/login', {
+    expect(api.post).toHaveBeenCalledWith('/auth/login', {
       emailOrUsername: 'testuser',
       password: 'password123'
     })
@@ -59,26 +66,26 @@ describe('auth service', () => {
       createdAt: '2024-01-01',
       updatedAt: '2024-01-01'
     }
-    vi.mocked(apiService.api.post).mockResolvedValueOnce({
+    postSpy.mockResolvedValueOnce({
       success: true,
       data: { user: mockUser }
     })
 
     const result = await register(mockSignupData)
 
-    expect(apiService.api.post).toHaveBeenCalledWith('/auth/register', mockSignupData)
+    expect(api.post).toHaveBeenCalledWith('/auth/register', mockSignupData)
     expect(result).toEqual(mockUser)
   })
 
   it('should handle logout', async () => {
-    vi.mocked(apiService.api.post).mockResolvedValueOnce({
+    postSpy.mockResolvedValueOnce({
       success: true,
       data: undefined
     })
 
     await expect(logout()).resolves.toBeUndefined()
 
-    expect(apiService.api.post).toHaveBeenCalledWith('/auth/logout')
+    expect(api.post).toHaveBeenCalledWith('/auth/logout')
   })
 
   it('should handle getCurrentUser', async () => {
@@ -92,14 +99,14 @@ describe('auth service', () => {
       createdAt: '2024-01-01',
       updatedAt: '2024-01-01'
     }
-    vi.mocked(apiService.api.get).mockResolvedValueOnce({
+    getSpy.mockResolvedValueOnce({
       success: true,
       data: mockUser
     })
 
     const result = await getCurrentUser()
 
-    expect(apiService.api.get).toHaveBeenCalledWith('/users/me')
+    expect(api.get).toHaveBeenCalledWith('/users/me')
     expect(result).toEqual(mockUser)
   })
 
@@ -108,7 +115,7 @@ describe('auth service', () => {
       identifier: 'testuser',
       password: 'wrongpassword'
     }
-    vi.mocked(apiService.api.post).mockResolvedValueOnce({
+    postSpy.mockResolvedValueOnce({
       success: false,
       message: 'Invalid credentials'
     })
@@ -122,7 +129,7 @@ describe('auth service', () => {
       email: 'existing@example.com',
       password: 'password123'
     }
-    vi.mocked(apiService.api.post).mockResolvedValueOnce({
+    postSpy.mockResolvedValueOnce({
       success: false,
       message: 'User already exists'
     })

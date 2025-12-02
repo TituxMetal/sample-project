@@ -1,11 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { render, screen } from '@testing-library/react'
+import { beforeEach, describe, expect, it } from 'bun:test'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { describe, expect, it } from 'vitest'
 
 import { signupSchema } from '~/schemas/auth.schema'
 import type { SignupSchema } from '~/schemas/auth.schema'
+import { cleanup, render, screen } from '~/test-utils'
 
 import { SignupForm } from './SignupForm'
 
@@ -24,6 +24,11 @@ const TestWrapper = ({ defaultValues }: { defaultValues?: Partial<SignupSchema> 
 }
 
 describe('SignupForm', () => {
+  beforeEach(() => {
+    cleanup()
+    document.body.innerHTML = ''
+  })
+
   it('should render username, email, and password fields', () => {
     render(<TestWrapper />)
 

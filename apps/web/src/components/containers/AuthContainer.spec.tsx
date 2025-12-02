@@ -1,33 +1,37 @@
-import { render, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import type { Mock } from 'bun:test'
 
 import { useAuth } from '~/hooks/useAuth'
+import { cleanup, render, screen, userEvent, waitFor } from '~/test-utils'
 
 import { AuthContainer } from './AuthContainer'
 
 // Mock modules
-vi.mock('~/hooks/useAuth')
+mock.module('~/hooks/useAuth', () => ({
+  useAuth: mock(() => {})
+}))
 
 const mockUseAuth = {
-  login: vi.fn(),
-  register: vi.fn(),
-  logout: vi.fn(),
-  refresh: vi.fn(),
-  clearError: vi.fn(),
-  silentRefresh: vi.fn(),
+  login: mock(() => {}) as unknown as Mock<(data: unknown) => Promise<void>>,
+  register: mock(() => {}) as unknown as Mock<(data: unknown) => Promise<void>>,
+  logout: mock(() => {}) as unknown as Mock<() => Promise<void>>,
+  refresh: mock(() => {}) as unknown as Mock<() => Promise<void>>,
+  clearError: mock(() => {}),
+  silentRefresh: mock(() => {}) as unknown as Mock<() => Promise<void>>,
   isLoading: false,
   user: null,
   isAuthenticated: false,
   error: null,
   hasError: false,
-  updateProfile: vi.fn()
+  updateProfile: mock(() => {}) as unknown as Mock<(data: unknown) => Promise<void>>
 }
 
 describe('AuthContainer', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    vi.mocked(useAuth).mockReturnValue(mockUseAuth)
+    cleanup()
+    document.body.innerHTML = ''
+    mock.restore()
+    ;(useAuth as ReturnType<typeof mock>).mockReturnValue(mockUseAuth)
   })
 
   describe('Login Mode', () => {
@@ -101,7 +105,7 @@ describe('AuthContainer', () => {
     })
 
     it('should show loading state during login', () => {
-      vi.mocked(useAuth).mockReturnValue({
+      ;(useAuth as ReturnType<typeof mock>).mockReturnValue({
         ...mockUseAuth,
         isLoading: true
       })
@@ -189,7 +193,7 @@ describe('AuthContainer', () => {
     })
 
     it('should show loading state during registration', () => {
-      vi.mocked(useAuth).mockReturnValue({
+      ;(useAuth as ReturnType<typeof mock>).mockReturnValue({
         ...mockUseAuth,
         isLoading: true
       })
