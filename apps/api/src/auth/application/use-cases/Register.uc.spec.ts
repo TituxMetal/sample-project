@@ -1,6 +1,8 @@
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import type { Mock } from 'bun:test'
+
 import { RegisterDto } from '~/auth/application/dtos'
 import { AuthUserEntity } from '~/auth/domain/entities'
-import type { IAuthUserRepository } from '~/auth/domain/repositories'
 import { EmailValueObject, PasswordValueObject } from '~/auth/domain/value-objects'
 import { TestDataFactory } from '~/shared/infrastructure/testing'
 
@@ -8,27 +10,43 @@ import { RegisterUseCase } from './Register.uc'
 
 describe('RegisterUseCase', () => {
   let registerUseCase: RegisterUseCase
-  let mockAuthUserRepository: jest.Mocked<IAuthUserRepository>
-  let mockPasswordService: { hash: jest.Mock; compare: jest.Mock }
-  let mockIdGenerator: { generate: jest.Mock }
+  let mockAuthUserRepository: {
+    findById: Mock<(id: string) => Promise<AuthUserEntity | null>>
+    findByEmail: Mock<(email: EmailValueObject) => Promise<AuthUserEntity | null>>
+    findByUsername: Mock<(username: string) => Promise<AuthUserEntity | null>>
+    save: Mock<(user: AuthUserEntity) => Promise<AuthUserEntity>>
+    update: Mock<(user: AuthUserEntity) => Promise<AuthUserEntity>>
+    delete: Mock<(id: string) => Promise<void>>
+  }
+  let mockPasswordService: {
+    hash: Mock<(plain: string) => Promise<string>>
+    compare: Mock<(plain: string, hashed: string) => Promise<boolean>>
+  }
+  let mockIdGenerator: { generate: Mock<() => string> }
 
   beforeEach(() => {
     mockAuthUserRepository = {
-      findById: jest.fn(),
-      findByEmail: jest.fn(),
-      findByUsername: jest.fn(),
-      save: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn()
+      findById: mock(() => {}) as unknown as Mock<(id: string) => Promise<AuthUserEntity | null>>,
+      findByEmail: mock(() => {}) as unknown as Mock<
+        (email: EmailValueObject) => Promise<AuthUserEntity | null>
+      >,
+      findByUsername: mock(() => {}) as unknown as Mock<
+        (username: string) => Promise<AuthUserEntity | null>
+      >,
+      save: mock(() => {}) as unknown as Mock<(user: AuthUserEntity) => Promise<AuthUserEntity>>,
+      update: mock(() => {}) as unknown as Mock<(user: AuthUserEntity) => Promise<AuthUserEntity>>,
+      delete: mock(() => {}) as unknown as Mock<(id: string) => Promise<void>>
     }
 
     mockPasswordService = {
-      hash: jest.fn(),
-      compare: jest.fn()
+      hash: mock(() => {}) as unknown as Mock<(plain: string) => Promise<string>>,
+      compare: mock(() => {}) as unknown as Mock<
+        (plain: string, hashed: string) => Promise<boolean>
+      >
     }
 
     mockIdGenerator = {
-      generate: jest.fn()
+      generate: mock(() => {}) as unknown as Mock<() => string>
     }
 
     registerUseCase = new RegisterUseCase(
@@ -81,7 +99,7 @@ describe('RegisterUseCase', () => {
           confirmed: false
         }
       })
-      const saveCalls = (mockAuthUserRepository.save as jest.Mock).mock.calls as [AuthUserEntity][]
+      const saveCalls = mockAuthUserRepository.save.mock.calls as [AuthUserEntity][]
       expect(saveCalls).toHaveLength(1)
       expect(saveCalls[0]?.[0]).toBeInstanceOf(AuthUserEntity)
     })

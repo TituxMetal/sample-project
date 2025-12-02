@@ -1,10 +1,8 @@
 import { Test } from '@nestjs/testing'
 import type { TestingModule } from '@nestjs/testing'
-import * as argon2 from 'argon2'
+import { beforeEach, describe, expect, it } from 'bun:test'
 
 import { PasswordService } from './Password.service'
-
-jest.mock('argon2')
 
 describe('PasswordService', () => {
   let service: PasswordService
@@ -22,51 +20,59 @@ describe('PasswordService', () => {
   })
 
   describe('hash', () => {
-    it('should hash a password', async () => {
+    it('should hash a password using argon2id', async () => {
       const password = 'Password123!'
-      const hashedPassword = '$argon2id$v=19$m=65536,t=3,p=4$hashedpassword'
-
-      jest.spyOn(argon2, 'hash').mockResolvedValue(hashedPassword)
 
       const result = await service.hash(password)
 
-      expect(result).toBe(hashedPassword)
-      expect(argon2.hash).toHaveBeenCalledWith(password)
+      expect(result).toStartWith('$argon2id$')
+      expect(result).not.toBe(password)
+      expect(result.length).toBeGreaterThan(50)
+    })
+
+    it('should produce different hashes for same password', async () => {
+      const password = 'Password123!'
+
+      const hash1 = await service.hash(password)
+      const hash2 = await service.hash(password)
+
+      expect(hash1).not.toBe(hash2)
     })
   })
 
   describe('compare', () => {
     it('should return true for matching password', async () => {
       const plainPassword = 'Password123!'
-      const hashedPassword = '$argon2id$v=19$m=65536,t=3,p=4$hashedpassword'
-
-      jest.spyOn(argon2, 'verify').mockResolvedValue(true)
+      const hashedPassword = await service.hash(plainPassword)
 
       const result = await service.compare(plainPassword, hashedPassword)
 
       expect(result).toBe(true)
-      expect(argon2.verify).toHaveBeenCalledWith(hashedPassword, plainPassword)
     })
 
     it('should return false for non-matching password', async () => {
-      const plainPassword = 'WrongPassword'
-      const hashedPassword = '$argon2id$v=19$m=65536,t=3,p=4$hashedpassword'
+      const originalPassword = 'Password123!'
+      const wrongPassword = 'WrongPassword'
+      const hashedPassword = await service.hash(originalPassword)
 
-      jest.spyOn(argon2, 'verify').mockResolvedValue(false)
-
-      const result = await service.compare(plainPassword, hashedPassword)
+      const result = await service.compare(wrongPassword, hashedPassword)
 
       expect(result).toBe(false)
-      expect(argon2.verify).toHaveBeenCalledWith(hashedPassword, plainPassword)
     })
 
-    it('should return false when verification throws error', async () => {
+    it('should return false for invalid hash format', async () => {
       const plainPassword = 'Password123!'
-      const hashedPassword = 'invalid-hash'
+      const invalidHash = 'invalid-hash-format'
 
-      jest.spyOn(argon2, 'verify').mockRejectedValue(new Error('Invalid hash'))
+      const result = await service.compare(plainPassword, invalidHash)
 
-      const result = await service.compare(plainPassword, hashedPassword)
+      expect(result).toBe(false)
+    })
+
+    it('should return false for empty hash', async () => {
+      const plainPassword = 'Password123!'
+
+      const result = await service.compare(plainPassword, '')
 
       expect(result).toBe(false)
     })

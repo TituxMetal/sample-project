@@ -1,6 +1,8 @@
 import { JwtService as NestJwtService } from '@nestjs/jwt'
 import { Test } from '@nestjs/testing'
 import type { TestingModule } from '@nestjs/testing'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import type { Mock } from 'bun:test'
 
 import { JwtService } from './Jwt.service'
 
@@ -9,9 +11,9 @@ describe('JwtService', () => {
   let nestJwtService: NestJwtService
 
   const mockNestJwtService = {
-    sign: jest.fn(),
-    verify: jest.fn(),
-    decode: jest.fn()
+    sign: mock(() => {}) as unknown as Mock<(payload: object) => string>,
+    verify: mock(() => {}) as unknown as Mock<(token: string) => object | null>,
+    decode: mock(() => {}) as unknown as Mock<(token: string) => object | null>
   }
 
   beforeEach(async () => {
@@ -27,7 +29,9 @@ describe('JwtService', () => {
 
     service = module.get<JwtService>(JwtService)
     nestJwtService = module.get<NestJwtService>(NestJwtService)
-    jest.clearAllMocks()
+    mockNestJwtService.sign.mockClear()
+    mockNestJwtService.verify.mockClear()
+    mockNestJwtService.decode.mockClear()
   })
 
   it('should be defined', () => {
@@ -48,7 +52,8 @@ describe('JwtService', () => {
       const result = service.generateToken(payload)
 
       expect(result).toBe(expectedToken)
-      const signCalls = (nestJwtService.sign as jest.Mock).mock.calls as [typeof payload][]
+      const signCalls = (nestJwtService.sign as unknown as Mock<(payload: object) => string>).mock
+        .calls as [typeof payload][]
       expect(signCalls).toHaveLength(1)
       expect(signCalls[0]?.[0]).toEqual(payload)
     })
@@ -70,7 +75,8 @@ describe('JwtService', () => {
       const result = service.verifyToken(token)
 
       expect(result).toEqual(expectedPayload)
-      const verifyCalls = (nestJwtService.verify as jest.Mock).mock.calls as [string][]
+      const verifyCalls = (nestJwtService.verify as Mock<typeof nestJwtService.verify>).mock
+        .calls as [string][]
       expect(verifyCalls).toHaveLength(1)
       expect(verifyCalls[0]?.[0]).toBe(token)
     })
@@ -90,7 +96,8 @@ describe('JwtService', () => {
       const result = service.decodeToken(token)
 
       expect(result).toEqual(expectedPayload)
-      const decodeCalls = (nestJwtService.decode as jest.Mock).mock.calls as [string][]
+      const decodeCalls = (nestJwtService.decode as Mock<typeof nestJwtService.decode>).mock
+        .calls as [string][]
       expect(decodeCalls).toHaveLength(1)
       expect(decodeCalls[0]?.[0]).toBe(token)
     })
@@ -103,7 +110,8 @@ describe('JwtService', () => {
       const result = service.decodeToken(token)
 
       expect(result).toBeNull()
-      const decodeCalls = (nestJwtService.decode as jest.Mock).mock.calls as [string][]
+      const decodeCalls = (nestJwtService.decode as Mock<typeof nestJwtService.decode>).mock
+        .calls as [string][]
       expect(decodeCalls).toHaveLength(1)
       expect(decodeCalls[0]?.[0]).toBe(token)
     })

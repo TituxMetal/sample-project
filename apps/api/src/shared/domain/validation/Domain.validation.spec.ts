@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'bun:test'
+
 import { DomainValidation } from './Domain.validation'
 
 describe('DomainValidation', () => {

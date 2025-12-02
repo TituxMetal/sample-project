@@ -2,6 +2,8 @@ import { UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { Test } from '@nestjs/testing'
 import type { TestingModule } from '@nestjs/testing'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import type { Mock } from 'bun:test'
 
 import type { IJwtPayload } from '~/auth/domain/interfaces'
 import { ConfigService } from '~/config'
@@ -11,15 +13,23 @@ import { TokenService } from './Token.service'
 
 describe('TokenService', () => {
   let service: TokenService
-  let jwtService: { signAsync: jest.Mock; verifyAsync: jest.Mock }
+  let jwtService: {
+    signAsync: Mock<(payload: object, options: object) => Promise<string>>
+    verifyAsync: Mock<(token: string, options: object) => Promise<IJwtPayload>>
+  }
   let configService: { jwt: { secret: string; expiresIn: string } }
-  let prismaService: { user: { findUnique: jest.Mock } }
+  let prismaService: { user: { findUnique: Mock<(args: unknown) => Promise<unknown>> } }
 
   beforeEach(async () => {
     jwtService = {
-      signAsync: jest.fn().mockResolvedValue('test-token'),
-      verifyAsync: jest.fn()
+      signAsync: mock(() => {}) as unknown as Mock<
+        (payload: object, options: object) => Promise<string>
+      >,
+      verifyAsync: mock(() => {}) as unknown as Mock<
+        (token: string, options: object) => Promise<IJwtPayload>
+      >
     }
+    jwtService.signAsync.mockResolvedValue('test-token')
 
     configService = {
       jwt: {
@@ -30,7 +40,7 @@ describe('TokenService', () => {
 
     prismaService = {
       user: {
-        findUnique: jest.fn()
+        findUnique: mock(() => {}) as unknown as Mock<(args: unknown) => Promise<unknown>>
       }
     }
 
@@ -44,7 +54,9 @@ describe('TokenService', () => {
     }).compile()
 
     service = module.get<TokenService>(TokenService)
-    jest.clearAllMocks()
+    jwtService.signAsync.mockClear()
+    jwtService.verifyAsync.mockClear()
+    prismaService.user.findUnique.mockClear()
   })
 
   it('should be defined', () => {

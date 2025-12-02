@@ -1,12 +1,9 @@
 import type { CallHandler, ExecutionContext } from '@nestjs/common'
-import { plainToClass } from 'class-transformer'
+import { beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import * as classTransformer from 'class-transformer'
 import { of } from 'rxjs'
 
 import { SerializeInterceptor } from './Serialize.interceptor'
-
-jest.mock('class-transformer', () => ({
-  plainToClass: jest.fn()
-}))
 
 describe('SerializeInterceptor', () => {
   class TestDto {
@@ -17,14 +14,15 @@ describe('SerializeInterceptor', () => {
   let interceptor: SerializeInterceptor<TestDto>
   let mockCallHandler: CallHandler
   let mockExecutionContext: ExecutionContext
+  let plainToClassSpy: ReturnType<typeof spyOn>
 
   beforeEach(() => {
     interceptor = new SerializeInterceptor(TestDto)
     mockCallHandler = {
-      handle: jest.fn().mockReturnValue(of({ id: '123', name: 'test', password: 'secret' }))
+      handle: mock(() => of({ id: '123', name: 'test', password: 'secret' }))
     }
     mockExecutionContext = {} as ExecutionContext
-    jest.clearAllMocks()
+    plainToClassSpy = spyOn(classTransformer, 'plainToClass')
   })
 
   it('should be defined', () => {
@@ -33,11 +31,10 @@ describe('SerializeInterceptor', () => {
 
   it('should call plainToClass with correct parameters', done => {
     const mockTransformedData = { id: '123', name: 'test' }
-    const plainToClassMock = plainToClass as jest.Mock
-    plainToClassMock.mockReturnValue(mockTransformedData)
+    plainToClassSpy.mockReturnValue(mockTransformedData)
 
     interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe(result => {
-      expect(plainToClass).toHaveBeenCalledWith(
+      expect(plainToClassSpy).toHaveBeenCalledWith(
         TestDto,
         { id: '123', name: 'test', password: 'secret' },
         { excludeExtraneousValues: true }
@@ -51,9 +48,8 @@ describe('SerializeInterceptor', () => {
     const originalData = { id: '123', name: 'test', sensitiveField: 'hidden' }
     const transformedData = { id: '123', name: 'test' }
 
-    mockCallHandler.handle = jest.fn().mockReturnValue(of(originalData))
-    const plainToClassMock = plainToClass as jest.Mock
-    plainToClassMock.mockReturnValue(transformedData)
+    mockCallHandler.handle = mock(() => of(originalData))
+    plainToClassSpy.mockReturnValue(transformedData)
 
     interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe(result => {
       expect(result).toEqual(transformedData)
@@ -66,13 +62,12 @@ describe('SerializeInterceptor', () => {
     const emptyData = null
     const transformedData = null
 
-    mockCallHandler.handle = jest.fn().mockReturnValue(of(emptyData))
-    const plainToClassMock = plainToClass as jest.Mock
-    plainToClassMock.mockReturnValue(transformedData)
+    mockCallHandler.handle = mock(() => of(emptyData))
+    plainToClassSpy.mockReturnValue(transformedData as unknown as object)
 
     interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe(result => {
-      expect(plainToClass).toHaveBeenCalledWith(TestDto, null, { excludeExtraneousValues: true })
-      expect(result).toBe(transformedData)
+      expect(plainToClassSpy).toHaveBeenCalledWith(TestDto, null, { excludeExtraneousValues: true })
+      expect(result).toBe(transformedData as unknown as TestDto)
       done()
     })
   })

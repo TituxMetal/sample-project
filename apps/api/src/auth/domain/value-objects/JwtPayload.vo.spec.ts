@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'bun:test'
+
 import type { IJwtPayload } from '~/auth/domain/interfaces'
 
 import { JwtPayloadValueObject } from './JwtPayload.vo'

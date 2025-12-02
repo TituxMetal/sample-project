@@ -1,4 +1,6 @@
 import { Test } from '@nestjs/testing'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import type { Mock } from 'bun:test'
 
 import { JwtAuthGuard } from '~/auth/infrastructure/guards'
 import type { AuthenticatedUser } from '~/shared/domain/types'
@@ -11,23 +13,35 @@ import { UserController } from './User.controller'
 
 describe('UserController', () => {
   let controller: UserController
-  let mockUserService: jest.Mocked<UserService>
+  let mockUserService: {
+    getUserProfile: Mock<typeof UserService.prototype.getUserProfile>
+    updateUserProfile: Mock<typeof UserService.prototype.updateUserProfile>
+    deleteUserAccount: Mock<typeof UserService.prototype.deleteUserAccount>
+    createUser: Mock<typeof UserService.prototype.createUser>
+    getAllUsers: Mock<typeof UserService.prototype.getAllUsers>
+  }
 
   const mockLoggerService = {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn()
+    info: mock(() => {}),
+    warn: mock(() => {}),
+    error: mock(() => {}),
+    debug: mock(() => {})
   }
 
   beforeEach(async () => {
     mockUserService = {
-      getUserProfile: jest.fn(),
-      updateUserProfile: jest.fn(),
-      deleteUserAccount: jest.fn(),
-      createUser: jest.fn(),
-      getAllUsers: jest.fn()
-    } as unknown as jest.Mocked<UserService>
+      getUserProfile: mock(() => {}) as unknown as Mock<
+        typeof UserService.prototype.getUserProfile
+      >,
+      updateUserProfile: mock(() => {}) as unknown as Mock<
+        typeof UserService.prototype.updateUserProfile
+      >,
+      deleteUserAccount: mock(() => {}) as unknown as Mock<
+        typeof UserService.prototype.deleteUserAccount
+      >,
+      createUser: mock(() => {}) as unknown as Mock<typeof UserService.prototype.createUser>,
+      getAllUsers: mock(() => {}) as unknown as Mock<typeof UserService.prototype.getAllUsers>
+    }
 
     const module = await Test.createTestingModule({
       controllers: [UserController],
@@ -43,14 +57,21 @@ describe('UserController', () => {
       ]
     })
       .overrideGuard(JwtAuthGuard)
-      .useValue({ canActivate: jest.fn(() => true) })
+      .useValue({ canActivate: mock(() => true) })
       .compile()
 
     controller = module.get<UserController>(UserController)
-  })
 
-  afterEach(() => {
-    jest.clearAllMocks()
+    // Clear all mocks
+    mockUserService.getUserProfile.mockClear()
+    mockUserService.updateUserProfile.mockClear()
+    mockUserService.deleteUserAccount.mockClear()
+    mockUserService.createUser.mockClear()
+    mockUserService.getAllUsers.mockClear()
+    mockLoggerService.info.mockClear()
+    mockLoggerService.warn.mockClear()
+    mockLoggerService.error.mockClear()
+    mockLoggerService.debug.mockClear()
   })
 
   describe('getProfile', () => {
