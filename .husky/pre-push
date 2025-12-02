@@ -1,1 +1,1 @@
-yarn turbo run type-check test build 
+bun turbo run type-check test build

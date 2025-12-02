@@ -65,13 +65,15 @@
   },
   "lint-staged": {
     "apps/api/**/*.{ts,js}": [
-      "turbo run type-check lint format --filter=@app/api"
+      "bash -c 'cd apps/api && eslint --fix \"$@\"' --",
+      "prettier --write"
     ],
     "apps/web/**/*.{ts,tsx,astro}": [
-      "turbo run type-check lint format --filter=@app/web"
+      "bash -c 'cd apps/web && eslint --fix \"$@\"' --",
+      "prettier --write"
     ],
-    "packages/**/*.{ts,js}": [
-      "turbo run type-check lint format --filter=@packages/*"
+    "packages/eslint-config/**/*.{ts,js,mjs}": [
+      "prettier --write"
     ],
     "**/*.{json,md,yml,yaml}": [
       "prettier --write"
