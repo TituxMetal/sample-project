@@ -1,21 +1,20 @@
 import { act, renderHook } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, mock, setSystemTime } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock, setSystemTime, spyOn } from 'bun:test'
+import type { Mock } from 'bun:test'
 
-import * as authService from '~/services/auth.service'
+import { api } from '~/lib/apiRequest'
 import { $error, $isLoading, $user } from '~/stores/auth'
+import type { ApiResponse } from '~/types/api.types'
 import type { User } from '~/types/user.types'
 import * as navigationUtils from '~/utils/navigation'
 
 import { useAuth } from './useAuth'
 
-// Mock modules
-mock.module('~/services/auth.service', () => ({
-  login: mock(() => Promise.resolve(null)),
-  register: mock(() => Promise.resolve(null)),
-  logout: mock(() => Promise.resolve(undefined)),
-  getCurrentUser: mock(() => Promise.resolve(null))
-}))
+// Spy on api methods instead of mock.module to avoid test pollution
+let postSpy: Mock<typeof api.post>
+let getSpy: Mock<typeof api.get>
 
+// Mock navigation module (this is safe as it doesn't affect service tests)
 mock.module('~/utils/navigation', () => ({
   redirect: mock(() => {})
 }))
@@ -33,10 +32,9 @@ const mockUser: User = {
 
 describe('useAuth hook', () => {
   beforeEach(() => {
-    ;(authService.login as ReturnType<typeof mock>).mockClear()
-    ;(authService.register as ReturnType<typeof mock>).mockClear()
-    ;(authService.logout as ReturnType<typeof mock>).mockClear()
-    ;(authService.getCurrentUser as ReturnType<typeof mock>).mockClear()
+    // Setup spies on api methods
+    postSpy = spyOn(api, 'post')
+    getSpy = spyOn(api, 'get')
     ;(navigationUtils.redirect as ReturnType<typeof mock>).mockClear()
     setSystemTime(new Date('2023-01-01T00:00:00.000Z'))
     $user.set(null)
@@ -45,6 +43,9 @@ describe('useAuth hook', () => {
   })
 
   afterEach(() => {
+    // Restore spies to avoid test pollution
+    postSpy.mockRestore()
+    getSpy.mockRestore()
     setSystemTime()
   })
 
@@ -60,7 +61,7 @@ describe('useAuth hook', () => {
 
   describe('login', () => {
     it('should login successfully', async () => {
-      ;(authService.login as ReturnType<typeof mock>).mockResolvedValue(mockUser)
+      postSpy.mockResolvedValueOnce({ success: true, data: { user: mockUser } })
 
       const { result } = renderHook(() => useAuth())
 
@@ -68,17 +69,15 @@ describe('useAuth hook', () => {
         await result.current.login({ identifier: 'test@example.com', password: 'password' })
       })
 
-      expect(authService.login).toHaveBeenCalledWith({
-        identifier: 'test@example.com',
+      expect(api.post).toHaveBeenCalledWith('/auth/login', {
+        emailOrUsername: 'test@example.com',
         password: 'password'
       })
       expect($user.get()).toEqual(mockUser)
     })
 
     it('should handle login failure', async () => {
-      ;(authService.login as ReturnType<typeof mock>).mockImplementation(() =>
-        Promise.reject(new Error('Invalid credentials'))
-      )
+      postSpy.mockResolvedValueOnce({ success: false, message: 'Invalid credentials' })
 
       const { result } = renderHook(() => useAuth())
 
@@ -98,19 +97,21 @@ describe('useAuth hook', () => {
     })
 
     it('should set loading state during login', async () => {
-      ;(authService.login as ReturnType<typeof mock>).mockImplementation(
-        () =>
-          new Promise(resolve => {
-            expect($isLoading.get()).toBe(true)
-            resolve(mockUser)
-          })
-      )
+      let resolvePromise: (value: ApiResponse<{ user: User }>) => void
+      const pendingPromise = new Promise<ApiResponse<{ user: User }>>(resolve => {
+        resolvePromise = resolve
+      })
+      postSpy.mockReturnValueOnce(pendingPromise)
 
       const { result } = renderHook(() => useAuth())
 
-      await act(async () => {
+      const loginPromise = act(async () => {
         await result.current.login({ identifier: 'test@example.com', password: 'password' })
       })
+
+      expect($isLoading.get()).toBe(true)
+      resolvePromise!({ success: true, data: { user: mockUser } })
+      await loginPromise
 
       expect($isLoading.get()).toBe(false)
     })
@@ -118,7 +119,7 @@ describe('useAuth hook', () => {
 
   describe('register', () => {
     it('should register successfully', async () => {
-      ;(authService.register as ReturnType<typeof mock>).mockResolvedValue(mockUser)
+      postSpy.mockResolvedValueOnce({ success: true, data: { user: mockUser } })
 
       const { result } = renderHook(() => useAuth())
 
@@ -130,7 +131,7 @@ describe('useAuth hook', () => {
         })
       })
 
-      expect(authService.register).toHaveBeenCalledWith({
+      expect(api.post).toHaveBeenCalledWith('/auth/register', {
         username: 'testuser',
         email: 'test@example.com',
         password: 'password'
@@ -139,9 +140,7 @@ describe('useAuth hook', () => {
     })
 
     it('should handle registration failure', async () => {
-      ;(authService.register as ReturnType<typeof mock>).mockImplementation(() =>
-        Promise.reject(new Error('Email already exists'))
-      )
+      postSpy.mockResolvedValueOnce({ success: false, message: 'Email already exists' })
 
       const { result } = renderHook(() => useAuth())
 
@@ -167,7 +166,7 @@ describe('useAuth hook', () => {
   describe('logout', () => {
     it('should logout successfully', async () => {
       $user.set(mockUser)
-      ;(authService.logout as ReturnType<typeof mock>).mockResolvedValue(undefined)
+      postSpy.mockResolvedValueOnce({ success: true, data: undefined })
 
       const { result } = renderHook(() => useAuth())
 
@@ -175,16 +174,14 @@ describe('useAuth hook', () => {
         await result.current.logout()
       })
 
-      expect(authService.logout).toHaveBeenCalled()
+      expect(api.post).toHaveBeenCalledWith('/auth/logout')
       expect($user.get()).toBe(null)
       expect(navigationUtils.redirect).toHaveBeenCalledWith('/auth')
     })
 
     it('should clear user state even if logout service fails', async () => {
       $user.set(mockUser)
-      ;(authService.logout as ReturnType<typeof mock>).mockImplementation(() =>
-        Promise.reject(new Error('Network error'))
-      )
+      postSpy.mockResolvedValueOnce({ success: false, message: 'Network error' })
 
       const { result } = renderHook(() => useAuth())
 
@@ -226,9 +223,7 @@ describe('useAuth hook', () => {
 
   describe('error handling', () => {
     it('should expose error state', async () => {
-      ;(authService.login as ReturnType<typeof mock>).mockImplementation(() =>
-        Promise.reject(new Error('Login failed'))
-      )
+      postSpy.mockResolvedValueOnce({ success: false, message: 'Login failed' })
 
       const { result } = renderHook(() => useAuth())
 
@@ -245,9 +240,7 @@ describe('useAuth hook', () => {
     })
 
     it('should clear error when clearError is called', async () => {
-      ;(authService.login as ReturnType<typeof mock>).mockImplementation(() =>
-        Promise.reject(new Error('Login failed'))
-      )
+      postSpy.mockResolvedValueOnce({ success: false, message: 'Login failed' })
 
       const { result } = renderHook(() => useAuth())
 
@@ -272,7 +265,7 @@ describe('useAuth hook', () => {
 
   describe('refresh functionality', () => {
     it('should call refresh method', async () => {
-      ;(authService.getCurrentUser as ReturnType<typeof mock>).mockResolvedValue(mockUser)
+      getSpy.mockResolvedValueOnce({ success: true, data: mockUser })
 
       const { result } = renderHook(() => useAuth())
 
@@ -280,12 +273,12 @@ describe('useAuth hook', () => {
         await result.current.refresh()
       })
 
-      expect(authService.getCurrentUser).toHaveBeenCalled()
+      expect(api.get).toHaveBeenCalledWith('/users/me')
       expect(result.current.user).toEqual(mockUser)
     })
 
     it('should call silentRefresh method', async () => {
-      ;(authService.getCurrentUser as ReturnType<typeof mock>).mockResolvedValue(mockUser)
+      getSpy.mockResolvedValueOnce({ success: true, data: mockUser })
 
       const { result } = renderHook(() => useAuth())
 
@@ -293,7 +286,7 @@ describe('useAuth hook', () => {
         await result.current.silentRefresh()
       })
 
-      expect(authService.getCurrentUser).toHaveBeenCalled()
+      expect(api.get).toHaveBeenCalledWith('/users/me')
       expect(result.current.user).toEqual(mockUser)
     })
   })
