@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'bun:test'
+
 import type { User } from '@generated'
 
 import { AuthUserEntity } from '~/auth/domain/entities'

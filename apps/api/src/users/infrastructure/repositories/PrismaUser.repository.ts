@@ -1,5 +1,6 @@
-import { Prisma } from '@generated'
 import { Injectable } from '@nestjs/common'
+
+import { Prisma } from '@generated'
 
 import type { PrismaProvider } from '~/shared/infrastructure/database'
 import { UserEntity } from '~/users/domain/entities'

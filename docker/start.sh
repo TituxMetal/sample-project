@@ -19,8 +19,8 @@ if [ "$RUN_MIGRATIONS" = "yes" ]; then
     echo "Database file does not exist, skipping backup"
   fi
   # Run migrations
-  yarn workspace @app/api prisma migrate deploy
+  bun run --filter @app/api prisma migrate deploy
 fi
 
 # Start the application
-yarn workspace @app/api start:prod
+bun run --filter @app/api start:prod

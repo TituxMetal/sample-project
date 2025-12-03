@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'bun:test'
+
 import { InvalidUserException } from './InvalidUser.exception'
 
 describe('InvalidUserException', () => {

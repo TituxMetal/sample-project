@@ -1,6 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, spyOn } from 'bun:test'
+import type { Mock } from 'bun:test'
 
-import * as authService from '~/services/auth.service'
+import { api } from '~/lib/apiRequest'
 import {
   $error,
   $hasError,
@@ -10,15 +11,12 @@ import {
   $userDisplayName,
   authActions
 } from '~/stores/auth'
+import type { ApiResponse } from '~/types/api.types'
 import type { User } from '~/types/user.types'
 
-// Mock services
-vi.mock('~/services/auth.service', () => ({
-  login: vi.fn(),
-  register: vi.fn(),
-  logout: vi.fn(),
-  getCurrentUser: vi.fn()
-}))
+// Spy on api methods instead of mock.module to avoid test pollution
+let postSpy: Mock<typeof api.post>
+let getSpy: Mock<typeof api.get>
 
 const mockUser: User = {
   id: '1',
@@ -33,7 +31,9 @@ const mockUser: User = {
 
 describe('Auth Store', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    // Setup spies on api methods
+    postSpy = spyOn(api, 'post')
+    getSpy = spyOn(api, 'get')
     // Reset store state
     $user.set(null)
     $isLoading.set(false)
@@ -41,7 +41,9 @@ describe('Auth Store', () => {
   })
 
   afterEach(() => {
-    vi.restoreAllMocks()
+    // Restore spies to avoid test pollution
+    postSpy.mockRestore()
+    getSpy.mockRestore()
   })
 
   describe('State Atoms', () => {
@@ -169,31 +171,29 @@ describe('Auth Store', () => {
   describe('authActions', () => {
     describe('refresh', () => {
       it('should call getCurrentUser and set user on success', async () => {
-        vi.mocked(authService.getCurrentUser).mockResolvedValue(mockUser)
+        getSpy.mockResolvedValueOnce({ success: true, data: mockUser })
 
         await authActions.refresh()
 
-        expect(authService.getCurrentUser).toHaveBeenCalled()
+        expect(api.get).toHaveBeenCalledWith('/users/me')
         expect($user.get()).toEqual(mockUser)
         expect($error.get()).toBe(null)
         expect($isLoading.get()).toBe(false)
       })
 
       it('should handle API errors gracefully', async () => {
-        const error = new Error('API Error')
-        vi.mocked(authService.getCurrentUser).mockRejectedValue(error)
+        getSpy.mockResolvedValueOnce({ success: false, message: 'API Error' })
 
         await authActions.refresh()
 
-        expect(authService.getCurrentUser).toHaveBeenCalled()
+        expect(api.get).toHaveBeenCalledWith('/users/me')
         expect($user.get()).toBe(null)
         expect($error.get()).toBe('API Error')
         expect($isLoading.get()).toBe(false)
       })
 
       it('should not set error for 401 responses', async () => {
-        const error = new Error('401')
-        vi.mocked(authService.getCurrentUser).mockRejectedValue(error)
+        getSpy.mockResolvedValueOnce({ success: false, message: '401' })
 
         await authActions.refresh()
 
@@ -203,17 +203,16 @@ describe('Auth Store', () => {
       })
 
       it('should set loading state during refresh', async () => {
-        vi.mocked(authService.getCurrentUser).mockImplementation(
-          () =>
-            new Promise(resolve => {
-              expect($isLoading.get()).toBe(true)
-              resolve(mockUser)
-            })
-        )
+        let resolvePromise: (value: ApiResponse<User>) => void
+        const pendingPromise = new Promise<ApiResponse<User>>(resolve => {
+          resolvePromise = resolve
+        })
+        getSpy.mockReturnValueOnce(pendingPromise)
 
         const refreshPromise = authActions.refresh()
         expect($isLoading.get()).toBe(true)
 
+        resolvePromise!({ success: true, data: mockUser })
         await refreshPromise
         expect($isLoading.get()).toBe(false)
       })
@@ -223,19 +222,21 @@ describe('Auth Store', () => {
       const loginCredentials = { identifier: 'test@example.com', password: 'password' }
 
       it('should call login service and set user on success', async () => {
-        vi.mocked(authService.login).mockResolvedValue(mockUser)
+        postSpy.mockResolvedValueOnce({ success: true, data: { user: mockUser } })
 
         await authActions.login(loginCredentials)
 
-        expect(authService.login).toHaveBeenCalledWith(loginCredentials)
+        expect(api.post).toHaveBeenCalledWith('/auth/login', {
+          emailOrUsername: 'test@example.com',
+          password: 'password'
+        })
         expect($user.get()).toEqual(mockUser)
         expect($error.get()).toBe(null)
         expect($isLoading.get()).toBe(false)
       })
 
       it('should handle login errors and set error state', async () => {
-        const error = new Error('Invalid credentials')
-        vi.mocked(authService.login).mockRejectedValue(error)
+        postSpy.mockResolvedValueOnce({ success: false, message: 'Invalid credentials' })
 
         await expect(authActions.login(loginCredentials)).rejects.toThrow('Invalid credentials')
 
@@ -245,17 +246,16 @@ describe('Auth Store', () => {
       })
 
       it('should set loading state during login', async () => {
-        vi.mocked(authService.login).mockImplementation(
-          () =>
-            new Promise(resolve => {
-              expect($isLoading.get()).toBe(true)
-              resolve(mockUser)
-            })
-        )
+        let resolvePromise: (value: ApiResponse<{ user: User }>) => void
+        const pendingPromise = new Promise<ApiResponse<{ user: User }>>(resolve => {
+          resolvePromise = resolve
+        })
+        postSpy.mockReturnValueOnce(pendingPromise)
 
         const loginPromise = authActions.login(loginCredentials)
         expect($isLoading.get()).toBe(true)
 
+        resolvePromise!({ success: true, data: { user: mockUser } })
         await loginPromise
         expect($isLoading.get()).toBe(false)
       })
@@ -269,19 +269,18 @@ describe('Auth Store', () => {
       }
 
       it('should call register service and set user on success', async () => {
-        vi.mocked(authService.register).mockResolvedValue(mockUser)
+        postSpy.mockResolvedValueOnce({ success: true, data: { user: mockUser } })
 
         await authActions.register(registerData)
 
-        expect(authService.register).toHaveBeenCalledWith(registerData)
+        expect(api.post).toHaveBeenCalledWith('/auth/register', registerData)
         expect($user.get()).toEqual(mockUser)
         expect($error.get()).toBe(null)
         expect($isLoading.get()).toBe(false)
       })
 
       it('should handle registration errors and set error state', async () => {
-        const error = new Error('Email already exists')
-        vi.mocked(authService.register).mockRejectedValue(error)
+        postSpy.mockResolvedValueOnce({ success: false, message: 'Email already exists' })
 
         await expect(authActions.register(registerData)).rejects.toThrow('Email already exists')
 
@@ -295,11 +294,11 @@ describe('Auth Store', () => {
       it('should call logout service and clear user state', async () => {
         $user.set(mockUser)
         $error.set('Some error')
-        vi.mocked(authService.logout).mockResolvedValue(undefined)
+        postSpy.mockResolvedValueOnce({ success: true, data: undefined })
 
         await authActions.logout()
 
-        expect(authService.logout).toHaveBeenCalled()
+        expect(api.post).toHaveBeenCalledWith('/auth/logout')
         expect($user.get()).toBe(null)
         expect($error.get()).toBe(null)
         expect($isLoading.get()).toBe(false)
@@ -308,7 +307,7 @@ describe('Auth Store', () => {
       it('should clear user state even if logout service fails', async () => {
         $user.set(mockUser)
         $error.set('Some error')
-        vi.mocked(authService.logout).mockRejectedValue(new Error('Logout failed'))
+        postSpy.mockResolvedValueOnce({ success: false, message: 'Logout failed' })
 
         await authActions.logout()
 
@@ -318,17 +317,16 @@ describe('Auth Store', () => {
       })
 
       it('should set loading state during logout', async () => {
-        vi.mocked(authService.logout).mockImplementation(
-          () =>
-            new Promise(resolve => {
-              expect($isLoading.get()).toBe(true)
-              resolve(undefined)
-            })
-        )
+        let resolvePromise: (value: ApiResponse<undefined>) => void
+        const pendingPromise = new Promise<ApiResponse<undefined>>(resolve => {
+          resolvePromise = resolve
+        })
+        postSpy.mockReturnValueOnce(pendingPromise)
 
         const logoutPromise = authActions.logout()
         expect($isLoading.get()).toBe(true)
 
+        resolvePromise!({ success: true, data: undefined })
         await logoutPromise
         expect($isLoading.get()).toBe(false)
       })
@@ -368,18 +366,18 @@ describe('Auth Store', () => {
 
     describe('silentRefresh', () => {
       it('should call getCurrentUser without affecting loading state', async () => {
-        vi.mocked(authService.getCurrentUser).mockResolvedValue(mockUser)
+        getSpy.mockResolvedValueOnce({ success: true, data: mockUser })
 
         await authActions.silentRefresh()
 
-        expect(authService.getCurrentUser).toHaveBeenCalled()
+        expect(api.get).toHaveBeenCalledWith('/users/me')
         expect($user.get()).toEqual(mockUser)
         expect($error.get()).toBe(null)
         expect($isLoading.get()).toBe(false) // Should not affect loading
       })
 
       it('should handle errors silently', async () => {
-        vi.mocked(authService.getCurrentUser).mockRejectedValue(new Error('Silent error'))
+        getSpy.mockResolvedValueOnce({ success: false, message: 'Silent error' })
 
         await authActions.silentRefresh()
 

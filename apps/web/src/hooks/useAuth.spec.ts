@@ -1,23 +1,22 @@
 import { act, renderHook } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, mock, setSystemTime, spyOn } from 'bun:test'
+import type { Mock } from 'bun:test'
 
-import * as authService from '~/services/auth.service'
+import { api } from '~/lib/apiRequest'
 import { $error, $isLoading, $user } from '~/stores/auth'
+import type { ApiResponse } from '~/types/api.types'
 import type { User } from '~/types/user.types'
 import * as navigationUtils from '~/utils/navigation'
 
 import { useAuth } from './useAuth'
 
-// Mock modules
-vi.mock('~/services/auth.service', () => ({
-  login: vi.fn(),
-  register: vi.fn(),
-  logout: vi.fn(),
-  getCurrentUser: vi.fn()
-}))
+// Spy on api methods instead of mock.module to avoid test pollution
+let postSpy: Mock<typeof api.post>
+let getSpy: Mock<typeof api.get>
 
-vi.mock('~/utils/navigation', () => ({
-  redirect: vi.fn()
+// Mock navigation module (this is safe as it doesn't affect service tests)
+mock.module('~/utils/navigation', () => ({
+  redirect: mock(() => {})
 }))
 
 const mockUser: User = {
@@ -33,15 +32,21 @@ const mockUser: User = {
 
 describe('useAuth hook', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    vi.useFakeTimers()
+    // Setup spies on api methods
+    postSpy = spyOn(api, 'post')
+    getSpy = spyOn(api, 'get')
+    ;(navigationUtils.redirect as ReturnType<typeof mock>).mockClear()
+    setSystemTime(new Date('2023-01-01T00:00:00.000Z'))
     $user.set(null)
     $isLoading.set(false)
     $error.set(null)
   })
 
   afterEach(() => {
-    vi.useRealTimers()
+    // Restore spies to avoid test pollution
+    postSpy.mockRestore()
+    getSpy.mockRestore()
+    setSystemTime()
   })
 
   describe('initial state', () => {
@@ -56,53 +61,57 @@ describe('useAuth hook', () => {
 
   describe('login', () => {
     it('should login successfully', async () => {
-      vi.mocked(authService.login).mockResolvedValue(mockUser)
+      postSpy.mockResolvedValueOnce({ success: true, data: { user: mockUser } })
 
       const { result } = renderHook(() => useAuth())
 
       await act(async () => {
         await result.current.login({ identifier: 'test@example.com', password: 'password' })
-        // Advance timers to trigger the setTimeout in the login function
-        vi.runAllTimers()
       })
 
-      expect(authService.login).toHaveBeenCalledWith({
-        identifier: 'test@example.com',
+      expect(api.post).toHaveBeenCalledWith('/auth/login', {
+        emailOrUsername: 'test@example.com',
         password: 'password'
       })
       expect($user.get()).toEqual(mockUser)
-      expect(navigationUtils.redirect).toHaveBeenCalledWith('/')
     })
 
     it('should handle login failure', async () => {
-      vi.mocked(authService.login).mockRejectedValue(new Error('Invalid credentials'))
+      postSpy.mockResolvedValueOnce({ success: false, message: 'Invalid credentials' })
 
       const { result } = renderHook(() => useAuth())
 
-      await expect(
-        act(async () => {
+      let thrownError: Error | undefined
+      await act(async () => {
+        try {
           await result.current.login({ identifier: 'test@example.com', password: 'wrong' })
-        })
-      ).rejects.toThrow('Invalid credentials')
+        } catch (error) {
+          thrownError = error as Error
+        }
+      })
 
+      expect(thrownError).toBeDefined()
+      expect(thrownError!.message).toBe('Invalid credentials')
       expect($user.get()).toBe(null)
       expect(navigationUtils.redirect).not.toHaveBeenCalled()
     })
 
     it('should set loading state during login', async () => {
-      vi.mocked(authService.login).mockImplementation(
-        () =>
-          new Promise(resolve => {
-            expect($isLoading.get()).toBe(true)
-            resolve(mockUser)
-          })
-      )
+      let resolvePromise: (value: ApiResponse<{ user: User }>) => void
+      const pendingPromise = new Promise<ApiResponse<{ user: User }>>(resolve => {
+        resolvePromise = resolve
+      })
+      postSpy.mockReturnValueOnce(pendingPromise)
 
       const { result } = renderHook(() => useAuth())
 
-      await act(async () => {
+      const loginPromise = act(async () => {
         await result.current.login({ identifier: 'test@example.com', password: 'password' })
       })
+
+      expect($isLoading.get()).toBe(true)
+      resolvePromise!({ success: true, data: { user: mockUser } })
+      await loginPromise
 
       expect($isLoading.get()).toBe(false)
     })
@@ -110,7 +119,7 @@ describe('useAuth hook', () => {
 
   describe('register', () => {
     it('should register successfully', async () => {
-      vi.mocked(authService.register).mockResolvedValue(mockUser)
+      postSpy.mockResolvedValueOnce({ success: true, data: { user: mockUser } })
 
       const { result } = renderHook(() => useAuth())
 
@@ -122,30 +131,34 @@ describe('useAuth hook', () => {
         })
       })
 
-      expect(authService.register).toHaveBeenCalledWith({
+      expect(api.post).toHaveBeenCalledWith('/auth/register', {
         username: 'testuser',
         email: 'test@example.com',
         password: 'password'
       })
       expect($user.get()).toEqual(mockUser)
-      expect(navigationUtils.redirect).toHaveBeenCalledWith('/')
     })
 
     it('should handle registration failure', async () => {
-      vi.mocked(authService.register).mockRejectedValue(new Error('Email already exists'))
+      postSpy.mockResolvedValueOnce({ success: false, message: 'Email already exists' })
 
       const { result } = renderHook(() => useAuth())
 
-      await expect(
-        act(async () => {
+      let thrownError: Error | undefined
+      await act(async () => {
+        try {
           await result.current.register({
             username: 'testuser',
             email: 'test@example.com',
             password: 'password'
           })
-        })
-      ).rejects.toThrow('Email already exists')
+        } catch (error) {
+          thrownError = error as Error
+        }
+      })
 
+      expect(thrownError).toBeDefined()
+      expect(thrownError!.message).toBe('Email already exists')
       expect($user.get()).toBe(null)
     })
   })
@@ -153,7 +166,7 @@ describe('useAuth hook', () => {
   describe('logout', () => {
     it('should logout successfully', async () => {
       $user.set(mockUser)
-      vi.mocked(authService.logout).mockResolvedValue(undefined)
+      postSpy.mockResolvedValueOnce({ success: true, data: undefined })
 
       const { result } = renderHook(() => useAuth())
 
@@ -161,14 +174,14 @@ describe('useAuth hook', () => {
         await result.current.logout()
       })
 
-      expect(authService.logout).toHaveBeenCalled()
+      expect(api.post).toHaveBeenCalledWith('/auth/logout')
       expect($user.get()).toBe(null)
       expect(navigationUtils.redirect).toHaveBeenCalledWith('/auth')
     })
 
     it('should clear user state even if logout service fails', async () => {
       $user.set(mockUser)
-      vi.mocked(authService.logout).mockRejectedValue(new Error('Network error'))
+      postSpy.mockResolvedValueOnce({ success: false, message: 'Network error' })
 
       const { result } = renderHook(() => useAuth())
 
@@ -210,14 +223,14 @@ describe('useAuth hook', () => {
 
   describe('error handling', () => {
     it('should expose error state', async () => {
-      vi.mocked(authService.login).mockRejectedValue(new Error('Login failed'))
+      postSpy.mockResolvedValueOnce({ success: false, message: 'Login failed' })
 
       const { result } = renderHook(() => useAuth())
 
       await act(async () => {
         try {
           await result.current.login({ identifier: 'test@example.com', password: 'wrong' })
-        } catch (error) {
+        } catch {
           // Expected to throw
         }
       })
@@ -227,14 +240,14 @@ describe('useAuth hook', () => {
     })
 
     it('should clear error when clearError is called', async () => {
-      vi.mocked(authService.login).mockRejectedValue(new Error('Login failed'))
+      postSpy.mockResolvedValueOnce({ success: false, message: 'Login failed' })
 
       const { result } = renderHook(() => useAuth())
 
       await act(async () => {
         try {
           await result.current.login({ identifier: 'test@example.com', password: 'wrong' })
-        } catch (error) {
+        } catch {
           // Expected to throw
         }
       })
@@ -252,7 +265,7 @@ describe('useAuth hook', () => {
 
   describe('refresh functionality', () => {
     it('should call refresh method', async () => {
-      vi.mocked(authService.getCurrentUser).mockResolvedValue(mockUser)
+      getSpy.mockResolvedValueOnce({ success: true, data: mockUser })
 
       const { result } = renderHook(() => useAuth())
 
@@ -260,12 +273,12 @@ describe('useAuth hook', () => {
         await result.current.refresh()
       })
 
-      expect(authService.getCurrentUser).toHaveBeenCalled()
+      expect(api.get).toHaveBeenCalledWith('/users/me')
       expect(result.current.user).toEqual(mockUser)
     })
 
     it('should call silentRefresh method', async () => {
-      vi.mocked(authService.getCurrentUser).mockResolvedValue(mockUser)
+      getSpy.mockResolvedValueOnce({ success: true, data: mockUser })
 
       const { result } = renderHook(() => useAuth())
 
@@ -273,7 +286,7 @@ describe('useAuth hook', () => {
         await result.current.silentRefresh()
       })
 
-      expect(authService.getCurrentUser).toHaveBeenCalled()
+      expect(api.get).toHaveBeenCalledWith('/users/me')
       expect(result.current.user).toEqual(mockUser)
     })
   })

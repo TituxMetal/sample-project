@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'bun:test'
+
 import { UpdateUserProfileDto } from './UpdateUserProfile.dto'
 
 describe('UpdateUserProfileDto', () => {

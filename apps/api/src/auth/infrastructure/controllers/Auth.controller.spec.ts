@@ -1,7 +1,10 @@
 import { Test } from '@nestjs/testing'
 import type { TestingModule } from '@nestjs/testing'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import type { Mock } from 'bun:test'
 
 import { AuthService } from '~/auth/application/services'
+import type { LoginResult, LogoutResult, RegisterResult } from '~/auth/application/use-cases'
 import { JwtAuthGuard } from '~/auth/infrastructure/guards'
 import { LoggerService } from '~/shared/infrastructure/services'
 
@@ -11,16 +14,16 @@ describe('AuthController', () => {
   let controller: AuthController
 
   const mockAuthService = {
-    register: jest.fn(),
-    login: jest.fn(),
-    logout: jest.fn()
+    register: mock(() => {}) as unknown as Mock<(dto: unknown) => Promise<RegisterResult>>,
+    login: mock(() => {}) as unknown as Mock<(dto: unknown) => Promise<LoginResult>>,
+    logout: mock(() => {}) as unknown as Mock<(token?: string) => Promise<LogoutResult>>
   }
 
   const mockLoggerService = {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn()
+    info: mock(() => {}),
+    warn: mock(() => {}),
+    error: mock(() => {}),
+    debug: mock(() => {})
   }
 
   beforeEach(async () => {
@@ -38,14 +41,18 @@ describe('AuthController', () => {
       ]
     })
       .overrideGuard(JwtAuthGuard)
-      .useValue({ canActivate: jest.fn(() => true) })
+      .useValue({ canActivate: mock(() => true) })
       .compile()
 
     controller = module.get<AuthController>(AuthController)
-  })
 
-  afterEach(() => {
-    jest.clearAllMocks()
+    mockAuthService.register.mockClear()
+    mockAuthService.login.mockClear()
+    mockAuthService.logout.mockClear()
+    mockLoggerService.info.mockClear()
+    mockLoggerService.warn.mockClear()
+    mockLoggerService.error.mockClear()
+    mockLoggerService.debug.mockClear()
   })
 
   it('should be defined', () => {
@@ -99,7 +106,7 @@ describe('AuthController', () => {
       mockAuthService.login.mockResolvedValue(loginResult)
 
       const mockResponse = {
-        cookie: jest.fn()
+        cookie: mock(() => {})
       }
 
       const result = await controller.login(loginData, mockResponse as never)
@@ -122,7 +129,7 @@ describe('AuthController', () => {
       }
 
       const mockResponse = {
-        clearCookie: jest.fn()
+        clearCookie: mock(() => {})
       }
 
       mockAuthService.logout.mockResolvedValue({ success: true })
@@ -140,7 +147,7 @@ describe('AuthController', () => {
       }
 
       const mockResponse = {
-        clearCookie: jest.fn()
+        clearCookie: mock(() => {})
       }
 
       mockAuthService.logout.mockResolvedValue({ success: true })

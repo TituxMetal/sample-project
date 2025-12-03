@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'bun:test'
+
 import { TestDataFactory } from '~/shared/infrastructure/testing'
 import { GetUserProfileDto, UpdateUserProfileDto, CreateUserDto } from '~/users/application/dtos'
 import { UserEntity } from '~/users/domain/entities'

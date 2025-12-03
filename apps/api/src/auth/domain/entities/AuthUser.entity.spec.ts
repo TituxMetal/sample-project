@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'bun:test'
+
 import { EmailValueObject, PasswordValueObject } from '~/auth/domain/value-objects'
 
 import { AuthUserEntity } from './AuthUser.entity'

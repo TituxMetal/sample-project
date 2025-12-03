@@ -1,7 +1,9 @@
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
+import type { Mock } from 'bun:test'
+
 import { LoginDto } from '~/auth/application/dtos'
 import { AuthUserEntity } from '~/auth/domain/entities'
 import { AccountNotActiveException, InvalidCredentialsException } from '~/auth/domain/exceptions'
-import type { IAuthUserRepository } from '~/auth/domain/repositories'
 import { EmailValueObject, PasswordValueObject } from '~/auth/domain/value-objects'
 import { TestDataFactory } from '~/shared/infrastructure/testing'
 
@@ -9,34 +11,58 @@ import { LoginUseCase } from './Login.uc'
 
 describe('LoginUseCase', () => {
   let loginUseCase: LoginUseCase
-  let mockAuthUserRepository: jest.Mocked<IAuthUserRepository>
-  let mockPasswordService: { compare: jest.Mock; hash: jest.Mock }
-  let mockJwtService: { generateToken: jest.Mock }
+  let mockAuthUserRepository: {
+    findById: Mock<(id: string) => Promise<AuthUserEntity | null>>
+    findByEmail: Mock<(email: EmailValueObject) => Promise<AuthUserEntity | null>>
+    findByUsername: Mock<(username: string) => Promise<AuthUserEntity | null>>
+    save: Mock<(user: AuthUserEntity) => Promise<AuthUserEntity>>
+    update: Mock<(user: AuthUserEntity) => Promise<AuthUserEntity>>
+    delete: Mock<(id: string) => Promise<void>>
+  }
+  let mockPasswordService: {
+    compare: Mock<(plain: string, hashed: string) => Promise<boolean>>
+    hash: Mock<(plain: string) => Promise<string>>
+  }
+  let mockJwtService: { generateToken: Mock<(payload: object) => string> }
 
   beforeEach(() => {
     mockAuthUserRepository = {
-      findById: jest.fn(),
-      findByEmail: jest.fn(),
-      findByUsername: jest.fn(),
-      save: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn()
+      findById: mock(() => {}) as unknown as Mock<(id: string) => Promise<AuthUserEntity | null>>,
+      findByEmail: mock(() => {}) as unknown as Mock<
+        (email: EmailValueObject) => Promise<AuthUserEntity | null>
+      >,
+      findByUsername: mock(() => {}) as unknown as Mock<
+        (username: string) => Promise<AuthUserEntity | null>
+      >,
+      save: mock(() => {}) as unknown as Mock<(user: AuthUserEntity) => Promise<AuthUserEntity>>,
+      update: mock(() => {}) as unknown as Mock<(user: AuthUserEntity) => Promise<AuthUserEntity>>,
+      delete: mock(() => {}) as unknown as Mock<(id: string) => Promise<void>>
     }
 
     mockPasswordService = {
-      compare: jest.fn(),
-      hash: jest.fn()
+      compare: mock(() => {}) as unknown as Mock<
+        (plain: string, hashed: string) => Promise<boolean>
+      >,
+      hash: mock(() => {}) as unknown as Mock<(plain: string) => Promise<string>>
     }
 
     mockJwtService = {
-      generateToken: jest.fn()
+      generateToken: mock(() => {}) as unknown as Mock<(payload: object) => string>
     }
 
     loginUseCase = new LoginUseCase(mockAuthUserRepository, mockPasswordService, mockJwtService)
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    mockAuthUserRepository.findById.mockClear()
+    mockAuthUserRepository.findByEmail.mockClear()
+    mockAuthUserRepository.findByUsername.mockClear()
+    mockAuthUserRepository.save.mockClear()
+    mockAuthUserRepository.update.mockClear()
+    mockAuthUserRepository.delete.mockClear()
+    mockPasswordService.compare.mockClear()
+    mockPasswordService.hash.mockClear()
+    mockJwtService.generateToken.mockClear()
   })
 
   describe('execute', () => {
@@ -69,9 +95,7 @@ describe('LoginUseCase', () => {
           username: 'username'
         }
       })
-      const findByEmailCalls = (mockAuthUserRepository.findByEmail as jest.Mock).mock.calls as [
-        EmailValueObject
-      ][]
+      const findByEmailCalls = mockAuthUserRepository.findByEmail.mock.calls as [EmailValueObject][]
       expect(findByEmailCalls).toHaveLength(1)
       expect(findByEmailCalls[0]?.[0]).toEqual(
         expect.objectContaining({
@@ -109,8 +133,7 @@ describe('LoginUseCase', () => {
           username: 'username'
         }
       })
-      const findByUsernameCalls = (mockAuthUserRepository.findByUsername as jest.Mock).mock
-        .calls as [string][]
+      const findByUsernameCalls = mockAuthUserRepository.findByUsername.mock.calls as [string][]
       expect(findByUsernameCalls).toHaveLength(1)
       expect(findByUsernameCalls[0]?.[0]).toBe('username')
     })

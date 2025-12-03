@@ -1,4 +1,5 @@
 import { useStore } from '@nanostores/react'
+
 import type { LoginSchema, SignupSchema } from '~/schemas/auth.schema'
 import { $error, $hasError, $isAuthenticated, $isLoading, $user, authActions } from '~/stores/auth'
 import type { User } from '~/types/user.types'

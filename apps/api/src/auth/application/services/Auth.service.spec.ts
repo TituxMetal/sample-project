@@ -1,5 +1,7 @@
 import { Test } from '@nestjs/testing'
 import type { TestingModule } from '@nestjs/testing'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import type { Mock } from 'bun:test'
 
 import { LoginDto, RegisterDto } from '~/auth/application/dtos'
 import { LoginUseCase, LogoutUseCase, RegisterUseCase } from '~/auth/application/use-cases'
@@ -10,20 +12,17 @@ import { AuthService } from './Auth.service'
 
 describe('AuthService', () => {
   let service: AuthService
-  let loginUseCase: LoginUseCase
-  let registerUseCase: RegisterUseCase
-  let logoutUseCase: LogoutUseCase
 
   const mockLoginUseCase = {
-    execute: jest.fn()
+    execute: mock(() => {}) as unknown as Mock<(dto: LoginDto) => Promise<LoginResult>>
   }
 
   const mockRegisterUseCase = {
-    execute: jest.fn()
+    execute: mock(() => {}) as unknown as Mock<(dto: RegisterDto) => Promise<RegisterResult>>
   }
 
   const mockLogoutUseCase = {
-    execute: jest.fn()
+    execute: mock(() => {}) as unknown as Mock<(token?: string) => Promise<LogoutResult>>
   }
 
   beforeEach(async () => {
@@ -46,10 +45,9 @@ describe('AuthService', () => {
     }).compile()
 
     service = module.get<AuthService>(AuthService)
-    loginUseCase = module.get<LoginUseCase>(LoginUseCase)
-    registerUseCase = module.get<RegisterUseCase>(RegisterUseCase)
-    logoutUseCase = module.get<LogoutUseCase>(LogoutUseCase)
-    jest.clearAllMocks()
+    mockLoginUseCase.execute.mockClear()
+    mockRegisterUseCase.execute.mockClear()
+    mockLogoutUseCase.execute.mockClear()
   })
 
   it('should be defined', () => {
@@ -77,9 +75,8 @@ describe('AuthService', () => {
       const result = await service.login(loginDto)
 
       expect(result).toEqual(expectedResult)
-      const executeCalls = (loginUseCase.execute as jest.Mock).mock.calls as [LoginDto][]
-      expect(executeCalls).toHaveLength(1)
-      expect(executeCalls[0]?.[0]).toEqual(loginDto)
+      expect(mockLoginUseCase.execute).toHaveBeenCalledTimes(1)
+      expect(mockLoginUseCase.execute).toHaveBeenCalledWith(loginDto)
     })
   })
 
@@ -111,9 +108,8 @@ describe('AuthService', () => {
       const result = await service.register(registerDto)
 
       expect(result).toEqual(expectedResult)
-      const executeCalls = (registerUseCase.execute as jest.Mock).mock.calls as [RegisterDto][]
-      expect(executeCalls).toHaveLength(1)
-      expect(executeCalls[0]?.[0]).toEqual(registerDto)
+      expect(mockRegisterUseCase.execute).toHaveBeenCalledTimes(1)
+      expect(mockRegisterUseCase.execute).toHaveBeenCalledWith(registerDto)
     })
   })
 
@@ -128,9 +124,8 @@ describe('AuthService', () => {
       const result = await service.logout()
 
       expect(result).toEqual(expectedResult)
-      const executeCalls = (logoutUseCase.execute as jest.Mock).mock.calls as [string?][]
-      expect(executeCalls).toHaveLength(1)
-      expect(executeCalls[0]?.[0]).toBeUndefined()
+      expect(mockLogoutUseCase.execute).toHaveBeenCalledTimes(1)
+      expect(mockLogoutUseCase.execute).toHaveBeenCalledWith(undefined)
     })
 
     it('should call logout use case with token', async () => {
@@ -144,9 +139,8 @@ describe('AuthService', () => {
       const result = await service.logout(token)
 
       expect(result).toEqual(expectedResult)
-      const executeCalls = (logoutUseCase.execute as jest.Mock).mock.calls as [string?][]
-      expect(executeCalls).toHaveLength(1)
-      expect(executeCalls[0]?.[0]).toBe(token)
+      expect(mockLogoutUseCase.execute).toHaveBeenCalledTimes(1)
+      expect(mockLogoutUseCase.execute).toHaveBeenCalledWith(token)
     })
   })
 })

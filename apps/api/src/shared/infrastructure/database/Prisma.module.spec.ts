@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'bun:test'
+
 import { PrismaModule } from './Prisma.module'
 
 describe('PrismaModule', () => {

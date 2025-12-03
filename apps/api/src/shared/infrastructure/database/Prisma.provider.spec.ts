@@ -1,20 +1,26 @@
 import type { ConfigService } from '@nestjs/config'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import type { Mock } from 'bun:test'
 
 import { PrismaProvider } from './Prisma.provider'
 
 describe('PrismaProvider', () => {
   let provider: PrismaProvider
-  let mockConfigService: jest.Mocked<ConfigService>
+  let mockConfigService: {
+    get: Mock<(key: string) => string | undefined>
+  }
 
   beforeEach(() => {
     mockConfigService = {
-      get: jest.fn((key: string) => {
+      get: mock((key: string) => {
         if (key === 'DATABASE_URL') return 'test-database-url'
         return undefined
       })
-    } as unknown as jest.Mocked<ConfigService>
+    } as unknown as {
+      get: Mock<(key: string) => string | undefined>
+    }
 
-    provider = new PrismaProvider(mockConfigService)
+    provider = new PrismaProvider(mockConfigService as unknown as ConfigService)
   })
 
   it('should be defined', () => {

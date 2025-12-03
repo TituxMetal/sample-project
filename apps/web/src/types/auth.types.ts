@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
+
 import type { LoginSchema, SignupSchema } from '~/schemas/auth.schema'
+
 import type { ApiResponse } from './api.types'
 import type { User } from './user.types'
 
@@ -48,6 +50,5 @@ export interface FormComponentProps {
   redirectPath?: string
 }
 
-export const isValidAuthMode = (mode: unknown): mode is AuthMode => {
-  return typeof mode === 'string' && AUTH_MODES.includes(mode as AuthMode)
-}
+export const isValidAuthMode = (mode: unknown): mode is AuthMode =>
+  typeof mode === 'string' && AUTH_MODES.includes(mode as AuthMode)

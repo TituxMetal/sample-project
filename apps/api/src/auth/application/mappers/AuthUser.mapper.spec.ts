@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'bun:test'
+
 import { LoginDto, RegisterDto } from '~/auth/application/dtos'
 import { TestDataFactory } from '~/shared/infrastructure/testing'
 
