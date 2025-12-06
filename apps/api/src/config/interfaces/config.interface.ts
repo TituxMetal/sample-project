@@ -1,32 +1,25 @@
-export interface AuthConfig {
-  cookieName: string
-  sessionTtl: number
-}
-
-export interface JwtConfig {
-  secret: string
-  expiresIn: string
-}
-
 export interface AppConfig {
   isProduction: boolean
   port: number
 }
 
+export interface BetterAuthConfig {
+  baseURL: string
+  secret: string
+  frontendUrl: string
+}
+
 export interface Config {
-  AUTH_COOKIE_NAME: string
-  SESSION_TTL: number
-  JWT_SECRET: string
-  JWT_EXPIRES_IN: string
+  BETTER_AUTH_SECRET: string
+  BETTER_AUTH_URL: string
+  FRONTEND_URL: string
+  EXPIRES_IN: number
+  UPDATE_AGE: number
   NODE_ENV: string
   PORT: number
 }
 
-export interface CookieOptions {
-  name: string
-  httpOnly: boolean
-  secure: boolean
-  sameSite: 'lax' | 'strict' | 'none'
-  maxAge: number
-  path: string
+export interface SessionConfig {
+  expiresIn: number
+  updateAge: number
 }
