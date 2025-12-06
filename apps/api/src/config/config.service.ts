@@ -1,43 +1,29 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService as NestConfigService } from '@nestjs/config'
 
-import {
-  AppConfig,
-  AuthConfig,
-  Config,
-  CookieOptions,
-  JwtConfig
-} from './interfaces/config.interface'
+import { AppConfig, BetterAuthConfig, Config, SessionConfig } from './interfaces/config.interface'
 
 @Injectable()
 export class ConfigService extends NestConfigService<Config, true> {
-  get auth(): AuthConfig {
+  get betterAuth(): BetterAuthConfig {
     return {
-      cookieName: this.get('AUTH_COOKIE_NAME', 'auth_token'),
-      sessionTtl: this.get('SESSION_TTL', 24 * 60 * 60 * 1000)
+      baseURL: this.get('BETTER_AUTH_URL'),
+      secret: this.get('BETTER_AUTH_SECRET'),
+      frontendUrl: this.get('FRONTEND_URL')
     }
   }
 
-  get jwt(): JwtConfig {
-    return { secret: this.get('JWT_SECRET'), expiresIn: this.get('JWT_EXPIRES_IN', '1d') }
+  get session(): SessionConfig {
+    return {
+      expiresIn: this.get('EXPIRES_IN', 604800),
+      updateAge: this.get('UPDATE_AGE', 86400)
+    }
   }
 
   get app(): AppConfig {
-    return { isProduction: this.get('NODE_ENV') === 'production', port: this.get('PORT', 3000) }
-  }
-
-  getCookieOptions(): CookieOptions {
     return {
-      name: this.auth.cookieName,
-      httpOnly: true,
-      secure: this.app.isProduction, // Secure in production
-      sameSite: this.app.isProduction ? 'none' : 'lax', // Cross-origin in prod
-      maxAge: this.auth.sessionTtl,
-      path: '/'
+      isProduction: this.get('NODE_ENV') === 'production',
+      port: this.get('PORT', 3000)
     }
-  }
-
-  extractTokenFromCookies(cookies: Record<string, string>): string | null {
-    return cookies?.[this.auth.cookieName] || null
   }
 }
