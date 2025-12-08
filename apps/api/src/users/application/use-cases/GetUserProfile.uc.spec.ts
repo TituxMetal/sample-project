@@ -49,8 +49,11 @@ describe('GetUserProfileUseCase', () => {
         new UsernameValueObject('johndoe'),
         new NameValueObject('John'),
         new NameValueObject('Doe'),
-        true,
-        false,
+        true, // emailVerified
+        false, // banned
+        null, // banReason
+        null, // banExpires
+        'user', // role
         new Date('2024-01-01'),
         new Date('2024-01-02')
       )

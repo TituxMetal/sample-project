@@ -48,8 +48,11 @@ describe('GetAllUsersUseCase', () => {
           new UsernameValueObject('johndoe'),
           new NameValueObject('John'),
           new NameValueObject('Doe'),
-          true,
-          false,
+          true, // emailVerified
+          false, // banned
+          null, // banReason
+          null, // banExpires
+          'user', // role
           new Date('2024-01-01'),
           new Date('2024-01-02')
         ),
@@ -59,8 +62,11 @@ describe('GetAllUsersUseCase', () => {
           new UsernameValueObject('janedoe'),
           new NameValueObject('Jane'),
           new NameValueObject('Smith'),
-          true,
-          false,
+          true, // emailVerified
+          false, // banned
+          null, // banReason
+          null, // banExpires
+          'user', // role
           new Date('2024-01-03'),
           new Date('2024-01-04')
         )
