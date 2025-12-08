@@ -103,8 +103,11 @@ describe('CreateUserUseCase', () => {
         new UsernameValueObject('existinguser'),
         undefined,
         undefined,
-        true,
-        false,
+        true, // emailVerified
+        false, // banned
+        null, // banReason
+        null, // banExpires
+        'user', // role
         new Date(),
         new Date()
       )
@@ -127,8 +130,11 @@ describe('CreateUserUseCase', () => {
         new UsernameValueObject('johndoe'),
         undefined,
         undefined,
-        true,
-        false,
+        true, // emailVerified
+        false, // banned
+        null, // banReason
+        null, // banExpires
+        'user', // role
         new Date(),
         new Date()
       )

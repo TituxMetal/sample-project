@@ -10,8 +10,9 @@ describe('GetUserProfileDto', () => {
     dto.username = 'johndoe'
     dto.firstName = 'John'
     dto.lastName = 'Doe'
-    dto.confirmed = true
-    dto.blocked = false
+    dto.emailVerified = true
+    dto.banned = false
+    dto.role = 'user'
     dto.createdAt = new Date('2024-01-01')
     dto.updatedAt = new Date('2024-01-02')
 
@@ -21,8 +22,9 @@ describe('GetUserProfileDto', () => {
     expect(dto.username).toBe('johndoe')
     expect(dto.firstName).toBe('John')
     expect(dto.lastName).toBe('Doe')
-    expect(dto.confirmed).toBe(true)
-    expect(dto.blocked).toBe(false)
+    expect(dto.emailVerified).toBe(true)
+    expect(dto.banned).toBe(false)
+    expect(dto.role).toBe('user')
     expect(dto.createdAt).toEqual(new Date('2024-01-01'))
     expect(dto.updatedAt).toEqual(new Date('2024-01-02'))
   })
@@ -32,8 +34,9 @@ describe('GetUserProfileDto', () => {
     dto.id = '123e4567-e89b-12d3-a456-426614174000'
     dto.email = 'john@example.com'
     dto.username = 'johndoe'
-    dto.confirmed = true
-    dto.blocked = false
+    dto.emailVerified = true
+    dto.banned = false
+    dto.role = 'user'
     dto.createdAt = new Date('2024-01-01')
     dto.updatedAt = new Date('2024-01-02')
 
@@ -48,8 +51,9 @@ describe('GetUserProfileDto', () => {
     dto.username = 'johndoe'
     dto.firstName = 'John'
     dto.lastName = 'Doe'
-    dto.confirmed = true
-    dto.blocked = false
+    dto.emailVerified = true
+    dto.banned = false
+    dto.role = 'user'
     dto.createdAt = new Date('2024-01-01')
     dto.updatedAt = new Date('2024-01-02')
 
@@ -61,8 +65,9 @@ describe('GetUserProfileDto', () => {
     expect(parsed.username).toBe('johndoe')
     expect(parsed.firstName).toBe('John')
     expect(parsed.lastName).toBe('Doe')
-    expect(parsed.confirmed).toBe(true)
-    expect(parsed.blocked).toBe(false)
+    expect(parsed.emailVerified).toBe(true)
+    expect(parsed.banned).toBe(false)
+    expect(parsed.role).toBe('user')
     expect(parsed.createdAt).toBe('2024-01-01T00:00:00.000Z')
     expect(parsed.updatedAt).toBe('2024-01-02T00:00:00.000Z')
   })
