@@ -10,11 +10,12 @@ export interface LoginFormProps {
 export const LoginForm = ({ form }: LoginFormProps) => (
   <>
     <Input
-      {...form.register('identifier')}
-      label='Username or Email'
-      placeholder='Enter your username or email'
-      error={form.formState.errors.identifier?.message}
-      autoComplete='username'
+      {...form.register('email')}
+      type='email'
+      label='Email'
+      placeholder='Enter your email'
+      error={form.formState.errors.email?.message}
+      autoComplete='email'
     />
 
     <Input
