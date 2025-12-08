@@ -51,8 +51,20 @@ describe('PrismaUserRepository', () => {
       })
 
       const prismaUser = {
-        ...UserInfrastructureMapper.toPrisma(userEntity),
-        hash: 'hashed-password'
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        email: 'john@example.com',
+        username: 'johndoe',
+        firstName: 'John',
+        lastName: 'Doe',
+        emailVerified: false,
+        banned: false,
+        banReason: null,
+        banExpires: null,
+        role: 'user',
+        name: 'John Doe',
+        image: null,
+        createdAt: userEntity.createdAt,
+        updatedAt: userEntity.updatedAt
       }
 
       const mockCreate = mockPrismaService.user.create as Mock<typeof mockPrismaService.user.create>
@@ -61,10 +73,7 @@ describe('PrismaUserRepository', () => {
       const result = await repository.create(userEntity)
 
       expect(mockPrismaService.user.create).toHaveBeenCalledWith({
-        data: {
-          ...UserInfrastructureMapper.toPrisma(userEntity),
-          hash: '' // Repository adds empty hash
-        }
+        data: UserInfrastructureMapper.toPrisma(userEntity)
       })
       expect(result).toEqual(UserInfrastructureMapper.toDomain(prismaUser))
     })
@@ -79,11 +88,15 @@ describe('PrismaUserRepository', () => {
         username: 'johndoe',
         firstName: 'John',
         lastName: 'Doe',
-        confirmed: true,
-        blocked: false,
+        emailVerified: true,
+        banned: false,
+        banReason: null,
+        banExpires: null,
+        role: 'user',
+        name: 'John Doe',
+        image: null,
         createdAt: new Date(),
-        updatedAt: new Date(),
-        hash: 'hashed-password'
+        updatedAt: new Date()
       }
 
       const mockFindUnique = mockPrismaService.user.findUnique as Mock<
@@ -121,11 +134,15 @@ describe('PrismaUserRepository', () => {
         username: 'johndoe',
         firstName: 'John',
         lastName: 'Doe',
-        confirmed: true,
-        blocked: false,
+        emailVerified: true,
+        banned: false,
+        banReason: null,
+        banExpires: null,
+        role: 'user',
+        name: 'John Doe',
+        image: null,
         createdAt: new Date(),
-        updatedAt: new Date(),
-        hash: 'hashed-password'
+        updatedAt: new Date()
       }
 
       const mockFindUnique = mockPrismaService.user.findUnique as Mock<
@@ -162,11 +179,15 @@ describe('PrismaUserRepository', () => {
         username,
         firstName: 'John',
         lastName: 'Doe',
-        confirmed: true,
-        blocked: false,
+        emailVerified: true,
+        banned: false,
+        banReason: null,
+        banExpires: null,
+        role: 'user',
+        name: 'John Doe',
+        image: null,
         createdAt: new Date(),
-        updatedAt: new Date(),
-        hash: 'hashed-password'
+        updatedAt: new Date()
       }
 
       const mockFindUnique = mockPrismaService.user.findUnique as Mock<
@@ -192,11 +213,15 @@ describe('PrismaUserRepository', () => {
           username: 'johndoe',
           firstName: 'John',
           lastName: 'Doe',
-          confirmed: true,
-          blocked: false,
+          emailVerified: true,
+          banned: false,
+          banReason: null,
+          banExpires: null,
+          role: 'user',
+          name: 'John Doe',
+          image: null,
           createdAt: new Date(),
-          updatedAt: new Date(),
-          hash: 'hashed-password'
+          updatedAt: new Date()
         }
       ]
 
@@ -214,6 +239,8 @@ describe('PrismaUserRepository', () => {
 
   describe('update', () => {
     it('should update user', async () => {
+      const createdAt = new Date()
+      const updatedAt = new Date()
       const userEntity = new UserEntity(
         new UserIdValueObject('123e4567-e89b-12d3-a456-426614174000'),
         'john@example.com',
@@ -222,13 +249,28 @@ describe('PrismaUserRepository', () => {
         new NameValueObject('Doe'),
         true,
         false,
-        new Date(),
-        new Date()
+        null,
+        null,
+        'user',
+        createdAt,
+        updatedAt
       )
 
       const prismaUser = {
-        ...UserInfrastructureMapper.toPrisma(userEntity),
-        hash: 'hashed-password'
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        email: 'john@example.com',
+        username: 'johndoe',
+        firstName: 'John',
+        lastName: 'Doe',
+        emailVerified: true,
+        banned: false,
+        banReason: null,
+        banExpires: null,
+        role: 'user',
+        name: 'John Doe',
+        image: null,
+        createdAt,
+        updatedAt
       }
 
       const mockUpdate = mockPrismaService.user.update as Mock<typeof mockPrismaService.user.update>

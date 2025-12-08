@@ -4,9 +4,9 @@ import type { User as PrismaUser } from '@generated'
 
 import { UserEntity } from '~/users/domain/entities'
 import {
+  NameValueObject,
   UserIdValueObject,
-  UsernameValueObject,
-  NameValueObject
+  UsernameValueObject
 } from '~/users/domain/value-objects'
 
 import { UserInfrastructureMapper } from './User.mapper'
@@ -17,12 +17,16 @@ describe('UserInfrastructureMapper', () => {
       const prismaUser: PrismaUser = {
         id: '123e4567-e89b-12d3-a456-426614174000',
         email: 'john@example.com',
+        name: 'John Doe',
+        image: null,
         username: 'johndoe',
         firstName: 'John',
         lastName: 'Doe',
-        hash: 'hashed-password',
-        confirmed: true,
-        blocked: false,
+        emailVerified: true,
+        banned: false,
+        banReason: null,
+        banExpires: null,
+        role: 'user',
         createdAt: new Date('2024-01-01T00:00:00Z'),
         updatedAt: new Date('2024-01-02T00:00:00Z')
       }
@@ -39,8 +43,11 @@ describe('UserInfrastructureMapper', () => {
       expect(result.firstName?.value).toBe('John')
       expect(result.lastName).toBeInstanceOf(NameValueObject)
       expect(result.lastName?.value).toBe('Doe')
-      expect(result.confirmed).toBe(true)
-      expect(result.blocked).toBe(false)
+      expect(result.emailVerified).toBe(true)
+      expect(result.banned).toBe(false)
+      expect(result.banReason).toBeNull()
+      expect(result.banExpires).toBeNull()
+      expect(result.role).toBe('user')
       expect(result.createdAt).toEqual(new Date('2024-01-01T00:00:00Z'))
       expect(result.updatedAt).toEqual(new Date('2024-01-02T00:00:00Z'))
     })
@@ -49,12 +56,16 @@ describe('UserInfrastructureMapper', () => {
       const prismaUser: PrismaUser = {
         id: '123e4567-e89b-12d3-a456-426614174000',
         email: 'john@example.com',
+        name: 'John Doe',
+        image: null,
         username: 'johndoe',
         firstName: null,
         lastName: null,
-        hash: 'hashed-password',
-        confirmed: true,
-        blocked: false,
+        emailVerified: true,
+        banned: false,
+        banReason: null,
+        banExpires: null,
+        role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
       }
@@ -74,8 +85,11 @@ describe('UserInfrastructureMapper', () => {
         new UsernameValueObject('johndoe'),
         new NameValueObject('John'),
         new NameValueObject('Doe'),
-        true,
-        false,
+        true, // emailVerified
+        false, // banned
+        null, // banReason
+        null, // banExpires
+        'user', // role
         new Date('2024-01-01T00:00:00Z'),
         new Date('2024-01-02T00:00:00Z')
       )
@@ -87,8 +101,11 @@ describe('UserInfrastructureMapper', () => {
       expect(result.username).toBe('johndoe')
       expect(result.firstName).toBe('John')
       expect(result.lastName).toBe('Doe')
-      expect(result.confirmed).toBe(true)
-      expect(result.blocked).toBe(false)
+      expect(result.emailVerified).toBe(true)
+      expect(result.banned).toBe(false)
+      expect(result.banReason).toBeNull()
+      expect(result.banExpires).toBeNull()
+      expect(result.role).toBe('user')
       expect(result.createdAt).toEqual(new Date('2024-01-01T00:00:00Z'))
       expect(result.updatedAt).toEqual(new Date('2024-01-02T00:00:00Z'))
     })
@@ -100,8 +117,11 @@ describe('UserInfrastructureMapper', () => {
         new UsernameValueObject('johndoe'),
         undefined,
         undefined,
-        true,
-        false,
+        true, // emailVerified
+        false, // banned
+        null, // banReason
+        null, // banExpires
+        'user', // role
         new Date(),
         new Date()
       )
@@ -110,24 +130,6 @@ describe('UserInfrastructureMapper', () => {
 
       expect(result.firstName).toBeNull()
       expect(result.lastName).toBeNull()
-    })
-
-    it('should exclude hash field from result', () => {
-      const userEntity = new UserEntity(
-        new UserIdValueObject('123e4567-e89b-12d3-a456-426614174000'),
-        'john@example.com',
-        new UsernameValueObject('johndoe'),
-        undefined,
-        undefined,
-        true,
-        false,
-        new Date(),
-        new Date()
-      )
-
-      const result = UserInfrastructureMapper.toPrisma(userEntity)
-
-      expect('hash' in result).toBe(false)
     })
   })
 })

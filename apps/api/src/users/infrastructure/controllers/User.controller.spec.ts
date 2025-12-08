@@ -1,12 +1,10 @@
 import { Test } from '@nestjs/testing'
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import type { Mock } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { JwtAuthGuard } from '~/auth/infrastructure/guards'
-import type { AuthenticatedUser } from '~/shared/domain/types'
+import type { AuthSession } from '~/auth/domain/types'
 import { LoggerService } from '~/shared/infrastructure/services'
-import { TestDataFactory } from '~/shared/infrastructure/testing'
-import { GetUserProfileDto, UpdateUserProfileDto, CreateUserDto } from '~/users/application/dtos'
+import { CreateUserDto, GetUserProfileDto, UpdateUserProfileDto } from '~/users/application/dtos'
 import { UserService } from '~/users/application/services'
 
 import { UserController } from './User.controller'
@@ -55,10 +53,7 @@ describe('UserController', () => {
           useValue: mockLoggerService
         }
       ]
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue({ canActivate: mock(() => true) })
-      .compile()
+    }).compile()
 
     controller = module.get<UserController>(UserController)
 
@@ -82,14 +77,26 @@ describe('UserController', () => {
       expectedDto.email = 'john@example.com'
       expectedDto.username = 'johndoe'
 
-      const mockUser = TestDataFactory.createAuthenticatedUser({
-        sub: userId,
-        email: 'john@example.com',
-        username: 'johndoe'
-      })
+      const mockSession: AuthSession = {
+        session: { id: 'session-id', userId, expiresAt: new Date() },
+        user: {
+          id: userId,
+          email: 'john@example.com',
+          emailVerified: true,
+          username: 'johndoe',
+          firstName: 'John',
+          lastName: 'Doe',
+          role: 'user',
+          banned: false,
+          banReason: null,
+          banExpires: null,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      }
       mockUserService.getUserProfile.mockResolvedValue(expectedDto)
 
-      const result = await controller.getProfile(mockUser)
+      const result = await controller.getProfile(mockSession)
 
       expect(mockUserService.getUserProfile).toHaveBeenCalledWith(userId)
       expect(result).toBe(expectedDto)
@@ -106,14 +113,26 @@ describe('UserController', () => {
       expectedDto.id = userId
       expectedDto.username = 'newusername'
 
-      const mockUser: AuthenticatedUser = {
-        sub: userId,
-        email: 'john@example.com',
-        username: 'johndoe'
+      const mockSession: AuthSession = {
+        session: { id: 'session-id', userId, expiresAt: new Date() },
+        user: {
+          id: userId,
+          email: 'john@example.com',
+          emailVerified: true,
+          username: 'johndoe',
+          firstName: 'John',
+          lastName: 'Doe',
+          role: 'user',
+          banned: false,
+          banReason: null,
+          banExpires: null,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
       }
       mockUserService.updateUserProfile.mockResolvedValue(expectedDto)
 
-      const result = await controller.updateProfile(mockUser, updateDto)
+      const result = await controller.updateProfile(mockSession, updateDto)
 
       expect(mockUserService.updateUserProfile).toHaveBeenCalledWith(userId, updateDto)
       expect(result).toBe(expectedDto)
@@ -123,15 +142,27 @@ describe('UserController', () => {
   describe('deleteAccount', () => {
     it('should delete current user account', async () => {
       const userId = '123e4567-e89b-12d3-a456-426614174000'
-      const mockUser: AuthenticatedUser = {
-        sub: userId,
-        email: 'john@example.com',
-        username: 'johndoe'
+      const mockSession: AuthSession = {
+        session: { id: 'session-id', userId, expiresAt: new Date() },
+        user: {
+          id: userId,
+          email: 'john@example.com',
+          emailVerified: true,
+          username: 'johndoe',
+          firstName: 'John',
+          lastName: 'Doe',
+          role: 'user',
+          banned: false,
+          banReason: null,
+          banExpires: null,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
       }
 
       mockUserService.deleteUserAccount.mockResolvedValue(undefined)
 
-      await controller.deleteAccount(mockUser)
+      await controller.deleteAccount(mockSession)
 
       expect(mockUserService.deleteUserAccount).toHaveBeenCalledWith(userId)
     })

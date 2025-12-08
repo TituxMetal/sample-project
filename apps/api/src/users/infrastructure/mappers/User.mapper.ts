@@ -17,20 +17,26 @@ export class UserInfrastructureMapper {
       prismaUser.lastName ? new NameValueObject(prismaUser.lastName) : undefined,
       prismaUser.emailVerified,
       prismaUser.banned,
+      prismaUser.banReason,
+      prismaUser.banExpires,
+      prismaUser.role,
       prismaUser.createdAt,
       prismaUser.updatedAt
     )
   }
 
-  static toPrisma(userEntity: UserEntity): Omit<PrismaUser, 'hash'> {
+  static toPrisma(userEntity: UserEntity): Partial<PrismaUser> {
     return {
       id: userEntity.id.value,
       email: userEntity.email,
       username: userEntity.username.value,
       firstName: userEntity.firstName?.value || null,
       lastName: userEntity.lastName?.value || null,
-      confirmed: userEntity.confirmed,
-      blocked: userEntity.blocked,
+      emailVerified: userEntity.emailVerified,
+      banned: userEntity.banned,
+      banReason: userEntity.banReason,
+      banExpires: userEntity.banExpires,
+      role: userEntity.role,
       createdAt: userEntity.createdAt,
       updatedAt: userEntity.updatedAt
     }

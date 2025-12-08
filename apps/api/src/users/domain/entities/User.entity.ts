@@ -11,8 +11,11 @@ export class UserEntity {
     public username: UsernameValueObject,
     public firstName: NameValueObject | undefined,
     public lastName: NameValueObject | undefined,
-    public confirmed: boolean,
-    public blocked: boolean,
+    public emailVerified: boolean,
+    public banned: boolean,
+    public banReason: string | null,
+    public banExpires: Date | null,
+    public role: string,
     public readonly createdAt: Date,
     public readonly updatedAt: Date
   ) {}
@@ -33,19 +36,27 @@ export class UserEntity {
     }
   }
 
-  block(): void {
-    this.blocked = true
+  ban(reason?: string, expires?: Date): void {
+    this.banned = true
+    this.banReason = reason ?? null
+    this.banExpires = expires ?? null
   }
 
-  unblock(): void {
-    this.blocked = false
+  unban(): void {
+    this.banned = false
+    this.banReason = null
+    this.banExpires = null
   }
 
-  confirm(): void {
-    this.confirmed = true
+  verify(): void {
+    this.emailVerified = true
   }
 
   isActive(): boolean {
-    return this.confirmed && !this.blocked
+    if (!this.emailVerified) return false
+    if (!this.banned) return true
+    if (this.banExpires && this.banExpires < new Date()) return true
+
+    return false
   }
 }
