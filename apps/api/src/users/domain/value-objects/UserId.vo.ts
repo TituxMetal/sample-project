@@ -34,7 +34,8 @@ export class UserIdValueObject {
 
   private isValidUserIdFormat(value: string): boolean {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-    const authUserIdRegex = /^user_\d+_[a-zA-Z0-9]+$/
-    return uuidRegex.test(value) || authUserIdRegex.test(value)
+    // Better Auth generates 32-character alphanumeric IDs
+    const betterAuthIdRegex = /^[a-zA-Z0-9]{32}$/
+    return uuidRegex.test(value) || betterAuthIdRegex.test(value)
   }
 }
