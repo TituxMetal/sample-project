@@ -22,14 +22,14 @@ export const AuthContainer = ({ mode = 'login', redirectPath }: AuthContainerPro
 
   const loginForm = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { identifier: '', password: '' },
+    defaultValues: { email: '', password: '' },
     mode: 'onTouched',
     criteriaMode: 'all'
   })
 
   const signupForm = useForm<SignupSchema>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { username: '', email: '', password: '' },
+    defaultValues: { name: '', username: '', email: '', password: '' },
     mode: 'onTouched',
     criteriaMode: 'all'
   })
