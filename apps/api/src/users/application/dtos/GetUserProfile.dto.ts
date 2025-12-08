@@ -4,8 +4,9 @@ export class GetUserProfileDto {
   username!: string
   firstName?: string
   lastName?: string
-  confirmed!: boolean
-  blocked!: boolean
+  emailVerified!: boolean
+  banned!: boolean
+  role!: string
   createdAt!: Date
   updatedAt!: Date
 }

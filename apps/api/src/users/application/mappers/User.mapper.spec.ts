@@ -30,8 +30,9 @@ describe('UserMapper', () => {
       expect(result.username).toBe(userEntity.username.value)
       expect(result.firstName).toBe(userEntity.firstName?.value)
       expect(result.lastName).toBe(userEntity.lastName?.value)
-      expect(result.confirmed).toBe(userEntity.confirmed)
-      expect(result.blocked).toBe(userEntity.blocked)
+      expect(result.emailVerified).toBe(userEntity.emailVerified)
+      expect(result.banned).toBe(userEntity.banned)
+      expect(result.role).toBe(userEntity.role)
       expect(result.createdAt).toEqual(userEntity.createdAt)
       expect(result.updatedAt).toEqual(userEntity.updatedAt)
     })
@@ -60,8 +61,11 @@ describe('UserMapper', () => {
         new UsernameValueObject('johndoe'),
         new NameValueObject('John'),
         new NameValueObject('Doe'),
-        true,
-        false,
+        true, // emailVerified
+        false, // banned
+        null, // banReason
+        null, // banExpires
+        'user', // role
         new Date('2024-01-01T00:00:00Z'),
         new Date('2024-01-01T00:00:00Z')
       )
@@ -79,8 +83,8 @@ describe('UserMapper', () => {
       expect(result.username.value).toBe('janedoe')
       expect(result.firstName?.value).toBe('Jane')
       expect(result.lastName?.value).toBe('Smith')
-      expect(result.confirmed).toBe(existingEntity.confirmed)
-      expect(result.blocked).toBe(existingEntity.blocked)
+      expect(result.emailVerified).toBe(existingEntity.emailVerified)
+      expect(result.banned).toBe(existingEntity.banned)
       expect(result.createdAt).toBe(existingEntity.createdAt)
       expect(result.updatedAt).toBeInstanceOf(Date)
     })
@@ -94,6 +98,9 @@ describe('UserMapper', () => {
         new NameValueObject('Doe'),
         true,
         false,
+        null,
+        null,
+        'user',
         new Date(),
         new Date()
       )
@@ -117,6 +124,9 @@ describe('UserMapper', () => {
         new NameValueObject('Doe'),
         true,
         false,
+        null,
+        null,
+        'user',
         new Date(),
         new Date()
       )
@@ -149,8 +159,9 @@ describe('UserMapper', () => {
       expect(result.username.value).toBe('johndoe')
       expect(result.firstName?.value).toBe('John')
       expect(result.lastName?.value).toBe('Doe')
-      expect(result.confirmed).toBe(true)
-      expect(result.blocked).toBe(false)
+      expect(result.emailVerified).toBe(true)
+      expect(result.banned).toBe(false)
+      expect(result.role).toBe('user')
       expect(result.createdAt).toBeInstanceOf(Date)
       expect(result.updatedAt).toBeInstanceOf(Date)
     })

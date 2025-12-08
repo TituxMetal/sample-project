@@ -22,8 +22,11 @@ describe('UserEntity', () => {
         username,
         firstName,
         lastName,
-        true,
-        false,
+        true, // emailVerified
+        false, // banned
+        null, // banReason
+        null, // banExpires
+        'user', // role
         new Date('2024-01-01'),
         new Date('2024-01-02')
       )
@@ -33,8 +36,11 @@ describe('UserEntity', () => {
       expect(user.username).toBe(username)
       expect(user.firstName).toBe(firstName)
       expect(user.lastName).toBe(lastName)
-      expect(user.confirmed).toBe(true)
-      expect(user.blocked).toBe(false)
+      expect(user.emailVerified).toBe(true)
+      expect(user.banned).toBe(false)
+      expect(user.banReason).toBeNull()
+      expect(user.banExpires).toBeNull()
+      expect(user.role).toBe('user')
       expect(user.createdAt).toEqual(new Date('2024-01-01'))
       expect(user.updatedAt).toEqual(new Date('2024-01-02'))
     })
@@ -51,6 +57,9 @@ describe('UserEntity', () => {
         undefined,
         true,
         false,
+        null,
+        null,
+        'user',
         new Date(),
         new Date()
       )
@@ -75,6 +84,9 @@ describe('UserEntity', () => {
         lastName,
         true,
         false,
+        null,
+        null,
+        'user',
         new Date('2024-01-01'),
         new Date('2024-01-01')
       )
@@ -102,6 +114,9 @@ describe('UserEntity', () => {
         undefined,
         true,
         false,
+        null,
+        null,
+        'user',
         new Date(),
         new Date()
       )
@@ -115,8 +130,8 @@ describe('UserEntity', () => {
     })
   })
 
-  describe('block/unblock', () => {
-    it('should block a user', () => {
+  describe('ban/unban', () => {
+    it('should ban a user', () => {
       const userId = new UserIdValueObject('123e4567-e89b-12d3-a456-426614174000')
       const username = new UsernameValueObject('johndoe')
 
@@ -128,15 +143,45 @@ describe('UserEntity', () => {
         undefined,
         true,
         false,
+        null,
+        null,
+        'user',
         new Date(),
         new Date()
       )
 
-      user.block()
-      expect(user.blocked).toBe(true)
+      user.ban('Violation of terms')
+      expect(user.banned).toBe(true)
+      expect(user.banReason).toBe('Violation of terms')
     })
 
-    it('should unblock a user', () => {
+    it('should ban a user with expiration', () => {
+      const userId = new UserIdValueObject('123e4567-e89b-12d3-a456-426614174000')
+      const username = new UsernameValueObject('johndoe')
+
+      const user = new UserEntity(
+        userId,
+        'john@example.com',
+        username,
+        undefined,
+        undefined,
+        true,
+        false,
+        null,
+        null,
+        'user',
+        new Date(),
+        new Date()
+      )
+
+      const banExpires = new Date('2025-12-31')
+      user.ban('Temporary ban', banExpires)
+      expect(user.banned).toBe(true)
+      expect(user.banReason).toBe('Temporary ban')
+      expect(user.banExpires).toBe(banExpires)
+    })
+
+    it('should unban a user', () => {
       const userId = new UserIdValueObject('123e4567-e89b-12d3-a456-426614174000')
       const username = new UsernameValueObject('johndoe')
 
@@ -148,17 +193,22 @@ describe('UserEntity', () => {
         undefined,
         true,
         true,
+        'Previous ban',
+        new Date('2025-12-31'),
+        'user',
         new Date(),
         new Date()
       )
 
-      user.unblock()
-      expect(user.blocked).toBe(false)
+      user.unban()
+      expect(user.banned).toBe(false)
+      expect(user.banReason).toBeNull()
+      expect(user.banExpires).toBeNull()
     })
   })
 
-  describe('confirm', () => {
-    it('should confirm a user', () => {
+  describe('verify', () => {
+    it('should verify a user', () => {
       const userId = new UserIdValueObject('123e4567-e89b-12d3-a456-426614174000')
       const username = new UsernameValueObject('johndoe')
 
@@ -170,17 +220,20 @@ describe('UserEntity', () => {
         undefined,
         false,
         false,
+        null,
+        null,
+        'user',
         new Date(),
         new Date()
       )
 
-      user.confirm()
-      expect(user.confirmed).toBe(true)
+      user.verify()
+      expect(user.emailVerified).toBe(true)
     })
   })
 
   describe('isActive', () => {
-    it('should return true for confirmed and unblocked user', () => {
+    it('should return true for verified and unbanned user', () => {
       const userId = new UserIdValueObject('123e4567-e89b-12d3-a456-426614174000')
       const username = new UsernameValueObject('johndoe')
 
@@ -192,6 +245,9 @@ describe('UserEntity', () => {
         undefined,
         true,
         false,
+        null,
+        null,
+        'user',
         new Date(),
         new Date()
       )
@@ -199,7 +255,7 @@ describe('UserEntity', () => {
       expect(user.isActive()).toBe(true)
     })
 
-    it('should return false for blocked user', () => {
+    it('should return false for banned user', () => {
       const userId = new UserIdValueObject('123e4567-e89b-12d3-a456-426614174000')
       const username = new UsernameValueObject('johndoe')
 
@@ -211,6 +267,9 @@ describe('UserEntity', () => {
         undefined,
         true,
         true,
+        'Banned',
+        null,
+        'user',
         new Date(),
         new Date()
       )
@@ -218,7 +277,7 @@ describe('UserEntity', () => {
       expect(user.isActive()).toBe(false)
     })
 
-    it('should return false for unconfirmed user', () => {
+    it('should return false for unverified user', () => {
       const userId = new UserIdValueObject('123e4567-e89b-12d3-a456-426614174000')
       const username = new UsernameValueObject('johndoe')
 
@@ -230,11 +289,36 @@ describe('UserEntity', () => {
         undefined,
         false,
         false,
+        null,
+        null,
+        'user',
         new Date(),
         new Date()
       )
 
       expect(user.isActive()).toBe(false)
+    })
+
+    it('should return true for banned user with expired ban', () => {
+      const userId = new UserIdValueObject('123e4567-e89b-12d3-a456-426614174000')
+      const username = new UsernameValueObject('johndoe')
+
+      const user = new UserEntity(
+        userId,
+        'john@example.com',
+        username,
+        undefined,
+        undefined,
+        true,
+        true,
+        'Temporary ban',
+        new Date('2020-01-01'), // Expired ban
+        'user',
+        new Date(),
+        new Date()
+      )
+
+      expect(user.isActive()).toBe(true)
     })
   })
 })

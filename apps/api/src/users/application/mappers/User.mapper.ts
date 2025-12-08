@@ -15,8 +15,9 @@ export class UserMapper {
     dto.username = entity.username.value
     dto.firstName = entity.firstName?.value
     dto.lastName = entity.lastName?.value
-    dto.confirmed = entity.confirmed
-    dto.blocked = entity.blocked
+    dto.emailVerified = entity.emailVerified
+    dto.banned = entity.banned
+    dto.role = entity.role
     dto.createdAt = entity.createdAt
     dto.updatedAt = entity.updatedAt
     return dto
@@ -46,8 +47,11 @@ export class UserMapper {
       username,
       firstName,
       lastName,
-      existingEntity.confirmed,
-      existingEntity.blocked,
+      existingEntity.emailVerified,
+      existingEntity.banned,
+      existingEntity.banReason,
+      existingEntity.banExpires,
+      existingEntity.role,
       existingEntity.createdAt,
       new Date()
     )
@@ -62,8 +66,11 @@ export class UserMapper {
       new UsernameValueObject(dto.username),
       dto.firstName ? new NameValueObject(dto.firstName) : undefined,
       dto.lastName ? new NameValueObject(dto.lastName) : undefined,
-      true,
-      false,
+      true, // emailVerified
+      false, // banned
+      null, // banReason
+      null, // banExpires
+      'user', // role
       new Date(),
       new Date()
     )

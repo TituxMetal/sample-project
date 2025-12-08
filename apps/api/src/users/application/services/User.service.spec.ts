@@ -136,19 +136,14 @@ describe('UserService', () => {
 
   describe('createUser', () => {
     it('should call createUserUseCase with correct parameters', async () => {
-      const registerData = TestDataFactory.createRegisterData({
-        email: 'john@example.com',
-        username: 'johndoe',
-        password: 'password123'
-      })
       const createDto = new CreateUserDto()
-      createDto.email = registerData.email
-      createDto.username = registerData.username
-      createDto.password = registerData.password
+      createDto.email = 'john@example.com'
+      createDto.username = 'johndoe'
+      createDto.password = 'password123'
 
       const expectedDto = new GetUserProfileDto()
-      expectedDto.email = registerData.email
-      expectedDto.username = registerData.username
+      expectedDto.email = createDto.email
+      expectedDto.username = createDto.username
 
       mockCreateUserUseCase.execute.mockResolvedValue(expectedDto)
 
