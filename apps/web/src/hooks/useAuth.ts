@@ -1,5 +1,6 @@
 import { useStore } from '@nanostores/react'
 
+import { signIn, signOut, signUp } from '~/lib/authClient'
 import type { LoginSchema, SignupSchema } from '~/schemas/auth.schema'
 import { $error, $hasError, $isAuthenticated, $isLoading, $user, authActions } from '~/stores/auth'
 import type { User } from '~/types/user.types'
@@ -28,29 +29,73 @@ export const useAuth = (): UseAuthReturn => {
   const hasError = useStore($hasError)
 
   const login = async (credentials: LoginSchema, redirectPath?: string) => {
-    await authActions.login(credentials)
+    try {
+      $isLoading.set(true)
+      $error.set(null)
 
-    if (typeof window !== 'undefined') {
-      // Small delay to ensure state updates are processed
-      setTimeout(() => {
-        redirect(redirectPath || '/')
-      }, 100)
+      const result = await signIn.email({
+        email: credentials.identifier,
+        password: credentials.password
+      })
+
+      if (result.error) {
+        throw new Error(result.error.message || 'Login Failed')
+      }
+
+      await authActions.refresh()
+
+      if (typeof window !== 'undefined') {
+        setTimeout(() => {
+          redirect(redirectPath || '/')
+        }, 100)
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Login Failed'
+      $error.set(errorMessage)
+      throw err
+    } finally {
+      $isLoading.set(false)
     }
   }
 
   const register = async (data: SignupSchema, redirectPath?: string) => {
-    await authActions.register(data)
+    try {
+      $isLoading.set(true)
+      $error.set(null)
 
-    if (typeof window !== 'undefined') {
-      redirect(redirectPath || '/')
+      const result = await signUp.email({
+        email: data.email,
+        password: data.password,
+        name: data.username,
+        username: data.username
+      })
+
+      if (result.error) {
+        throw new Error(result.error.message || 'Registration Failed')
+      }
+
+      if (typeof window !== 'undefined') {
+        redirect(redirectPath || '/')
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Registration Failed'
+      $error.set(errorMessage)
+      throw err
+    } finally {
+      $isLoading.set(false)
     }
   }
 
   const logout = async (redirectPath?: string) => {
-    await authActions.logout()
+    try {
+      $isLoading.set(true)
+      $error.set(null)
 
-    if (typeof window !== 'undefined') {
-      redirect(redirectPath || '/auth')
+      await signOut()
+    } catch (err) {
+      console.warn('Logout error:', err)
+    } finally {
+      $isLoading.set(false)
     }
   }
 
