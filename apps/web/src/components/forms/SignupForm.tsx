@@ -10,6 +10,14 @@ export interface SignupFormProps {
 export const SignupForm = ({ form }: SignupFormProps) => (
   <>
     <Input
+      {...form.register('name')}
+      label='Name'
+      placeholder='Enter your name'
+      error={form.formState.errors.name?.message}
+      autoComplete='name'
+    />
+
+    <Input
       {...form.register('username')}
       label='Username'
       placeholder='Enter your username'
@@ -19,6 +27,7 @@ export const SignupForm = ({ form }: SignupFormProps) => (
 
     <Input
       {...form.register('email')}
+      type='email'
       label='Email'
       placeholder='Enter your email'
       error={form.formState.errors.email?.message}
