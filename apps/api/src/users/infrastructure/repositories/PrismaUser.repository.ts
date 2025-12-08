@@ -19,8 +19,7 @@ export class PrismaUserRepository implements IUserRepository {
     // use the Auth module's user creation methods.
     const prismaUser = await this.prisma.user.create({
       data: {
-        ...prismaData,
-        hash: '' // Password management is Auth module's responsibility
+        ...prismaData
       } as Prisma.UserCreateInput
     })
     return UserInfrastructureMapper.toDomain(prismaUser)

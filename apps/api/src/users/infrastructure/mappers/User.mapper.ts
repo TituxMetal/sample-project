@@ -2,9 +2,9 @@ import type { User as PrismaUser } from '@generated'
 
 import { UserEntity } from '~/users/domain/entities'
 import {
+  NameValueObject,
   UserIdValueObject,
-  UsernameValueObject,
-  NameValueObject
+  UsernameValueObject
 } from '~/users/domain/value-objects'
 
 export class UserInfrastructureMapper {
@@ -15,8 +15,8 @@ export class UserInfrastructureMapper {
       new UsernameValueObject(prismaUser.username),
       prismaUser.firstName ? new NameValueObject(prismaUser.firstName) : undefined,
       prismaUser.lastName ? new NameValueObject(prismaUser.lastName) : undefined,
-      prismaUser.confirmed,
-      prismaUser.blocked,
+      prismaUser.emailVerified,
+      prismaUser.banned,
       prismaUser.createdAt,
       prismaUser.updatedAt
     )
