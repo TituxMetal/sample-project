@@ -1,7 +1,6 @@
 import { atom, computed } from 'nanostores'
 
-import type { LoginSchema, SignupSchema } from '~/schemas/auth.schema'
-import { getCurrentUser, login, logout, register } from '~/services/auth.service'
+import { getCurrentUser } from '~/services/auth.service'
 import type { User } from '~/types/user.types'
 
 // State atoms
@@ -30,51 +29,6 @@ export const authActions = {
         $error.set(error instanceof Error ? error.message : 'Failed to refresh user')
       }
     } finally {
-      $isLoading.set(false)
-    }
-  },
-
-  async login(credentials: LoginSchema) {
-    try {
-      $isLoading.set(true)
-      $error.set(null)
-      const user = await login(credentials)
-      $user.set(user)
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Login failed'
-      $error.set(errorMessage)
-      throw error // Re-throw for component handling
-    } finally {
-      $isLoading.set(false)
-    }
-  },
-
-  async register(data: SignupSchema) {
-    try {
-      $isLoading.set(true)
-      $error.set(null)
-      const user = await register(data)
-      $user.set(user)
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Registration failed'
-      $error.set(errorMessage)
-      throw error // Re-throw for component handling
-    } finally {
-      $isLoading.set(false)
-    }
-  },
-
-  async logout() {
-    try {
-      $isLoading.set(true)
-      $error.set(null)
-      await logout()
-    } catch (error) {
-      // Log but don't set error state for logout failures
-      console.warn('Logout error:', error)
-    } finally {
-      $user.set(null)
-      $error.set(null)
       $isLoading.set(false)
     }
   },
