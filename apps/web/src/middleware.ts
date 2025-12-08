@@ -4,9 +4,9 @@ import { apiRequest } from './lib/apiRequest'
 import type { User } from './types/user.types'
 
 export const onRequest = async (context: APIContext, next: MiddlewareNext) => {
-  const token = context.cookies.get('auth_token')
+  const sessionToken = context.cookies.get('better-auth.session_token')
 
-  if (!token) {
+  if (!sessionToken) {
     return next()
   }
 
@@ -18,13 +18,13 @@ export const onRequest = async (context: APIContext, next: MiddlewareNext) => {
     const result = await apiRequest('/users/me', {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token.value}`
+        Cookie: `better-auth.session_token=${sessionToken.value}`
       }
     })
 
     if (!result.success) {
       if (result.message?.includes('Unauthorized')) {
-        context.cookies.delete('auth_token')
+        context.cookies.delete('better-auth.session_token')
       }
       return next()
     }
