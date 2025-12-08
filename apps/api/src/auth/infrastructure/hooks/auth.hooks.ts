@@ -7,7 +7,7 @@ import { LoggerService } from '~/shared/infrastructure/services'
 @Hook()
 @Injectable()
 export class AuthHooks {
-  constructor(private readonly logger: LoggerService) {}
+  private readonly logger = new LoggerService('AuthHooks')
 
   @BeforeHook('/sign-up/email')
   async beforeSignUp(ctx: AuthHookContext) {

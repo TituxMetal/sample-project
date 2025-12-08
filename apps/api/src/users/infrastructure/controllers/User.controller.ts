@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common'
 import { Roles, Session } from '@thallesp/nestjs-better-auth'
 
-import { AuthSession } from '~/auth/domain/types'
+import type { AuthSession } from '~/auth/domain/types'
 import { LoggerService } from '~/shared/infrastructure/services'
 import type {
   CreateUserDto,
