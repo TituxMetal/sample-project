@@ -28,10 +28,11 @@ const prepareHeaders = (options: RequestInit): Headers => {
     headers.set('Content-Type', 'application/json')
   }
 
-  const token = typeof window !== 'undefined' ? getCookie('auth_token') : null
+  // Better Auth uses session cookies - forward them for SSR requests
+  const sessionToken = typeof window !== 'undefined' ? getCookie('better-auth.session_token') : null
 
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`)
+  if (sessionToken && !headers.get('Cookie')) {
+    headers.set('Cookie', `better-auth.session_token=${sessionToken}`)
   }
 
   return headers
