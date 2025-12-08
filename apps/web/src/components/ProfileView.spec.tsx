@@ -11,7 +11,8 @@ const mockUser: User = {
   email: 'test@example.com',
   firstName: 'John',
   lastName: 'Doe',
-  confirmed: true,
+  emailVerified: true,
+  role: 'user',
   createdAt: '2023-01-01T00:00:00.000Z',
   updatedAt: '2023-01-01T00:00:00.000Z'
 }
@@ -30,7 +31,7 @@ describe('ProfileView', () => {
     expect(screen.getByText('testuser')).toBeInTheDocument()
     expect(screen.getByText('John')).toBeInTheDocument()
     expect(screen.getByText('Doe')).toBeInTheDocument()
-    expect(screen.getByText('Yes')).toBeInTheDocument() // confirmed: true
+    expect(screen.getByText('Yes')).toBeInTheDocument() // emailVerified: true
   })
 
   it('should render field labels correctly', () => {
@@ -41,7 +42,7 @@ describe('ProfileView', () => {
     expect(screen.getByText('Username')).toBeInTheDocument()
     expect(screen.getByText('First name')).toBeInTheDocument()
     expect(screen.getByText('Last name')).toBeInTheDocument()
-    expect(screen.getByText('Confirmed')).toBeInTheDocument()
+    expect(screen.getByText('Email Verified')).toBeInTheDocument()
   })
 
   it('should render "-" for null firstName and lastName', () => {
@@ -58,14 +59,14 @@ describe('ProfileView', () => {
     expect(dashElements).toHaveLength(2) // firstName and lastName
   })
 
-  it('should render "No" for unconfirmed user', () => {
-    const unconfirmedUser: User = {
+  it('should render "No" for unverified email', () => {
+    const unverifiedUser: User = {
       ...mockUser,
-      confirmed: false
+      emailVerified: false
     }
     const onEdit = mock(() => {})
 
-    render(<ProfileView user={unconfirmedUser} onEdit={onEdit} />)
+    render(<ProfileView user={unverifiedUser} onEdit={onEdit} />)
 
     expect(screen.getByText('No')).toBeInTheDocument()
   })

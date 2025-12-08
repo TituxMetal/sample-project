@@ -30,7 +30,8 @@ describe('updateProfile', () => {
       email: 'test@example.com',
       firstName: 'John',
       lastName: 'Doe',
-      confirmed: true,
+      emailVerified: true,
+      role: 'user',
       createdAt: '2024-01-01',
       updatedAt: '2024-01-01'
     }
@@ -54,7 +55,8 @@ describe('updateProfile', () => {
       email: 'test@example.com',
       firstName: 'Jane',
       lastName: 'Doe',
-      confirmed: true,
+      emailVerified: true,
+      role: 'user',
       createdAt: '2024-01-01',
       updatedAt: '2024-01-01'
     }
