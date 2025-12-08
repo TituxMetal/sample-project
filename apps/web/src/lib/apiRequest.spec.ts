@@ -16,10 +16,10 @@ describe('apiRequest', () => {
     mockFetch.mockClear()
     mockFetch.mockReset()
 
-    // Set up document.cookie for each test
+    // Set up document.cookie for each test (Better Auth session token)
     Object.defineProperty(document, 'cookie', {
       writable: true,
-      value: 'auth_token=test-token-123',
+      value: 'better-auth.session_token=test-session-token-123',
       configurable: true
     })
   })
@@ -33,18 +33,15 @@ describe('apiRequest', () => {
 
     const result = await apiRequest('/users/1')
 
-    expect(mockFetch).toHaveBeenCalledWith(
-      '/api/users/1',
-      expect.objectContaining({
-        credentials: 'include',
-        headers: expect.any(Headers)
-      })
-    )
+    expect(mockFetch).toHaveBeenCalled()
+    const call = mockFetch.mock.calls[0] as unknown as [string, RequestInit]
+    // URL can be /api/users/1 (browser) or http://localhost:3000/users/1 (SSR)
+    expect(call[0]).toContain('/users/1')
+    expect(call[1].credentials).toBe('include')
 
     // Check headers separately since Headers is a special object
-    const call = mockFetch.mock.calls[0] as unknown as [string, RequestInit]
     const headers = call[1].headers as Headers
-    expect(headers.get('Authorization')).toBe('Bearer test-token-123')
+    expect(headers.get('Cookie')).toBe('better-auth.session_token=test-session-token-123')
 
     expect(result).toEqual({
       success: true,
@@ -63,21 +60,18 @@ describe('apiRequest', () => {
     const body = { name: 'New User', email: 'test@example.com' }
     const result = await api.post('/users', body)
 
-    expect(mockFetch).toHaveBeenCalledWith(
-      '/api/users',
-      expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify(body),
-        credentials: 'include',
-        headers: expect.any(Headers)
-      })
-    )
+    expect(mockFetch).toHaveBeenCalled()
+    const call = mockFetch.mock.calls[0] as unknown as [string, RequestInit]
+    // URL can be /api/users (browser) or http://localhost:3000/users (SSR)
+    expect(call[0]).toContain('/users')
+    expect(call[1].method).toBe('POST')
+    expect(call[1].body).toBe(JSON.stringify(body))
+    expect(call[1].credentials).toBe('include')
 
     // Check headers separately since Headers is a special object
-    const call = mockFetch.mock.calls[0] as unknown as [string, RequestInit]
     const headers = call[1].headers as Headers
     expect(headers.get('Content-Type')).toBe('application/json')
-    expect(headers.get('Authorization')).toBe('Bearer test-token-123')
+    expect(headers.get('Cookie')).toBe('better-auth.session_token=test-session-token-123')
 
     expect(result).toEqual({
       success: true,
@@ -114,7 +108,7 @@ describe('apiRequest', () => {
     })
   })
 
-  it('should work without auth token', async () => {
+  it('should work without session token', async () => {
     // Mock no cookie
     Object.defineProperty(document, 'cookie', {
       writable: true,
@@ -130,17 +124,14 @@ describe('apiRequest', () => {
 
     const result = await apiRequest('/public')
 
-    expect(mockFetch).toHaveBeenCalledWith(
-      '/api/public',
-      expect.objectContaining({
-        headers: expect.any(Headers)
-      })
-    )
-
-    // Check that no Authorization header was set
+    expect(mockFetch).toHaveBeenCalled()
     const call = mockFetch.mock.calls[0] as unknown as [string, RequestInit]
+    // URL can be /api/public (browser) or http://localhost:3000/public (SSR)
+    expect(call[0]).toContain('/public')
+
+    // Check that no Cookie header was set
     const headers = call[1].headers as Headers
-    expect(headers.get('Authorization')).toBeNull()
+    expect(headers.get('Cookie')).toBeNull()
 
     expect(result.success).toBe(true)
   })
@@ -158,44 +149,34 @@ describe('api helpers', () => {
     // Set up document.cookie
     Object.defineProperty(document, 'cookie', {
       writable: true,
-      value: 'auth_token=test-token-123',
+      value: 'better-auth.session_token=test-session-token-123',
       configurable: true
     })
   })
 
   it('should use correct HTTP methods', async () => {
     await api.get('/test')
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({ method: 'GET' })
-    )
+    let call = mockFetch.mock.calls[0] as unknown as [string, RequestInit]
+    expect(call[1].method).toBe('GET')
 
     mockFetch.mockClear()
     await api.post('/test', {})
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({ method: 'POST' })
-    )
+    call = mockFetch.mock.calls[0] as unknown as [string, RequestInit]
+    expect(call[1].method).toBe('POST')
 
     mockFetch.mockClear()
     await api.put('/test', {})
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({ method: 'PUT' })
-    )
+    call = mockFetch.mock.calls[0] as unknown as [string, RequestInit]
+    expect(call[1].method).toBe('PUT')
 
     mockFetch.mockClear()
     await api.patch('/test', {})
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({ method: 'PATCH' })
-    )
+    call = mockFetch.mock.calls[0] as unknown as [string, RequestInit]
+    expect(call[1].method).toBe('PATCH')
 
     mockFetch.mockClear()
     await api.delete('/test')
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({ method: 'DELETE' })
-    )
+    call = mockFetch.mock.calls[0] as unknown as [string, RequestInit]
+    expect(call[1].method).toBe('DELETE')
   })
 })

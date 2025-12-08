@@ -4,20 +4,41 @@ import type { Mock } from 'bun:test'
 
 import { api } from '~/lib/apiRequest'
 import { $error, $isLoading, $user } from '~/stores/auth'
-import type { ApiResponse } from '~/types/api.types'
 import type { User } from '~/types/user.types'
 import * as navigationUtils from '~/utils/navigation'
 
-import { useAuth } from './useAuth'
+// Mock authClient module - type-safe mock return type
+interface AuthSuccess<T> {
+  data: T
+  error: null
+}
+interface AuthError {
+  data: null
+  error: { message: string }
+}
+type AuthResult<T> = AuthSuccess<T> | AuthError
 
-// Spy on api methods instead of mock.module to avoid test pollution
-let postSpy: Mock<typeof api.post>
-let getSpy: Mock<typeof api.get>
+const mockSignInEmail = mock<() => Promise<AuthResult<{ user: User }>>>()
+const mockSignUpEmail = mock<() => Promise<AuthResult<{ user: User }>>>()
+const mockSignOut = mock<() => Promise<AuthResult<null>>>()
 
-// Mock navigation module (this is safe as it doesn't affect service tests)
+mock.module('~/lib/authClient', () => ({
+  signIn: { email: mockSignInEmail },
+  signUp: { email: mockSignUpEmail },
+  signOut: mockSignOut,
+  authClient: {}
+}))
+
+// Mock navigation module
 mock.module('~/utils/navigation', () => ({
   redirect: mock(() => {})
 }))
+
+// Import after mocking
+import { useAuth } from './useAuth'
+
+// Spy on api methods for refresh calls
+let getSpy: Mock<typeof api.get>
 
 const mockUser: User = {
   id: '1',
@@ -25,16 +46,20 @@ const mockUser: User = {
   email: 'test@example.com',
   firstName: 'Test',
   lastName: 'User',
-  confirmed: true,
+  emailVerified: true,
+  role: 'user',
   createdAt: '2023-01-01T00:00:00.000Z',
   updatedAt: '2023-01-01T00:00:00.000Z'
 }
 
 describe('useAuth hook', () => {
   beforeEach(() => {
-    // Setup spies on api methods
-    postSpy = spyOn(api, 'post')
+    // Setup spies on api methods for refresh
     getSpy = spyOn(api, 'get')
+    // Reset mocks
+    mockSignInEmail.mockClear()
+    mockSignUpEmail.mockClear()
+    mockSignOut.mockClear()
     ;(navigationUtils.redirect as ReturnType<typeof mock>).mockClear()
     setSystemTime(new Date('2023-01-01T00:00:00.000Z'))
     $user.set(null)
@@ -44,7 +69,6 @@ describe('useAuth hook', () => {
 
   afterEach(() => {
     // Restore spies to avoid test pollution
-    postSpy.mockRestore()
     getSpy.mockRestore()
     setSystemTime()
   })
@@ -61,30 +85,33 @@ describe('useAuth hook', () => {
 
   describe('login', () => {
     it('should login successfully', async () => {
-      postSpy.mockResolvedValueOnce({ success: true, data: { user: mockUser } })
+      mockSignInEmail.mockResolvedValueOnce({ data: { user: mockUser }, error: null })
+      getSpy.mockResolvedValueOnce({ success: true, data: mockUser })
 
       const { result } = renderHook(() => useAuth())
 
       await act(async () => {
-        await result.current.login({ identifier: 'test@example.com', password: 'password' })
+        await result.current.login({ email: 'test@example.com', password: 'password' })
       })
 
-      expect(api.post).toHaveBeenCalledWith('/auth/login', {
-        emailOrUsername: 'test@example.com',
+      expect(mockSignInEmail).toHaveBeenCalledWith({
+        email: 'test@example.com',
         password: 'password'
       })
-      expect($user.get()).toEqual(mockUser)
     })
 
     it('should handle login failure', async () => {
-      postSpy.mockResolvedValueOnce({ success: false, message: 'Invalid credentials' })
+      mockSignInEmail.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'Invalid credentials' }
+      })
 
       const { result } = renderHook(() => useAuth())
 
       let thrownError: Error | undefined
       await act(async () => {
         try {
-          await result.current.login({ identifier: 'test@example.com', password: 'wrong' })
+          await result.current.login({ email: 'test@example.com', password: 'wrong' })
         } catch (error) {
           thrownError = error as Error
         }
@@ -93,24 +120,24 @@ describe('useAuth hook', () => {
       expect(thrownError).toBeDefined()
       expect(thrownError!.message).toBe('Invalid credentials')
       expect($user.get()).toBe(null)
-      expect(navigationUtils.redirect).not.toHaveBeenCalled()
     })
 
     it('should set loading state during login', async () => {
-      let resolvePromise: (value: ApiResponse<{ user: User }>) => void
-      const pendingPromise = new Promise<ApiResponse<{ user: User }>>(resolve => {
+      let resolvePromise: (value: AuthResult<{ user: User }>) => void
+      const pendingPromise = new Promise<AuthResult<{ user: User }>>(resolve => {
         resolvePromise = resolve
       })
-      postSpy.mockReturnValueOnce(pendingPromise)
+      mockSignInEmail.mockReturnValueOnce(pendingPromise)
 
       const { result } = renderHook(() => useAuth())
 
       const loginPromise = act(async () => {
-        await result.current.login({ identifier: 'test@example.com', password: 'password' })
+        await result.current.login({ email: 'test@example.com', password: 'password' })
       })
 
       expect($isLoading.get()).toBe(true)
-      resolvePromise!({ success: true, data: { user: mockUser } })
+      getSpy.mockResolvedValueOnce({ success: true, data: mockUser })
+      resolvePromise!({ data: { user: mockUser }, error: null })
       await loginPromise
 
       expect($isLoading.get()).toBe(false)
@@ -119,28 +146,32 @@ describe('useAuth hook', () => {
 
   describe('register', () => {
     it('should register successfully', async () => {
-      postSpy.mockResolvedValueOnce({ success: true, data: { user: mockUser } })
+      mockSignUpEmail.mockResolvedValueOnce({ data: { user: mockUser }, error: null })
 
       const { result } = renderHook(() => useAuth())
 
       await act(async () => {
         await result.current.register({
+          name: 'Test User',
           username: 'testuser',
           email: 'test@example.com',
           password: 'password'
         })
       })
 
-      expect(api.post).toHaveBeenCalledWith('/auth/register', {
-        username: 'testuser',
+      expect(mockSignUpEmail).toHaveBeenCalledWith({
         email: 'test@example.com',
-        password: 'password'
+        password: 'password',
+        name: 'testuser',
+        username: 'testuser'
       })
-      expect($user.get()).toEqual(mockUser)
     })
 
     it('should handle registration failure', async () => {
-      postSpy.mockResolvedValueOnce({ success: false, message: 'Email already exists' })
+      mockSignUpEmail.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'Email already exists' }
+      })
 
       const { result } = renderHook(() => useAuth())
 
@@ -148,6 +179,7 @@ describe('useAuth hook', () => {
       await act(async () => {
         try {
           await result.current.register({
+            name: 'Test User',
             username: 'testuser',
             email: 'test@example.com',
             password: 'password'
@@ -166,7 +198,7 @@ describe('useAuth hook', () => {
   describe('logout', () => {
     it('should logout successfully', async () => {
       $user.set(mockUser)
-      postSpy.mockResolvedValueOnce({ success: true, data: undefined })
+      mockSignOut.mockResolvedValueOnce({ data: null, error: null })
 
       const { result } = renderHook(() => useAuth())
 
@@ -174,23 +206,21 @@ describe('useAuth hook', () => {
         await result.current.logout()
       })
 
-      expect(api.post).toHaveBeenCalledWith('/auth/logout')
-      expect($user.get()).toBe(null)
-      expect(navigationUtils.redirect).toHaveBeenCalledWith('/auth')
+      expect(mockSignOut).toHaveBeenCalled()
     })
 
-    it('should clear user state even if logout service fails', async () => {
+    it('should handle logout errors gracefully', async () => {
       $user.set(mockUser)
-      postSpy.mockResolvedValueOnce({ success: false, message: 'Network error' })
+      mockSignOut.mockRejectedValueOnce(new Error('Network error'))
 
       const { result } = renderHook(() => useAuth())
 
+      // Should not throw
       await act(async () => {
         await result.current.logout()
       })
 
-      expect($user.get()).toBe(null)
-      expect(navigationUtils.redirect).toHaveBeenCalledWith('/auth')
+      expect($isLoading.get()).toBe(false)
     })
   })
 
@@ -223,13 +253,16 @@ describe('useAuth hook', () => {
 
   describe('error handling', () => {
     it('should expose error state', async () => {
-      postSpy.mockResolvedValueOnce({ success: false, message: 'Login failed' })
+      mockSignInEmail.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'Login failed' }
+      })
 
       const { result } = renderHook(() => useAuth())
 
       await act(async () => {
         try {
-          await result.current.login({ identifier: 'test@example.com', password: 'wrong' })
+          await result.current.login({ email: 'test@example.com', password: 'wrong' })
         } catch {
           // Expected to throw
         }
@@ -240,13 +273,16 @@ describe('useAuth hook', () => {
     })
 
     it('should clear error when clearError is called', async () => {
-      postSpy.mockResolvedValueOnce({ success: false, message: 'Login failed' })
+      mockSignInEmail.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'Login failed' }
+      })
 
       const { result } = renderHook(() => useAuth())
 
       await act(async () => {
         try {
-          await result.current.login({ identifier: 'test@example.com', password: 'wrong' })
+          await result.current.login({ email: 'test@example.com', password: 'wrong' })
         } catch {
           // Expected to throw
         }

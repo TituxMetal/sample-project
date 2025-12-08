@@ -38,7 +38,7 @@ describe('AuthContainer', () => {
     it('should render login form by default', () => {
       render(<AuthContainer />)
 
-      expect(screen.getByLabelText(/username or email/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
       expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument()
       expect(screen.getByText(/need an account/i)).toBeInTheDocument()
@@ -47,7 +47,7 @@ describe('AuthContainer', () => {
     it('should render login form when mode is explicitly set to login', () => {
       render(<AuthContainer mode='login' />)
 
-      expect(screen.getByLabelText(/username or email/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
       expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument()
     })
@@ -56,14 +56,14 @@ describe('AuthContainer', () => {
       const user = userEvent.setup()
       render(<AuthContainer mode='login' />)
 
-      await user.type(screen.getByLabelText(/username or email/i), 'test@example.com')
+      await user.type(screen.getByLabelText(/email/i), 'test@example.com')
       await user.type(screen.getByLabelText(/password/i), 'password123')
       await user.click(screen.getByRole('button', { name: /login/i }))
 
       await waitFor(() => {
         expect(mockUseAuth.login).toHaveBeenCalledWith(
           {
-            identifier: 'test@example.com',
+            email: 'test@example.com',
             password: 'password123'
           },
           undefined
@@ -75,14 +75,14 @@ describe('AuthContainer', () => {
       const user = userEvent.setup()
       render(<AuthContainer mode='login' redirectPath='/dashboard' />)
 
-      await user.type(screen.getByLabelText(/username or email/i), 'test@example.com')
+      await user.type(screen.getByLabelText(/email/i), 'test@example.com')
       await user.type(screen.getByLabelText(/password/i), 'password123')
       await user.click(screen.getByRole('button', { name: /login/i }))
 
       await waitFor(() => {
         expect(mockUseAuth.login).toHaveBeenCalledWith(
           {
-            identifier: 'test@example.com',
+            email: 'test@example.com',
             password: 'password123'
           },
           '/dashboard'
@@ -95,7 +95,7 @@ describe('AuthContainer', () => {
       mockUseAuth.login.mockRejectedValueOnce(new Error('Invalid credentials'))
       render(<AuthContainer mode='login' />)
 
-      await user.type(screen.getByLabelText(/username or email/i), 'test@example.com')
+      await user.type(screen.getByLabelText(/email/i), 'test@example.com')
       await user.type(screen.getByLabelText(/password/i), 'wrongpassword')
       await user.click(screen.getByRole('button', { name: /login/i }))
 
@@ -128,6 +128,7 @@ describe('AuthContainer', () => {
     it('should render signup form when mode is set to signup', () => {
       render(<AuthContainer mode='signup' />)
 
+      expect(screen.getByLabelText(/^name$/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/username/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
@@ -139,6 +140,7 @@ describe('AuthContainer', () => {
       const user = userEvent.setup()
       render(<AuthContainer mode='signup' />)
 
+      await user.type(screen.getByLabelText(/^name$/i), 'Test User')
       await user.type(screen.getByLabelText(/username/i), 'testuser')
       await user.type(screen.getByLabelText(/email/i), 'test@example.com')
       await user.type(screen.getByLabelText(/password/i), 'password123')
@@ -147,6 +149,7 @@ describe('AuthContainer', () => {
       await waitFor(() => {
         expect(mockUseAuth.register).toHaveBeenCalledWith(
           {
+            name: 'Test User',
             username: 'testuser',
             email: 'test@example.com',
             password: 'password123'
@@ -160,6 +163,7 @@ describe('AuthContainer', () => {
       const user = userEvent.setup()
       render(<AuthContainer mode='signup' redirectPath='/welcome' />)
 
+      await user.type(screen.getByLabelText(/^name$/i), 'Test User')
       await user.type(screen.getByLabelText(/username/i), 'testuser')
       await user.type(screen.getByLabelText(/email/i), 'test@example.com')
       await user.type(screen.getByLabelText(/password/i), 'password123')
@@ -168,6 +172,7 @@ describe('AuthContainer', () => {
       await waitFor(() => {
         expect(mockUseAuth.register).toHaveBeenCalledWith(
           {
+            name: 'Test User',
             username: 'testuser',
             email: 'test@example.com',
             password: 'password123'
@@ -182,6 +187,7 @@ describe('AuthContainer', () => {
       mockUseAuth.register.mockRejectedValueOnce(new Error('Email already exists'))
       render(<AuthContainer mode='signup' />)
 
+      await user.type(screen.getByLabelText(/^name$/i), 'Test User')
       await user.type(screen.getByLabelText(/username/i), 'testuser')
       await user.type(screen.getByLabelText(/email/i), 'existing@example.com')
       await user.type(screen.getByLabelText(/password/i), 'password123')

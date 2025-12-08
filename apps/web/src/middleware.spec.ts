@@ -35,7 +35,7 @@ describe('Authentication Middleware', () => {
     apiRequestSpy.mockRestore()
   })
 
-  it('continues without user when no token exists', async () => {
+  it('continues without user when no session token exists', async () => {
     const mockGet = mock(() => undefined)
     const context = createMockContext({
       cookies: {
@@ -59,11 +59,12 @@ describe('Authentication Middleware', () => {
       email: 'test@example.com',
       firstName: 'Test',
       lastName: 'User',
-      confirmed: true,
+      emailVerified: true,
+      role: 'user',
       createdAt: '2023-01-01T00:00:00Z',
       updatedAt: '2023-01-01T00:00:00Z'
     }
-    const mockGet = mock(() => ({ value: 'token-value' }))
+    const mockGet = mock(() => ({ value: 'session-token-value' }))
     const context = createMockContext({
       cookies: {
         get: mockGet,
@@ -80,18 +81,19 @@ describe('Authentication Middleware', () => {
     expect(result).toBe('next-result' as unknown as Response)
   })
 
-  it('sets user in locals when token is valid', async () => {
+  it('sets user in locals when session token is valid', async () => {
     const mockUser: User = {
       id: '1',
       username: 'test',
       email: 'test@example.com',
       firstName: 'Test',
       lastName: 'User',
-      confirmed: true,
+      emailVerified: true,
+      role: 'user',
       createdAt: '2023-01-01T00:00:00Z',
       updatedAt: '2023-01-01T00:00:00Z'
     }
-    const mockGet = mock(() => ({ value: 'token-value' }))
+    const mockGet = mock(() => ({ value: 'session-token-value' }))
     const mockDelete = mock(() => {})
     const context = createMockContext({
       cookies: {
@@ -114,7 +116,7 @@ describe('Authentication Middleware', () => {
       expect.objectContaining({
         method: 'GET',
         headers: {
-          Authorization: 'Bearer token-value'
+          Cookie: 'better-auth.session_token=session-token-value'
         }
       })
     )
@@ -123,7 +125,7 @@ describe('Authentication Middleware', () => {
     expect(result).toBe('next-result' as unknown as Response)
   })
 
-  it('clears auth cookie when token is unauthorized', async () => {
+  it('clears session cookie when token is unauthorized', async () => {
     const mockGet = mock(() => ({ value: 'invalid-token' }))
     const mockDelete = mock(() => {})
     const context = createMockContext({
@@ -142,7 +144,7 @@ describe('Authentication Middleware', () => {
 
     const result = await onRequest(context, next)
 
-    expect(mockDelete).toHaveBeenCalledWith('auth_token')
+    expect(mockDelete).toHaveBeenCalledWith('better-auth.session_token')
     expect(context.locals.user).toBeUndefined()
     expect(next).toHaveBeenCalled()
     expect(result).toBe('next-result' as unknown as Response)
