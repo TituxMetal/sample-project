@@ -34,7 +34,7 @@ export const useAuth = (): UseAuthReturn => {
       $error.set(null)
 
       const result = await signIn.email({
-        email: credentials.identifier,
+        email: credentials.email,
         password: credentials.password
       })
 
