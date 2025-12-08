@@ -19,8 +19,8 @@ export const ProfileView = ({ user, onEdit }: ProfileViewProps) => (
       <dd>{user.firstName ?? '-'}</dd>
       <dd>{user.lastName ?? '-'}</dd>
 
-      <dt className='col-span-2 font-bold'>Confirmed</dt>
-      <dd className='col-span-2'>{user.confirmed ? 'Yes' : 'No'}</dd>
+      <dt className='col-span-2 font-bold'>Email Verified</dt>
+      <dd className='col-span-2'>{user.emailVerified ? 'Yes' : 'No'}</dd>
     </dl>
 
     <section className='mx-auto mt-4 grid w-full max-w-lg items-center justify-end'>
