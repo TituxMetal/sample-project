@@ -41,7 +41,8 @@ export const createBetterAuthConfig = (
       expiresIn: configService.session.expiresIn,
       updateAge: configService.session.updateAge
     },
-    plugins: [admin({ defaultRole: 'user', adminRole: 'admin' })]
+    plugins: [admin({ defaultRole: 'user', adminRole: 'admin' })],
+    hooks: {}
   } satisfies BetterAuthOptions
 
   return betterAuth(config)
