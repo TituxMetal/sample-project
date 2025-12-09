@@ -1,5 +1,3 @@
+export { DeleteUserAccountUseCase } from './DeleteUserAccount.uc'
 export { GetUserProfileUseCase } from './GetUserProfile.uc'
 export { UpdateUserProfileUseCase } from './UpdateUserProfile.uc'
-export { DeleteUserAccountUseCase } from './DeleteUserAccount.uc'
-export { CreateUserUseCase } from './CreateUser.uc'
-export { GetAllUsersUseCase } from './GetAllUsers.uc'

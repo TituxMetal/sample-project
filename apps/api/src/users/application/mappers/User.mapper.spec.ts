@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'bun:test'
 
 import { TestDataFactory } from '~/shared/infrastructure/testing'
-import { GetUserProfileDto, UpdateUserProfileDto, CreateUserDto } from '~/users/application/dtos'
+import { GetUserProfileDto, UpdateUserProfileDto } from '~/users/application/dtos'
 import { UserEntity } from '~/users/domain/entities'
 import {
+  NameValueObject,
   UserIdValueObject,
-  UsernameValueObject,
-  NameValueObject
+  UsernameValueObject
 } from '~/users/domain/value-objects'
 
 import { UserMapper } from './User.mapper'
@@ -136,43 +136,6 @@ describe('UserMapper', () => {
       updateDto.lastName = ''
 
       const result = UserMapper.fromUpdateUserProfileDto(updateDto, existingEntity)
-
-      expect(result.firstName).toBeUndefined()
-      expect(result.lastName).toBeUndefined()
-    })
-  })
-
-  describe('fromCreateUserDto', () => {
-    it('should create UserEntity from CreateUserDto with all fields', () => {
-      const createDto = new CreateUserDto()
-      createDto.email = 'john@example.com'
-      createDto.username = 'johndoe'
-      createDto.password = 'password123'
-      createDto.firstName = 'John'
-      createDto.lastName = 'Doe'
-
-      const result = UserMapper.fromCreateUserDto(createDto)
-
-      expect(result).toBeInstanceOf(UserEntity)
-      expect(result.id).toBeInstanceOf(UserIdValueObject)
-      expect(result.email).toBe('john@example.com')
-      expect(result.username.value).toBe('johndoe')
-      expect(result.firstName?.value).toBe('John')
-      expect(result.lastName?.value).toBe('Doe')
-      expect(result.emailVerified).toBe(true)
-      expect(result.banned).toBe(false)
-      expect(result.role).toBe('user')
-      expect(result.createdAt).toBeInstanceOf(Date)
-      expect(result.updatedAt).toBeInstanceOf(Date)
-    })
-
-    it('should create UserEntity from CreateUserDto without optional names', () => {
-      const createDto = new CreateUserDto()
-      createDto.email = 'john@example.com'
-      createDto.username = 'johndoe'
-      createDto.password = 'password123'
-
-      const result = UserMapper.fromCreateUserDto(createDto)
 
       expect(result.firstName).toBeUndefined()
       expect(result.lastName).toBeUndefined()

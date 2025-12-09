@@ -5,11 +5,9 @@ import { PrismaProvider } from '~/shared/infrastructure/database'
 
 import { UserService } from './application/services'
 import {
-  GetUserProfileUseCase,
-  UpdateUserProfileUseCase,
   DeleteUserAccountUseCase,
-  CreateUserUseCase,
-  GetAllUsersUseCase
+  GetUserProfileUseCase,
+  UpdateUserProfileUseCase
 } from './application/use-cases'
 import type { IUserRepository } from './domain/repositories'
 import { UserController } from './infrastructure/controllers'
@@ -39,16 +37,6 @@ import { PrismaUserRepository } from './infrastructure/repositories'
     {
       provide: DeleteUserAccountUseCase,
       useFactory: (userRepository: IUserRepository) => new DeleteUserAccountUseCase(userRepository),
-      inject: ['IUserRepository']
-    },
-    {
-      provide: CreateUserUseCase,
-      useFactory: (userRepository: IUserRepository) => new CreateUserUseCase(userRepository),
-      inject: ['IUserRepository']
-    },
-    {
-      provide: GetAllUsersUseCase,
-      useFactory: (userRepository: IUserRepository) => new GetAllUsersUseCase(userRepository),
       inject: ['IUserRepository']
     },
     // Application service

@@ -1,14 +1,8 @@
 import { Injectable } from '@nestjs/common'
 
-import type {
-  CreateUserDto,
-  GetUserProfileDto,
-  UpdateUserProfileDto
-} from '~/users/application/dtos'
+import type { GetUserProfileDto, UpdateUserProfileDto } from '~/users/application/dtos'
 import {
-  CreateUserUseCase,
   DeleteUserAccountUseCase,
-  GetAllUsersUseCase,
   GetUserProfileUseCase,
   UpdateUserProfileUseCase
 } from '~/users/application/use-cases'
@@ -18,9 +12,7 @@ export class UserService {
   constructor(
     private readonly getUserProfileUseCase: GetUserProfileUseCase,
     private readonly updateUserProfileUseCase: UpdateUserProfileUseCase,
-    private readonly deleteUserAccountUseCase: DeleteUserAccountUseCase,
-    private readonly createUserUseCase: CreateUserUseCase,
-    private readonly getAllUsersUseCase: GetAllUsersUseCase
+    private readonly deleteUserAccountUseCase: DeleteUserAccountUseCase
   ) {}
 
   async getUserProfile(userId: string): Promise<GetUserProfileDto> {
@@ -36,13 +28,5 @@ export class UserService {
 
   async deleteUserAccount(userId: string): Promise<void> {
     return this.deleteUserAccountUseCase.execute(userId)
-  }
-
-  async createUser(createDto: CreateUserDto): Promise<GetUserProfileDto> {
-    return this.createUserUseCase.execute(createDto)
-  }
-
-  async getAllUsers(): Promise<GetUserProfileDto[]> {
-    return this.getAllUsersUseCase.execute()
   }
 }

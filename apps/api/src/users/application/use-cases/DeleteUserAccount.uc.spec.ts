@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import type { Mock } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { UserEntity } from '~/users/domain/entities'
 import { UserNotFoundException } from '~/users/domain/exceptions'
@@ -11,11 +11,9 @@ import { DeleteUserAccountUseCase } from './DeleteUserAccount.uc'
 describe('DeleteUserAccountUseCase', () => {
   let useCase: DeleteUserAccountUseCase
   let mockUserRepository: {
-    create: Mock<IUserRepository['create']>
     findById: Mock<IUserRepository['findById']>
     findByEmail: Mock<IUserRepository['findByEmail']>
     findByUsername: Mock<IUserRepository['findByUsername']>
-    findAll: Mock<IUserRepository['findAll']>
     update: Mock<IUserRepository['update']>
     delete: Mock<IUserRepository['delete']>
     exists: Mock<IUserRepository['exists']>
@@ -23,11 +21,9 @@ describe('DeleteUserAccountUseCase', () => {
 
   beforeEach(() => {
     mockUserRepository = {
-      create: mock(() => {}) as unknown as Mock<IUserRepository['create']>,
       findById: mock(() => {}) as unknown as Mock<IUserRepository['findById']>,
       findByEmail: mock(() => {}) as unknown as Mock<IUserRepository['findByEmail']>,
       findByUsername: mock(() => {}) as unknown as Mock<IUserRepository['findByUsername']>,
-      findAll: mock(() => {}) as unknown as Mock<IUserRepository['findAll']>,
       update: mock(() => {}) as unknown as Mock<IUserRepository['update']>,
       delete: mock(() => {}) as unknown as Mock<IUserRepository['delete']>,
       exists: mock(() => {}) as unknown as Mock<IUserRepository['exists']>

@@ -1,13 +1,11 @@
 import { Test } from '@nestjs/testing'
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import type { Mock } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { TestDataFactory } from '~/shared/infrastructure/testing'
-import { CreateUserDto, GetUserProfileDto, UpdateUserProfileDto } from '~/users/application/dtos'
+import { GetUserProfileDto, UpdateUserProfileDto } from '~/users/application/dtos'
 import {
-  CreateUserUseCase,
   DeleteUserAccountUseCase,
-  GetAllUsersUseCase,
   GetUserProfileUseCase,
   UpdateUserProfileUseCase
 } from '~/users/application/use-cases'
@@ -25,12 +23,6 @@ describe('UserService', () => {
   let mockDeleteUserAccountUseCase: {
     execute: Mock<typeof DeleteUserAccountUseCase.prototype.execute>
   }
-  let mockCreateUserUseCase: {
-    execute: Mock<typeof CreateUserUseCase.prototype.execute>
-  }
-  let mockGetAllUsersUseCase: {
-    execute: Mock<typeof GetAllUsersUseCase.prototype.execute>
-  }
 
   beforeEach(async () => {
     mockGetUserProfileUseCase = {
@@ -43,14 +35,6 @@ describe('UserService', () => {
 
     mockDeleteUserAccountUseCase = {
       execute: mock(() => {}) as unknown as Mock<typeof DeleteUserAccountUseCase.prototype.execute>
-    }
-
-    mockCreateUserUseCase = {
-      execute: mock(() => {}) as unknown as Mock<typeof CreateUserUseCase.prototype.execute>
-    }
-
-    mockGetAllUsersUseCase = {
-      execute: mock(() => {}) as unknown as Mock<typeof GetAllUsersUseCase.prototype.execute>
     }
 
     const module = await Test.createTestingModule({
@@ -67,14 +51,6 @@ describe('UserService', () => {
         {
           provide: DeleteUserAccountUseCase,
           useValue: mockDeleteUserAccountUseCase
-        },
-        {
-          provide: CreateUserUseCase,
-          useValue: mockCreateUserUseCase
-        },
-        {
-          provide: GetAllUsersUseCase,
-          useValue: mockGetAllUsersUseCase
         }
       ]
     }).compile()
@@ -131,39 +107,6 @@ describe('UserService', () => {
       await service.deleteUserAccount(userId)
 
       expect(mockDeleteUserAccountUseCase.execute).toHaveBeenCalledWith(userId)
-    })
-  })
-
-  describe('createUser', () => {
-    it('should call createUserUseCase with correct parameters', async () => {
-      const createDto = new CreateUserDto()
-      createDto.email = 'john@example.com'
-      createDto.username = 'johndoe'
-      createDto.password = 'password123'
-
-      const expectedDto = new GetUserProfileDto()
-      expectedDto.email = createDto.email
-      expectedDto.username = createDto.username
-
-      mockCreateUserUseCase.execute.mockResolvedValue(expectedDto)
-
-      const result = await service.createUser(createDto)
-
-      expect(mockCreateUserUseCase.execute).toHaveBeenCalledWith(createDto)
-      expect(result).toBe(expectedDto)
-    })
-  })
-
-  describe('getAllUsers', () => {
-    it('should call getAllUsersUseCase', async () => {
-      const expectedUsers = [new GetUserProfileDto(), new GetUserProfileDto()]
-
-      mockGetAllUsersUseCase.execute.mockResolvedValue(expectedUsers)
-
-      const result = await service.getAllUsers()
-
-      expect(mockGetAllUsersUseCase.execute).toHaveBeenCalled()
-      expect(result).toBe(expectedUsers)
     })
   })
 })

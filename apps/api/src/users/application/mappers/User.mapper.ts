@@ -1,11 +1,7 @@
-import type { UpdateUserProfileDto, CreateUserDto } from '~/users/application/dtos'
+import type { UpdateUserProfileDto } from '~/users/application/dtos'
 import { GetUserProfileDto } from '~/users/application/dtos'
 import { UserEntity } from '~/users/domain/entities'
-import {
-  UserIdValueObject,
-  UsernameValueObject,
-  NameValueObject
-} from '~/users/domain/value-objects'
+import { NameValueObject, UsernameValueObject } from '~/users/domain/value-objects'
 
 export class UserMapper {
   static toGetUserProfileDto(entity: UserEntity): GetUserProfileDto {
@@ -57,22 +53,5 @@ export class UserMapper {
     )
 
     return updatedEntity
-  }
-
-  static fromCreateUserDto(dto: CreateUserDto): UserEntity {
-    return new UserEntity(
-      UserIdValueObject.generate(),
-      dto.email,
-      new UsernameValueObject(dto.username),
-      dto.firstName ? new NameValueObject(dto.firstName) : undefined,
-      dto.lastName ? new NameValueObject(dto.lastName) : undefined,
-      true, // emailVerified
-      false, // banned
-      null, // banReason
-      null, // banExpires
-      'user', // role
-      new Date(),
-      new Date()
-    )
   }
 }

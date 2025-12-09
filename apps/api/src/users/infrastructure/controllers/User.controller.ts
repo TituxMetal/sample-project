@@ -1,13 +1,9 @@
-import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common'
-import { Roles, Session } from '@thallesp/nestjs-better-auth'
+import { Body, Controller, Delete, Get, Patch } from '@nestjs/common'
+import { Session } from '@thallesp/nestjs-better-auth'
 
 import type { AuthSession } from '~/auth/domain/types'
 import { LoggerService } from '~/shared/infrastructure/services'
-import type {
-  CreateUserDto,
-  GetUserProfileDto,
-  UpdateUserProfileDto
-} from '~/users/application/dtos'
+import type { GetUserProfileDto, UpdateUserProfileDto } from '~/users/application/dtos'
 import { UserService } from '~/users/application/services'
 
 @Controller('users')
@@ -56,17 +52,5 @@ export class UserController {
       userId: session.user.id,
       email: session.user.email
     })
-  }
-
-  @Post()
-  @Roles(['admin'])
-  async createUser(@Body() createDto: CreateUserDto): Promise<GetUserProfileDto> {
-    return this.userService.createUser(createDto)
-  }
-
-  @Get()
-  @Roles(['admin'])
-  async getAllUsers(): Promise<GetUserProfileDto[]> {
-    return this.userService.getAllUsers()
   }
 }

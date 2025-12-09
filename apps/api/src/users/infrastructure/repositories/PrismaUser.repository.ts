@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common'
 
-import { Prisma } from '@generated'
-
 import type { PrismaProvider } from '~/shared/infrastructure/database'
 import { UserEntity } from '~/users/domain/entities'
 import type { IUserRepository } from '~/users/domain/repositories'
@@ -11,19 +9,6 @@ import { UserInfrastructureMapper } from '~/users/infrastructure/mappers'
 @Injectable()
 export class PrismaUserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaProvider) {}
-
-  async create(user: UserEntity): Promise<UserEntity> {
-    const prismaData = UserInfrastructureMapper.toPrisma(user)
-    // Note: This method should only be used for user profile creation where password
-    // is handled separately by the Auth module. For full user creation with authentication,
-    // use the Auth module's user creation methods.
-    const prismaUser = await this.prisma.user.create({
-      data: {
-        ...prismaData
-      } as Prisma.UserCreateInput
-    })
-    return UserInfrastructureMapper.toDomain(prismaUser)
-  }
 
   async findById(id: UserIdValueObject): Promise<UserEntity | null> {
     const prismaUser = await this.prisma.user.findUnique({
@@ -44,11 +29,6 @@ export class PrismaUserRepository implements IUserRepository {
       where: { username }
     })
     return prismaUser ? UserInfrastructureMapper.toDomain(prismaUser) : null
-  }
-
-  async findAll(): Promise<UserEntity[]> {
-    const prismaUsers = await this.prisma.user.findMany()
-    return prismaUsers.map(user => UserInfrastructureMapper.toDomain(user))
   }
 
   async update(user: UserEntity): Promise<UserEntity> {
