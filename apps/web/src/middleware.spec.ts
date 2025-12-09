@@ -1,6 +1,6 @@
 import type { APIContext, MiddlewareNext } from 'astro'
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import type { Mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 
 import * as apiModule from './lib/apiRequest'
 import { onRequest } from './middleware'
@@ -112,7 +112,7 @@ describe('Authentication Middleware', () => {
     const result = await onRequest(context, next)
 
     expect(apiModule.apiRequest).toHaveBeenCalledWith(
-      '/users/me',
+      '/api/users/me',
       expect.objectContaining({
         method: 'GET',
         headers: {

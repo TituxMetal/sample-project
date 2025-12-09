@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, mock, setSystemTime, spyOn } from 'bun:test'
 import type { Mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock, setSystemTime, spyOn } from 'bun:test'
 
 import { api } from '~/lib/apiRequest'
 import { $error, $isLoading, $user } from '~/stores/auth'
@@ -309,7 +309,7 @@ describe('useAuth hook', () => {
         await result.current.refresh()
       })
 
-      expect(api.get).toHaveBeenCalledWith('/users/me')
+      expect(api.get).toHaveBeenCalledWith('/api/users/me')
       expect(result.current.user).toEqual(mockUser)
     })
 
@@ -322,7 +322,7 @@ describe('useAuth hook', () => {
         await result.current.silentRefresh()
       })
 
-      expect(api.get).toHaveBeenCalledWith('/users/me')
+      expect(api.get).toHaveBeenCalledWith('/api/users/me')
       expect(result.current.user).toEqual(mockUser)
     })
   })

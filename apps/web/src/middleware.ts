@@ -15,7 +15,7 @@ export const onRequest = async (context: APIContext, next: MiddlewareNext) => {
   }
 
   try {
-    const result = await apiRequest('/users/me', {
+    const result = await apiRequest('/api/users/me', {
       method: 'GET',
       headers: {
         Cookie: `better-auth.session_token=${sessionToken.value}`
