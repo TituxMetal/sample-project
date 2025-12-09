@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, spyOn } from 'bun:test'
 import type { Mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, spyOn } from 'bun:test'
 
 import { api } from '~/lib/apiRequest'
 import type { UpdateProfileSchema } from '~/schemas/user.schema'
@@ -43,7 +43,7 @@ describe('updateProfile', () => {
 
     const result = await updateProfile(data)
 
-    expect(api.patch).toHaveBeenCalledWith('/users/me', data)
+    expect(api.patch).toHaveBeenCalledWith('/api/users/me', data)
     expect(result).toEqual(mockUser)
   })
 
@@ -68,7 +68,7 @@ describe('updateProfile', () => {
 
     const result = await updateProfile(data)
 
-    expect(api.patch).toHaveBeenCalledWith('/users/me', data)
+    expect(api.patch).toHaveBeenCalledWith('/api/users/me', data)
     expect(result).toEqual(mockUser)
   })
 
