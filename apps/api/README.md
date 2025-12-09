@@ -1,6 +1,6 @@
 # API Application
 
-A NestJS API built with Clean Architecture principles, featuring user authentication and
+A NestJS API built with Clean Architecture principles, featuring Better Auth authentication and
 comprehensive testing.
 
 ## Architecture Overview
@@ -9,50 +9,54 @@ This API follows **Clean Architecture** with proper domain separation:
 
 ```treeview
 src/
-├── auth/                    # Authentication domain
-│   ├── domain/             # Business logic & entities
-│   │   ├── entities/       # AuthUser entity
+├── auth/                    # Authentication domain (Better Auth)
+│   ├── domain/
+│   │   ├── types/          # Session, User, Admin types
+│   │   └── exceptions/     # Domain exceptions
+│   └── infrastructure/
+│       ├── config/         # Better Auth configuration
+│       └── hooks/          # Auth lifecycle hooks
+├── users/                   # User management domain
+│   ├── domain/
+│   │   ├── entities/       # User entity
 │   │   ├── exceptions/     # Domain exceptions
 │   │   ├── repositories/   # Repository interfaces
-│   │   ├── services/       # Domain service interfaces
-│   │   └── value-objects/  # Email, Password, JwtPayload
-│   ├── application/        # Use cases & application services
+│   │   └── value-objects/  # UserId, Username, Name
+│   ├── application/
 │   │   ├── dtos/           # Data transfer objects
 │   │   ├── mappers/        # Domain to DTO mappers
 │   │   ├── services/       # Application services
-│   │   └── use-cases/      # Login, Register, Logout
-│   └── infrastructure/     # External concerns
+│   │   └── use-cases/      # GetUserProfile, UpdateUserProfile, DeleteUserAccount
+│   └── infrastructure/
 │       ├── controllers/    # HTTP controllers
-│       ├── guards/         # Authentication guards
-│       ├── repositories/   # Database implementations
-│       └── services/       # JWT, Password, Token services
-├── users/                  # User management domain
-├── shared/                 # Shared utilities
-└── config/                 # Application configuration
+│       ├── mappers/        # Infrastructure mappers
+│       └── repositories/   # Prisma implementations
+├── shared/                  # Shared utilities
+└── config/                  # Application configuration
 ```
 
 ## Features
 
 - **Clean Architecture** - Domain-driven design with clear boundaries
-- **JWT Authentication** - Token-based auth with cookie storage and blacklisting
-- **User Management** - Profile operations and admin endpoints
+- **Better Auth** - Modern authentication with email/password, email verification, admin plugin
+- **User Management** - Profile operations with custom fields (username, firstName, lastName)
+- **Admin Features** - User listing, role management, ban/unban via Better Auth admin plugin
 - **Data Validation** - Request/response validation with class-validator
 - **Database Integration** - Prisma ORM with SQLite
-- **Comprehensive Testing** - Unit tests for all layers with Jest
+- **Comprehensive Testing** - Unit tests for all layers with Bun test
 - **Type Safety** - Full TypeScript implementation
 
 ## Technology Stack
 
-- **Framework**: NestJS with Express
-- **Database**: Prisma ORM with SQLite
-- **Authentication**: JWT with Argon2 hashing
-- **Validation**: class-validator, class-transformer
-- **Testing**: Jest with extensive mocking
+- **Framework**: NestJS 11.x with Express 5.x
+- **Database**: Prisma 7.x ORM with SQLite
+- **Authentication**: Better Auth 1.4.x with @thallesp/nestjs-better-auth 2.2.x
+- **Validation**: class-validator 0.14.x, class-transformer 0.5.x
+- **Testing**: Bun test with extensive mocking
 
 ## Prerequisites
 
-- Node.js >= 24.11.0
-- Yarn >= 4.11.0
+- Bun >= 1.3.3
 
 ## Quick Start
 
@@ -61,98 +65,170 @@ src/
 Create `.env` file in the `apps/api` directory:
 
 ```bash
-# Generate a secure JWT secret
-openssl rand -base64 32
+# Generate a secure secret
+openssl rand -hex 32
 ```
 
 ```env
+# Prisma SQLite database location
 DATABASE_URL="file:./dev.db"
-JWT_SECRET="<output-from-openssl-command>"
-JWT_EXPIRES_IN="24h"
-SESSION_TTL="86400"
+
+# Better Auth configuration
+BETTER_AUTH_SECRET="<output-from-openssl-command>"
+BETTER_AUTH_URL="http://localhost:3000"
+FRONTEND_URL="http://localhost:4321"
 ```
 
 ### Database Setup
 
 ```bash
-# From apps/api directory:
-yarn prisma generate
-yarn prisma migrate dev
-
-# Or from root:
-yarn workspace @app/api prisma generate
-yarn workspace @app/api prisma migrate dev
+# From monorepo root:
+bun run --cwd apps/api prisma generate
+bun run --cwd apps/api prisma migrate dev
 ```
 
 ### Development
 
 ```bash
-# From apps/api directory:
-yarn dev
-
-# Or from root:
-yarn workspace @app/api dev
+# From monorepo root:
+bun run dev --filter=@app/api
 ```
 
 The API runs at `http://localhost:3000`
 
 ## API Endpoints
 
-### Authentication
+All endpoints are prefixed with `/api`.
 
-- `POST /auth/register` - Register new user
-- `POST /auth/login` - Login user (sets HTTP-only cookie)
-- `POST /auth/logout` - Logout user (clears cookie, blacklists token)
+### Authentication (Better Auth)
 
-### Users
+| Endpoint                            | Method | Auth   | Description               |
+| ----------------------------------- | ------ | ------ | ------------------------- |
+| `/api/auth/sign-up/email`           | POST   | Public | Register new user         |
+| `/api/auth/sign-in/email`           | POST   | Public | Login user                |
+| `/api/auth/sign-out`                | POST   | Auth   | Logout user               |
+| `/api/auth/get-session`             | GET    | Auth   | Get current session       |
+| `/api/auth/verify-email`            | POST   | Public | Verify email with token   |
+| `/api/auth/send-verification-email` | POST   | Public | Resend verification email |
+| `/api/auth/forget-password`         | POST   | Public | Request password reset    |
+| `/api/auth/reset-password`          | POST   | Public | Reset password with token |
+| `/api/auth/change-password`         | POST   | Auth   | Change password           |
+| `/api/auth/update-user`             | POST   | Auth   | Update user info          |
+| `/api/auth/revoke-session`          | POST   | Auth   | Revoke specific session   |
+| `/api/auth/revoke-other-sessions`   | POST   | Auth   | Revoke all other sessions |
 
-- `GET /users/me` - Get current user profile
-- `PATCH /users/me` - Update current user profile
-- `DELETE /users/me` - Delete current user account
-- `GET /users` - Get all users (admin)
-- `POST /users` - Create user (admin)
+### Admin (Better Auth Admin Plugin)
+
+| Endpoint                              | Method | Auth  | Description                |
+| ------------------------------------- | ------ | ----- | -------------------------- |
+| `/api/auth/admin/list-users`          | GET    | Admin | List all users (paginated) |
+| `/api/auth/admin/create-user`         | POST   | Admin | Create user                |
+| `/api/auth/admin/get-user`            | GET    | Admin | Get user by ID             |
+| `/api/auth/admin/set-role`            | POST   | Admin | Set user role              |
+| `/api/auth/admin/ban-user`            | POST   | Admin | Ban/unban user             |
+| `/api/auth/admin/remove-user`         | POST   | Admin | Delete user                |
+| `/api/auth/admin/list-sessions`       | GET    | Admin | List user sessions         |
+| `/api/auth/admin/revoke-user-session` | POST   | Admin | Revoke user session        |
+
+### Users (Custom NestJS)
+
+| Endpoint        | Method | Auth | Description                                    |
+| --------------- | ------ | ---- | ---------------------------------------------- |
+| `/api/users/me` | GET    | Auth | Get current user profile                       |
+| `/api/users/me` | PATCH  | Auth | Update profile (username, firstName, lastName) |
+| `/api/users/me` | DELETE | Auth | Delete own account                             |
 
 ## Testing
 
 ```bash
-# From apps/api directory:
-yarn test
-yarn test:watch
-yarn test:coverage
-
-# Or from root:
-yarn workspace @app/api test
+# From monorepo root:
+bun run test --filter=@app/api
+bun run test:watch --filter=@app/api
+bun run test:coverage --filter=@app/api
 ```
 
 ## Database Schema
 
 ```prisma
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  username  String   @unique
-  firstName String?
-  lastName  String?
-  hash      String
-  confirmed Boolean  @default(true)
-  blocked   Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String    @id
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  name          String?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Custom fields
+  username      String    @unique
+  firstName     String?
+  lastName      String?
+
+  // Admin plugin fields
+  role          String    @default("user")
+  banned        Boolean   @default(false)
+  banReason     String?
+  banExpires    DateTime?
+
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Account {
+  id                    String    @id
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Session {
+  id             String   @id
+  userId         String
+  token          String   @unique
+  expiresAt      DateTime
+  ipAddress      String?
+  userAgent      String?
+  impersonatedBy String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 ```
 
 ## Security Features
 
-- **Password Hashing**: Argon2 for secure password storage
-- **JWT Tokens**: HTTP-only cookies with configurable expiration
-- **Token Blacklisting**: Secure logout implementation
+- **Password Hashing**: Handled by Better Auth (Argon2)
+- **Session Management**: Cookie-based sessions with `better-auth.session_token`
+- **Email Verification**: Built-in email verification flow
+- **Admin Controls**: Role-based access, user banning, session revocation
 - **Input Validation**: Comprehensive request validation
 - **CORS**: Configurable cross-origin resource sharing
 
 ## Documentation
 
+- [Better Auth Documentation](https://www.better-auth.com/) - Authentication library
 - [NestJS Documentation](https://docs.nestjs.com/) - Framework documentation
 - [Prisma Documentation](https://www.prisma.io/docs/) - Database ORM
 - [Clean Architecture Guide](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) -
   Architecture principles
-- [Jest Testing](https://jestjs.io/docs/) - Testing framework

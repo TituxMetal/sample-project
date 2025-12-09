@@ -1,6 +1,6 @@
 # Web Application
 
-A modern frontend built with Astro and React, featuring server-side rendering and JWT
+A modern frontend built with Astro and React, featuring server-side rendering and Better Auth
 authentication.
 
 ## Architecture Overview
@@ -13,8 +13,13 @@ src/
 │   ├── ui/                # Base components
 │   │   ├── Button.tsx     # Reusable button with variants
 │   │   └── Input.tsx      # Form input with validation
-│   ├── AuthForm.tsx       # Login/signup form
-│   └── EditProfileForm.tsx # Profile editing form
+│   ├── containers/        # Container components
+│   │   └── AuthContainer.tsx # Auth form container
+│   ├── forms/             # Form components
+│   │   ├── LoginForm.tsx  # Login form
+│   │   ├── SignupForm.tsx # Signup form
+│   │   └── EditProfileForm.tsx # Profile editing form
+│   └── ProfileView.tsx    # Profile display
 ├── layouts/               # Page layouts
 │   └── Main.astro         # Main layout with nav/footer
 ├── pages/                 # File-based routing
@@ -24,24 +29,28 @@ src/
 │   └── logout.astro       # Logout handler
 ├── services/              # API communication
 │   ├── api.service.ts     # Generic API client
-│   ├── auth.service.ts    # Authentication API
+│   ├── auth.service.ts    # Authentication API (SSR)
 │   └── user.service.ts    # User profile API
 ├── hooks/                 # React hooks
-│   └── useAuthForm.tsx    # Form logic
+│   └── useAuth.ts         # Auth operations hook
+├── lib/                   # Library configurations
+│   └── authClient.ts      # Better Auth client
 ├── schemas/               # Validation schemas
 │   ├── auth.schema.ts     # Login/signup validation
 │   └── user.schema.ts     # Profile validation
+├── stores/                # State management
+│   └── auth.ts            # Auth state (nanostores)
 ├── types/                 # TypeScript definitions
 ├── utils/                 # Utility functions
 ├── styles/                # Global styles
-└── middleware.ts          # JWT authentication middleware
+└── middleware.ts          # Session authentication middleware
 ```
 
 ## Features
 
 - **Server-Side Rendering** - Fast page loads with Astro
 - **React Components** - Interactive forms and UI
-- **JWT Authentication** - Cookie-based auth with middleware
+- **Better Auth** - Cookie-based session authentication
 - **Form Validation** - Zod schemas with React Hook Form
 - **Responsive Design** - TailwindCSS mobile-first
 - **Type Safety** - Full TypeScript implementation
@@ -49,17 +58,17 @@ src/
 
 ## Technology Stack
 
-- **Framework**: Astro with SSR
-- **UI Library**: React for interactive components
-- **Styling**: TailwindCSS
-- **Forms**: React Hook Form with Zod validation
-- **Testing**: Vitest with React Testing Library
-- **Icons**: React Icons + Astro Icon
+- **Framework**: Astro 5.x with SSR
+- **UI Library**: React 19.x for interactive components
+- **Styling**: TailwindCSS 4.x
+- **Forms**: React Hook Form 7.x with Zod 4.x validation
+- **Authentication**: Better Auth 1.4.x client
+- **State**: Nanostores 1.x
+- **Testing**: Bun test with Testing Library
 
 ## Prerequisites
 
-- Node.js >= 24.11.0
-- Yarn >= 4.11.0
+- Bun >= 1.3.3
 
 ## Quick Start
 
@@ -68,19 +77,15 @@ src/
 Optional `.env` file in `apps/web` directory:
 
 ```env
-# For production deployment
-PUBLIC_API_URL=/api
-API_URL=http://api:3000
+# API URL for Better Auth client
+PUBLIC_API_URL=http://localhost:3000
 ```
 
 ### Development
 
 ```bash
-# From apps/web directory:
-yarn dev
-
-# Or from root:
-yarn workspace @app/web dev
+# From monorepo root:
+bun run dev --filter=@app/web
 ```
 
 The web app runs at `http://localhost:4321`
@@ -94,24 +99,27 @@ The web app runs at `http://localhost:4321`
 
 ## API Integration
 
-The app communicates with the API via:
+The app communicates with the API via Better Auth client and custom endpoints:
 
-- `POST /auth/login` - User login
-- `POST /auth/register` - User signup
-- `POST /auth/logout` - User logout
-- `GET /users/me` - Get user profile
-- `PATCH /users/me` - Update profile
+### Better Auth (via authClient)
+
+- `signIn.email()` - User login
+- `signUp.email()` - User signup
+- `signOut()` - User logout
+- `useSession()` - Get current session
+
+### Custom API
+
+- `GET /api/users/me` - Get user profile (SSR middleware)
+- `PATCH /api/users/me` - Update profile (username, firstName, lastName)
 
 ## Testing
 
 ```bash
-# From apps/web directory:
-yarn test
-yarn test:watch
-yarn test:coverage
-
-# Or from root:
-yarn workspace @app/web test
+# From monorepo root:
+bun run test --filter=@app/web
+bun run test:watch --filter=@app/web
+bun run test:coverage --filter=@app/web
 ```
 
 ## Configuration
@@ -120,22 +128,21 @@ yarn workspace @app/web test
 
 - **SSR Mode**: Server-side rendering enabled
 - **React Integration**: For interactive components
-- **API Proxy**: Development proxy to `http://localhost:3000`
 - **TailwindCSS**: Utility-first styling
 
 ### Middleware
 
 Authentication middleware handles:
 
-- JWT token validation from cookies
+- Session token validation from `better-auth.session_token` cookie
 - User data injection into `Astro.locals.user`
-- Invalid token cleanup
+- Route protection for authenticated pages
 - Silent authentication on all requests
 
 ## Documentation
 
 - [Astro Documentation](https://docs.astro.build/) - Framework documentation
+- [Better Auth Documentation](https://www.better-auth.com/) - Authentication library
 - [React Hook Form](https://react-hook-form.com/) - Form handling
 - [Zod Documentation](https://zod.dev/) - Schema validation
 - [TailwindCSS](https://tailwindcss.com/docs) - CSS framework
-- [Vitest](https://vitest.dev/) - Testing framework
