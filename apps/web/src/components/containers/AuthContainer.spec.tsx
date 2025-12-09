@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import type { Mock } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { useAuth } from '~/hooks/useAuth'
 import { cleanup, render, screen, userEvent, waitFor } from '~/test-utils'
@@ -128,7 +128,6 @@ describe('AuthContainer', () => {
     it('should render signup form when mode is set to signup', () => {
       render(<AuthContainer mode='signup' />)
 
-      expect(screen.getByLabelText(/^name$/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/username/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
@@ -140,7 +139,6 @@ describe('AuthContainer', () => {
       const user = userEvent.setup()
       render(<AuthContainer mode='signup' />)
 
-      await user.type(screen.getByLabelText(/^name$/i), 'Test User')
       await user.type(screen.getByLabelText(/username/i), 'testuser')
       await user.type(screen.getByLabelText(/email/i), 'test@example.com')
       await user.type(screen.getByLabelText(/password/i), 'password123')
@@ -149,7 +147,7 @@ describe('AuthContainer', () => {
       await waitFor(() => {
         expect(mockUseAuth.register).toHaveBeenCalledWith(
           {
-            name: 'Test User',
+            name: '', // name field removed from form, defaults to empty
             username: 'testuser',
             email: 'test@example.com',
             password: 'password123'
@@ -163,7 +161,6 @@ describe('AuthContainer', () => {
       const user = userEvent.setup()
       render(<AuthContainer mode='signup' redirectPath='/welcome' />)
 
-      await user.type(screen.getByLabelText(/^name$/i), 'Test User')
       await user.type(screen.getByLabelText(/username/i), 'testuser')
       await user.type(screen.getByLabelText(/email/i), 'test@example.com')
       await user.type(screen.getByLabelText(/password/i), 'password123')
@@ -172,7 +169,7 @@ describe('AuthContainer', () => {
       await waitFor(() => {
         expect(mockUseAuth.register).toHaveBeenCalledWith(
           {
-            name: 'Test User',
+            name: '', // name field removed from form, defaults to empty
             username: 'testuser',
             email: 'test@example.com',
             password: 'password123'
@@ -187,7 +184,6 @@ describe('AuthContainer', () => {
       mockUseAuth.register.mockRejectedValueOnce(new Error('Email already exists'))
       render(<AuthContainer mode='signup' />)
 
-      await user.type(screen.getByLabelText(/^name$/i), 'Test User')
       await user.type(screen.getByLabelText(/username/i), 'testuser')
       await user.type(screen.getByLabelText(/email/i), 'existing@example.com')
       await user.type(screen.getByLabelText(/password/i), 'password123')

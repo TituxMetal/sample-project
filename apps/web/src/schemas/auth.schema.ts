@@ -11,11 +11,7 @@ export const loginSchema = z.object({
 
 // Signup schema
 export const signupSchema = z.object({
-  name: z
-    .string()
-    .min(1, { message: 'Name is required' })
-    .min(2, { message: 'Name must be at least 2 characters long' })
-    .max(100, { message: 'Name must not exceed 100 characters long' }),
+  name: z.string().optional(),
   username: z
     .string()
     .min(1, { message: 'Username is required' })

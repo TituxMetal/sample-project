@@ -152,7 +152,6 @@ describe('useAuth hook', () => {
 
       await act(async () => {
         await result.current.register({
-          name: 'Test User',
           username: 'testuser',
           email: 'test@example.com',
           password: 'password'
@@ -179,7 +178,6 @@ describe('useAuth hook', () => {
       await act(async () => {
         try {
           await result.current.register({
-            name: 'Test User',
             username: 'testuser',
             email: 'test@example.com',
             password: 'password'
