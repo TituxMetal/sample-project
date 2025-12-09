@@ -1,0 +1,13 @@
+---
+import { VerifyEmailContainer } from '~/components/containers/VerifyEmailContainer'
+import Main from '~/layouts/Main.astro'
+
+const token = Astro.url.searchParams.get('token')
+---
+
+<Main title='Verify Email'>
+  <section class='container mx-auto px-4 py-8'>
+    <h1 class='mb-8 text-center text-4xl font-bold text-zinc-100'>Email Verification</h1>
+    <VerifyEmailContainer client:load token={token} />
+  </section>
+</Main>
