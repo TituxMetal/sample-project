@@ -1,8 +1,7 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import type { Mock } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import type { PrismaProvider } from '~/shared/infrastructure/database'
-import { TestDataFactory } from '~/shared/infrastructure/testing'
 import { UserEntity } from '~/users/domain/entities'
 import {
   NameValueObject,
@@ -18,9 +17,7 @@ describe('PrismaUserRepository', () => {
   let repository: PrismaUserRepository
   let mockPrismaService: {
     user: {
-      create: Mock<(args: any) => Promise<any>>
       findUnique: Mock<(args: any) => Promise<any>>
-      findMany: Mock<(args?: any) => Promise<any>>
       update: Mock<(args: any) => Promise<any>>
       delete: Mock<(args: any) => Promise<any>>
     }
@@ -29,54 +26,13 @@ describe('PrismaUserRepository', () => {
   beforeEach(() => {
     mockPrismaService = {
       user: {
-        create: mock(() => {}) as unknown as Mock<(args: any) => Promise<any>>,
         findUnique: mock(() => {}) as unknown as Mock<(args: any) => Promise<any>>,
-        findMany: mock(() => {}) as unknown as Mock<(args?: any) => Promise<any>>,
         update: mock(() => {}) as unknown as Mock<(args: any) => Promise<any>>,
         delete: mock(() => {}) as unknown as Mock<(args: any) => Promise<any>>
       }
     }
 
     repository = new PrismaUserRepository(mockPrismaService as unknown as PrismaProvider)
-  })
-
-  describe('create', () => {
-    it('should create a user', async () => {
-      const userEntity = TestDataFactory.createUser({
-        id: '123e4567-e89b-12d3-a456-426614174000',
-        email: 'john@example.com',
-        username: 'johndoe',
-        firstName: 'John',
-        lastName: 'Doe'
-      })
-
-      const prismaUser = {
-        id: '123e4567-e89b-12d3-a456-426614174000',
-        email: 'john@example.com',
-        username: 'johndoe',
-        firstName: 'John',
-        lastName: 'Doe',
-        emailVerified: false,
-        banned: false,
-        banReason: null,
-        banExpires: null,
-        role: 'user',
-        name: 'John Doe',
-        image: null,
-        createdAt: userEntity.createdAt,
-        updatedAt: userEntity.updatedAt
-      }
-
-      const mockCreate = mockPrismaService.user.create as Mock<typeof mockPrismaService.user.create>
-      mockCreate.mockResolvedValue(prismaUser)
-
-      const result = await repository.create(userEntity)
-
-      expect(mockPrismaService.user.create).toHaveBeenCalledWith({
-        data: UserInfrastructureMapper.toPrisma(userEntity)
-      })
-      expect(result).toEqual(UserInfrastructureMapper.toDomain(prismaUser))
-    })
   })
 
   describe('findById', () => {
@@ -201,39 +157,6 @@ describe('PrismaUserRepository', () => {
         where: { username }
       })
       expect(result).toEqual(UserInfrastructureMapper.toDomain(prismaUser))
-    })
-  })
-
-  describe('findAll', () => {
-    it('should find all users', async () => {
-      const prismaUsers = [
-        {
-          id: '123e4567-e89b-12d3-a456-426614174000',
-          email: 'john@example.com',
-          username: 'johndoe',
-          firstName: 'John',
-          lastName: 'Doe',
-          emailVerified: true,
-          banned: false,
-          banReason: null,
-          banExpires: null,
-          role: 'user',
-          name: 'John Doe',
-          image: null,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        }
-      ]
-
-      const mockFindMany = mockPrismaService.user.findMany as Mock<
-        typeof mockPrismaService.user.findMany
-      >
-      mockFindMany.mockResolvedValue(prismaUsers)
-
-      const result = await repository.findAll()
-
-      expect(mockPrismaService.user.findMany).toHaveBeenCalled()
-      expect(result).toEqual(prismaUsers.map(u => UserInfrastructureMapper.toDomain(u)))
     })
   })
 
