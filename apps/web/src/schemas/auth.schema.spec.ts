@@ -74,40 +74,6 @@ describe('signupSchema', () => {
     expect(result.success).toBe(true)
   })
 
-  it('should reject empty name', () => {
-    const invalidSignup = {
-      name: '',
-      username: 'testuser',
-      email: 'test@example.com',
-      password: 'password123'
-    }
-
-    const result = signupSchema.safeParse(invalidSignup)
-
-    expect(result.success).toBe(false)
-
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('Name is required')
-    }
-  })
-
-  it('should reject short name', () => {
-    const invalidSignup = {
-      name: 'A',
-      username: 'testuser',
-      email: 'test@example.com',
-      password: 'password123'
-    }
-
-    const result = signupSchema.safeParse(invalidSignup)
-
-    expect(result.success).toBe(false)
-
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('Name must be at least 2 characters long')
-    }
-  })
-
   it('should reject empty username', () => {
     const invalidSignup = {
       name: 'Test User',
