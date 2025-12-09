@@ -17,6 +17,9 @@ const bootstrap = async () => {
   })
 
   app.use(cookieParser())
+  app.setGlobalPrefix('api', {
+    exclude: ['/api/auth/*path']
+  })
 
   await app.listen(process.env.PORT ?? 3000)
 }
