@@ -2,11 +2,11 @@
 import { apiRequest } from '~/lib/apiRequest'
 
 try {
-  await apiRequest('/auth/logout', {
+  await apiRequest('/api/auth/sign-out', {
     method: 'POST'
   })
 
-  Astro.cookies.delete('auth_token')
+  Astro.cookies.delete('better-auth.session_token')
 } catch (error) {
   // Silently handle logout errors
 }
