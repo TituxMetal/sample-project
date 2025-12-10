@@ -1,0 +1,13 @@
+---
+import { VerificationPendingContainer } from '~/components/containers/VerificationPendingContainer'
+import Main from '~/layouts/Main.astro'
+
+const email = Astro.url.searchParams.get('email')
+---
+
+<Main title='Verify Your Email'>
+  <section class='container mx-auto px-4 py-8'>
+    <h1 class='mb-8 text-center text-4xl font-bold text-zinc-100'>Verify Your Email</h1>
+    <VerificationPendingContainer client:load email={email} />
+  </section>
+</Main>
