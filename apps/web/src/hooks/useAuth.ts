@@ -46,7 +46,7 @@ export const useAuth = (): UseAuthReturn => {
 
       if (typeof window !== 'undefined') {
         setTimeout(() => {
-          redirect(redirectPath || '/')
+          redirect(redirectPath || '/profile')
         }, 100)
       }
     } catch (err) {
@@ -75,7 +75,8 @@ export const useAuth = (): UseAuthReturn => {
       }
 
       if (typeof window !== 'undefined') {
-        redirect(redirectPath || '/')
+        const verificationUrl = `/verification-pending?email=${encodeURIComponent(data.email)}`
+        redirect(verificationUrl)
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Registration Failed'
