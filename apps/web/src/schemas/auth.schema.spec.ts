@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'bun:test'
 
-import { loginSchema, signupSchema } from './auth.schema'
+import {
+  changePasswordSchema,
+  forgotPasswordSchema,
+  loginSchema,
+  resetPasswordSchema,
+  signupSchema
+} from './auth.schema'
 
 describe('loginSchema', () => {
   it('should validate a valid login request', () => {
@@ -174,5 +180,72 @@ describe('signupSchema', () => {
     if (!result.success) {
       expect(result.error.issues[0].message).toBe('Password must be at least 8 characters')
     }
+  })
+})
+
+describe('forgotPasswordSchema', () => {
+  it('should validate a valid email', () => {
+    const result = forgotPasswordSchema.safeParse({ email: 'test@example.com' })
+    expect(result.success).toBe(true)
+  })
+
+  it('should reject invalid email', () => {
+    const result = forgotPasswordSchema.safeParse({ email: 'not-an-email' })
+    expect(result.success).toBe(false)
+  })
+})
+
+describe('resetPasswordSchema', () => {
+  it('should validate matching passwords', () => {
+    const result = resetPasswordSchema.safeParse({
+      password: 'password123',
+      confirmPassword: 'password123'
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('should reject non-matching passwords', () => {
+    const result = resetPasswordSchema.safeParse({
+      password: 'password123',
+      confirmPassword: 'different123'
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('should reject short password', () => {
+    const result = resetPasswordSchema.safeParse({
+      password: 'short',
+      confirmPassword: 'short'
+    })
+    expect(result.success).toBe(false)
+  })
+})
+
+describe('changePasswordSchema', () => {
+  it('should validate valid change password request', () => {
+    const result = changePasswordSchema.safeParse({
+      currentPassword: 'oldpass123',
+      newPassword: 'newpass123',
+      confirmPassword: 'newpass123'
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('should reject when new passwords do not match', () => {
+    const result = changePasswordSchema.safeParse({
+      currentPassword: 'oldpass123',
+      newPassword: 'newpass123',
+      confirmPassword: 'different123'
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('should reject empty current password', () => {
+    const result = changePasswordSchema.safeParse({
+      currentPassword: '',
+      newPassword: 'newpass123',
+      confirmPassword: 'newpass123'
+    })
+    expect(result.success).toBe(false)
   })
 })
