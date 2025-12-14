@@ -1,5 +1,6 @@
 ---
 import { EditProfileContainer } from '~/components/containers/EditProfileContainer'
+import { ChangePasswordForm } from '~/components/forms/ChangePasswordForm'
 import Main from '~/layouts/Main.astro'
 import type { User } from '~/types/user.types'
 
@@ -15,6 +16,9 @@ const userData = user as User
 <Main title='Profile'>
   <section class='container mx-auto px-4 py-8'>
     <h1 class='mb-8 text-center text-4xl font-bold text-zinc-100'>Welcome {userData.username}</h1>
-    <EditProfileContainer client:load userData={userData} />
+    <div class='mx-auto max-w-xl space-y-8'>
+      <EditProfileContainer client:load userData={userData} />
+      <ChangePasswordForm client:load />
+    </div>
   </section>
 </Main>
