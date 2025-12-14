@@ -35,6 +35,9 @@ export const createBetterAuthConfig = (
         username: { type: 'string', required: true, input: true },
         firstName: { type: 'string', required: false, input: true },
         lastName: { type: 'string', required: false, input: true }
+      },
+      deleteUser: {
+        enabled: true
       }
     },
     session: {
