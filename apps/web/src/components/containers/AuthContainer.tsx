@@ -71,6 +71,11 @@ export const AuthContainer = ({ mode = 'login', redirectPath }: AuthContainerPro
             Need an account?
           </a>
         </div>
+        <div className='text-center'>
+          <a href='/forgot-password' className='text-sm text-zinc-400 hover:text-zinc-300'>
+            Forgot your password?
+          </a>
+        </div>
       </FormWrapper>
     )
   }
