@@ -1,0 +1,22 @@
+---
+import { UserList } from '~/components/admin/UserList'
+import AdminLayout from '~/layouts/AdminLayout.astro'
+import type { User } from '~/types/user.types'
+
+const { user } = Astro.locals
+
+if (!user) {
+  return Astro.redirect('/auth')
+}
+
+const userData = user as User
+
+if (userData.role !== 'admin') {
+  return Astro.redirect('/')
+}
+---
+
+<AdminLayout title='Manage Users'>
+  <h1 class='mb-8 text-3xl font-bold text-zinc-100'>Manage Users</h1>
+  <UserList client:load />
+</AdminLayout>
