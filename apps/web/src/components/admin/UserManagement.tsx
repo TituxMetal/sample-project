@@ -75,7 +75,7 @@ export const UserManagement = ({ user: initialUser }: Props) => {
     }
 
     setUser({ ...user, banned: false })
-    setSuccess('User banned')
+    setSuccess('User unbanned')
     setIsLoading(false)
   }
 
