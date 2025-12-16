@@ -1,0 +1,19 @@
+---
+import Main from './Main.astro'
+
+const { title } = Astro.props
+---
+
+<Main title={title}>
+  <nav class='mb-6 border-b border-zinc-700 pb-4'>
+    <ul class='flex gap-6 text-zinc-300'>
+      <li>
+        <a href='/admin' class='hover:text-sky-400'>Dashboard</a>
+      </li>
+      <li>
+        <a href='/admin/users' class='hover:text-sky-400'>Users</a>
+      </li>
+    </ul>
+  </nav>
+  <slot />
+</Main>
