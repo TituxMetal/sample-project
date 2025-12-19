@@ -3,9 +3,10 @@ import type { Mock } from 'bun:test'
 import { afterEach, beforeEach, describe, expect, it, mock, setSystemTime, spyOn } from 'bun:test'
 
 import { api } from '~/lib/apiRequest'
-import { $error, $isLoading, $user } from '~/stores/auth'
 import type { User } from '~/types/user.types'
 import * as navigationUtils from '~/utils/navigation'
+
+import { $error, $isLoading, $user } from '../store/auth.store'
 
 // Mock authClient module - type-safe mock return type
 interface AuthSuccess<T> {

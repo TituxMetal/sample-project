@@ -1,10 +1,18 @@
 import { useStore } from '@nanostores/react'
 
 import { signIn, signOut, signUp } from '~/lib/authClient'
-import type { LoginSchema, SignupSchema } from '~/schemas/auth.schema'
-import { $error, $hasError, $isAuthenticated, $isLoading, $user, authActions } from '~/stores/auth'
 import type { User } from '~/types/user.types'
 import { redirect } from '~/utils/navigation'
+
+import type { LoginSchema, SignupSchema } from '../schemas/auth.schema'
+import {
+  $error,
+  $hasError,
+  $isAuthenticated,
+  $isLoading,
+  $user,
+  authActions
+} from '../store/auth.store'
 
 export interface UseAuthReturn {
   user: User | null

@@ -1,13 +1,14 @@
 import type { Mock } from 'bun:test'
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { useAuth } from '~/hooks/useAuth'
 import { cleanup, render, screen, userEvent, waitFor } from '~/test-utils'
+
+import { useAuth } from '../hooks/useAuth'
 
 import { AuthContainer } from './AuthContainer'
 
 // Mock modules
-mock.module('~/hooks/useAuth', () => ({
+mock.module('../hooks/useAuth', () => ({
   useAuth: mock(() => {})
 }))
 

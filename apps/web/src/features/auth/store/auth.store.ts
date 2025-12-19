@@ -1,7 +1,8 @@
 import { atom, computed } from 'nanostores'
 
-import { getCurrentUser } from '~/services/auth.service'
 import type { User } from '~/types/user.types'
+
+import { getCurrentUser } from '../api/auth.service'
 
 // State atoms
 export const $user = atom<User | null>(null)
