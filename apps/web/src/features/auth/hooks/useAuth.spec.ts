@@ -29,7 +29,7 @@ const mockSignOut = mock<() => Promise<AuthResult<null>>>(() =>
   Promise.resolve({ data: null, error: null })
 )
 
-mock.module('../../../lib/authClient', () => ({
+mock.module('~/lib/authClient', () => ({
   signIn: { email: mockSignInEmail },
   signUp: { email: mockSignUpEmail },
   signOut: mockSignOut,
@@ -37,7 +37,7 @@ mock.module('../../../lib/authClient', () => ({
 }))
 
 // Mock navigation module
-mock.module('../../../utils/navigation', () => ({
+mock.module('~/utils/navigation', () => ({
   redirect: mock(() => {})
 }))
 
