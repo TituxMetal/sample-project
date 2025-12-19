@@ -19,9 +19,15 @@ interface AuthError {
 }
 type AuthResult<T> = AuthSuccess<T> | AuthError
 
-const mockSignInEmail = mock<() => Promise<AuthResult<{ user: User }>>>()
-const mockSignUpEmail = mock<() => Promise<AuthResult<{ user: User }>>>()
-const mockSignOut = mock<() => Promise<AuthResult<null>>>()
+const mockSignInEmail = mock<() => Promise<AuthResult<{ user: User }>>>(() =>
+  Promise.resolve({ data: null, error: { message: 'Not mocked' } })
+)
+const mockSignUpEmail = mock<() => Promise<AuthResult<{ user: User }>>>(() =>
+  Promise.resolve({ data: null, error: { message: 'Not mocked' } })
+)
+const mockSignOut = mock<() => Promise<AuthResult<null>>>(() =>
+  Promise.resolve({ data: null, error: null })
+)
 
 mock.module('~/lib/authClient', () => ({
   signIn: { email: mockSignInEmail },
