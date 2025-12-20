@@ -56,9 +56,8 @@ describe('VerificationPendingContainer', () => {
   describe('resend functionality', () => {
     it('should call sendVerificationEmail when resend button is clicked', async () => {
       const user = userEvent.setup()
-      ;(authClient.sendVerificationEmail as ReturnType<typeof mock>).mockResolvedValue({
-        error: null
-      })
+      const mockSendVerification = authClient.sendVerificationEmail as ReturnType<typeof mock>
+      mockSendVerification.mockResolvedValue({ error: null })
 
       render(<VerificationPendingContainer email='test@example.com' />)
 
@@ -71,9 +70,8 @@ describe('VerificationPendingContainer', () => {
 
     it('should show success message after resend succeeds', async () => {
       const user = userEvent.setup()
-      ;(authClient.sendVerificationEmail as ReturnType<typeof mock>).mockResolvedValue({
-        error: null
-      })
+      const mockSendVerification = authClient.sendVerificationEmail as ReturnType<typeof mock>
+      mockSendVerification.mockResolvedValue({ error: null })
 
       render(<VerificationPendingContainer email='test@example.com' />)
 
@@ -86,9 +84,8 @@ describe('VerificationPendingContainer', () => {
 
     it('should show error message when resend fails', async () => {
       const user = userEvent.setup()
-      ;(authClient.sendVerificationEmail as ReturnType<typeof mock>).mockResolvedValue({
-        error: { message: 'Rate limited' }
-      })
+      const mockSendVerification = authClient.sendVerificationEmail as ReturnType<typeof mock>
+      mockSendVerification.mockResolvedValue({ error: { message: 'Rate limited' } })
 
       render(<VerificationPendingContainer email='test@example.com' />)
 
@@ -101,9 +98,8 @@ describe('VerificationPendingContainer', () => {
 
     it('should show loading state while resending', async () => {
       const user = userEvent.setup()
-      ;(authClient.sendVerificationEmail as ReturnType<typeof mock>).mockReturnValue(
-        new Promise(() => {})
-      )
+      const mockSendVerification = authClient.sendVerificationEmail as ReturnType<typeof mock>
+      mockSendVerification.mockReturnValue(new Promise(() => {}))
 
       render(<VerificationPendingContainer email='test@example.com' />)
 

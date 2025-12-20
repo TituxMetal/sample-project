@@ -2,6 +2,8 @@ import type { Mock } from 'bun:test'
 import { afterEach, beforeEach, describe, expect, it, spyOn } from 'bun:test'
 
 import { api } from '~/lib/apiRequest'
+import type { ApiResponse, User } from '~/types'
+
 import {
   $error,
   $hasError,
@@ -10,9 +12,7 @@ import {
   $user,
   $userDisplayName,
   authActions
-} from '~/stores/auth'
-import type { ApiResponse } from '~/types/api.types'
-import type { User } from '~/types/user.types'
+} from './auth.store'
 
 // Spy on api methods instead of mock.module to avoid test pollution
 let getSpy: Mock<typeof api.get>

@@ -4,8 +4,9 @@ import { useForm } from 'react-hook-form'
 
 import { Button, FormWrapper, Input } from '~/components/ui'
 import { authClient } from '~/lib/authClient'
-import type { ResetPasswordSchema } from '~/schemas/auth.schema'
-import { resetPasswordSchema } from '~/schemas/auth.schema'
+
+import type { ResetPasswordSchema } from '../schemas/auth.schema'
+import { resetPasswordSchema } from '../schemas/auth.schema'
 
 interface ResetPasswordContainerProps {
   token: string | null

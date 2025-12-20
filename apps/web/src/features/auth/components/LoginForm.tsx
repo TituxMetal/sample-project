@@ -1,7 +1,8 @@
 import type { UseFormReturn } from 'react-hook-form'
 
 import { Input } from '~/components/ui'
-import type { LoginSchema } from '~/schemas/auth.schema'
+
+import type { LoginSchema } from '../schemas/auth.schema'
 
 export interface LoginFormProps {
   form: UseFormReturn<LoginSchema>

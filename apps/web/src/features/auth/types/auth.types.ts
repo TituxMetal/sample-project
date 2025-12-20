@@ -1,10 +1,9 @@
 import type { ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
 
-import type { LoginSchema, SignupSchema } from '~/schemas/auth.schema'
+import type { ApiResponse, User } from '~/types'
 
-import type { ApiResponse } from './api.types'
-import type { User } from './user.types'
+import type { LoginSchema, SignupSchema } from '../schemas/auth.schema'
 
 export const AUTH_MODES = ['login', 'signup'] as const
 

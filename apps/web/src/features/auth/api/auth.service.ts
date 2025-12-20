@@ -1,6 +1,5 @@
 import { api } from '~/lib/apiRequest'
-import type { ApiResponse } from '~/types/api.types'
-import type { User } from '~/types/user.types'
+import type { ApiResponse, User } from '~/types'
 
 /**
  * Helper function for API responses that return data
