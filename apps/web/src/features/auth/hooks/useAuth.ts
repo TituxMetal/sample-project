@@ -1,8 +1,15 @@
 import { useStore } from '@nanostores/react'
 
+import type { LoginSchema, SignupSchema } from '~/features/auth/schemas/auth.schema'
+import {
+  $error,
+  $hasError,
+  $isAuthenticated,
+  $isLoading,
+  $user,
+  authActions
+} from '~/features/auth/store/auth.store'
 import { signIn, signOut, signUp } from '~/lib/authClient'
-import type { LoginSchema, SignupSchema } from '~/schemas/auth.schema'
-import { $error, $hasError, $isAuthenticated, $isLoading, $user, authActions } from '~/stores/auth'
 import type { User } from '~/types/user.types'
 import { redirect } from '~/utils/navigation'
 
@@ -87,7 +94,7 @@ export const useAuth = (): UseAuthReturn => {
     }
   }
 
-  const logout = async (redirectPath?: string) => {
+  const logout = async () => {
     try {
       $isLoading.set(true)
       $error.set(null)

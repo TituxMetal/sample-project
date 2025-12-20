@@ -94,7 +94,8 @@ describe('EditProfileContainer', () => {
     })
 
     it('should clear server error when Cancel button is clicked', async () => {
-      ;(updateProfile as ReturnType<typeof mock>).mockRejectedValue(new Error('Update failed'))
+      const mockUpdateProfile = updateProfile as ReturnType<typeof mock>
+      mockUpdateProfile.mockRejectedValue(new Error('Update failed'))
 
       const user = userEvent.setup()
       render(<EditProfileContainer userData={mockUser} />)
@@ -116,7 +117,8 @@ describe('EditProfileContainer', () => {
 
   describe('Form Submission', () => {
     it('should call updateProfile with form data when submitted', async () => {
-      ;(updateProfile as ReturnType<typeof mock>).mockResolvedValue({
+      const mockUpdateProfile = updateProfile as ReturnType<typeof mock>
+      mockUpdateProfile.mockResolvedValue({
         ...mockUser,
         firstName: 'Jane'
       })
@@ -141,7 +143,8 @@ describe('EditProfileContainer', () => {
 
     it('should update user data and return to view mode on successful update', async () => {
       const updatedUser = { ...mockUser, firstName: 'Jane' }
-      ;(updateProfile as ReturnType<typeof mock>).mockResolvedValue(updatedUser)
+      const mockUpdateProfile = updateProfile as ReturnType<typeof mock>
+      mockUpdateProfile.mockResolvedValue(updatedUser)
 
       const user = userEvent.setup()
       render(<EditProfileContainer userData={mockUser} />)
@@ -159,9 +162,8 @@ describe('EditProfileContainer', () => {
     })
 
     it('should show error message when update fails', async () => {
-      ;(updateProfile as ReturnType<typeof mock>).mockRejectedValue(
-        new Error('Username already exists')
-      )
+      const mockUpdateProfile = updateProfile as ReturnType<typeof mock>
+      mockUpdateProfile.mockRejectedValue(new Error('Username already exists'))
 
       const user = userEvent.setup()
       render(<EditProfileContainer userData={mockUser} />)
@@ -176,7 +178,8 @@ describe('EditProfileContainer', () => {
     })
 
     it('should show default error message when no error message is provided', async () => {
-      ;(updateProfile as ReturnType<typeof mock>).mockRejectedValue(new Error('Update failed'))
+      const mockUpdateProfile = updateProfile as ReturnType<typeof mock>
+      mockUpdateProfile.mockRejectedValue(new Error('Update failed'))
 
       const user = userEvent.setup()
       render(<EditProfileContainer userData={mockUser} />)

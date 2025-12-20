@@ -31,9 +31,8 @@ describe('VerifyEmailContainer', () => {
 
   describe('when token is provided', () => {
     it('should show verifying message initially', () => {
-      ;(authClient.verifyEmail as ReturnType<typeof mock>).mockReturnValue(
-        new Promise(() => {}) // Never resolves
-      )
+      const mockVerifyEmail = authClient.verifyEmail as ReturnType<typeof mock>
+      mockVerifyEmail.mockReturnValue(new Promise(() => {})) // Never resolves
 
       render(<VerifyEmailContainer token='valid-token' />)
 
@@ -41,7 +40,8 @@ describe('VerifyEmailContainer', () => {
     })
 
     it('should show success message when verification succeeds', async () => {
-      ;(authClient.verifyEmail as ReturnType<typeof mock>).mockResolvedValue({ error: null })
+      const mockVerifyEmail = authClient.verifyEmail as ReturnType<typeof mock>
+      mockVerifyEmail.mockResolvedValue({ error: null })
 
       render(<VerifyEmailContainer token='valid-token' />)
 
@@ -56,9 +56,8 @@ describe('VerifyEmailContainer', () => {
     })
 
     it('should show error message when verification fails', async () => {
-      ;(authClient.verifyEmail as ReturnType<typeof mock>).mockResolvedValue({
-        error: { message: 'Token expired' }
-      })
+      const mockVerifyEmail = authClient.verifyEmail as ReturnType<typeof mock>
+      mockVerifyEmail.mockResolvedValue({ error: { message: 'Token expired' } })
 
       render(<VerifyEmailContainer token='expired-token' />)
 
@@ -74,9 +73,8 @@ describe('VerifyEmailContainer', () => {
     })
 
     it('should show default error message when no message provided', async () => {
-      ;(authClient.verifyEmail as ReturnType<typeof mock>).mockResolvedValue({
-        error: {}
-      })
+      const mockVerifyEmail = authClient.verifyEmail as ReturnType<typeof mock>
+      mockVerifyEmail.mockResolvedValue({ error: {} })
 
       render(<VerifyEmailContainer token='bad-token' />)
 
@@ -86,7 +84,8 @@ describe('VerifyEmailContainer', () => {
     })
 
     it('should call verifyEmail with correct token', async () => {
-      ;(authClient.verifyEmail as ReturnType<typeof mock>).mockResolvedValue({ error: null })
+      const mockVerifyEmail = authClient.verifyEmail as ReturnType<typeof mock>
+      mockVerifyEmail.mockResolvedValue({ error: null })
 
       render(<VerifyEmailContainer token='my-token-123' />)
 

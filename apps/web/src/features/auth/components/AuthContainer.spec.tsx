@@ -1,13 +1,14 @@
 import type { Mock } from 'bun:test'
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { useAuth } from '~/hooks/useAuth'
 import { cleanup, render, screen, userEvent, waitFor } from '~/test-utils'
+
+import { useAuth } from '../hooks/useAuth'
 
 import { AuthContainer } from './AuthContainer'
 
 // Mock modules
-mock.module('~/hooks/useAuth', () => ({
+mock.module('../hooks/useAuth', () => ({
   useAuth: mock(() => {})
 }))
 
@@ -31,7 +32,8 @@ describe('AuthContainer', () => {
     cleanup()
     document.body.innerHTML = ''
     mock.restore()
-    ;(useAuth as ReturnType<typeof mock>).mockReturnValue(mockUseAuth)
+    const mockUseAuthFn = useAuth as ReturnType<typeof mock>
+    mockUseAuthFn.mockReturnValue(mockUseAuth)
   })
 
   describe('Login Mode', () => {
@@ -105,7 +107,8 @@ describe('AuthContainer', () => {
     })
 
     it('should show loading state during login', () => {
-      ;(useAuth as ReturnType<typeof mock>).mockReturnValue({
+      const mockUseAuthFn = useAuth as ReturnType<typeof mock>
+      mockUseAuthFn.mockReturnValue({
         ...mockUseAuth,
         isLoading: true
       })
@@ -195,7 +198,8 @@ describe('AuthContainer', () => {
     })
 
     it('should show loading state during registration', () => {
-      ;(useAuth as ReturnType<typeof mock>).mockReturnValue({
+      const mockUseAuthFn = useAuth as ReturnType<typeof mock>
+      mockUseAuthFn.mockReturnValue({
         ...mockUseAuth,
         isLoading: true
       })

@@ -2,14 +2,16 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { LoginForm } from '~/components/forms/LoginForm'
-import { SignupForm } from '~/components/forms/SignupForm'
 import { Button } from '~/components/ui'
 import { FormWrapper } from '~/components/ui/FormWrapper'
-import { useAuth } from '~/hooks/useAuth'
-import type { LoginSchema, SignupSchema } from '~/schemas/auth.schema'
-import { loginSchema, signupSchema } from '~/schemas/auth.schema'
-import { routes } from '~/utils/routes'
+
+import { useAuth } from '../hooks/useAuth'
+import type { LoginSchema, SignupSchema } from '../schemas/auth.schema'
+import { loginSchema, signupSchema } from '../schemas/auth.schema'
+import { routes } from '../utils/routes'
+
+import { LoginForm } from './LoginForm'
+import { SignupForm } from './SignupForm'
 
 export interface AuthContainerProps {
   mode?: 'login' | 'signup'

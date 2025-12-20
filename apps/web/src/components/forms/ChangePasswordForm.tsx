@@ -3,9 +3,9 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { Button, FormWrapper, Input } from '~/components/ui'
+import type { ChangePasswordSchema } from '~/features/auth'
+import { changePasswordSchema } from '~/features/auth'
 import { authClient } from '~/lib/authClient'
-import type { ChangePasswordSchema } from '~/schemas/auth.schema'
-import { changePasswordSchema } from '~/schemas/auth.schema'
 
 export const ChangePasswordForm = () => {
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')

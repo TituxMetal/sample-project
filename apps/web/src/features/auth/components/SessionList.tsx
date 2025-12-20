@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 
+import { Button } from '~/components/ui'
 import { authClient } from '~/lib/authClient'
 import { redirect } from '~/utils/navigation'
-
-import { Button } from './ui'
 
 type Session = {
   id: string

@@ -4,8 +4,9 @@ import { useForm } from 'react-hook-form'
 
 import { Button, FormWrapper, Input } from '~/components/ui'
 import { authClient } from '~/lib/authClient'
-import type { ForgotPasswordSchema } from '~/schemas/auth.schema'
-import { forgotPasswordSchema } from '~/schemas/auth.schema'
+
+import type { ForgotPasswordSchema } from '../schemas/auth.schema'
+import { forgotPasswordSchema } from '../schemas/auth.schema'
 
 export const ForgotPasswordContainer = () => {
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
