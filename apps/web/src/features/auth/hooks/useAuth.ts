@@ -10,7 +10,7 @@ import {
   authActions
 } from '~/features/auth/store/auth.store'
 import { signIn, signOut, signUp } from '~/lib/authClient'
-import type { User } from '~/types/user.types'
+import type { User } from '~/types'
 import { redirect } from '~/utils/navigation'
 
 export interface UseAuthReturn {
@@ -21,7 +21,7 @@ export interface UseAuthReturn {
   hasError: boolean
   login: (credentials: LoginSchema, redirectPath?: string) => Promise<void>
   register: (data: SignupSchema, redirectPath?: string) => Promise<void>
-  logout: (redirectPath?: string) => Promise<void>
+  logout: () => Promise<void>
   refresh: () => Promise<void>
   clearError: () => void
   silentRefresh: () => Promise<void>
