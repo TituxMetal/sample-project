@@ -31,7 +31,7 @@ const { user } = Astro.locals
     <header
       class='flex items-center justify-between bg-indigo-700/80 p-6 font-semibold text-zinc-100'
     >
-      <nav class='mx-auto flex w-full max-w-screen-xl gap-4'>
+      <nav class='mx-auto flex w-full max-w-7xl gap-4'>
         <ul class='flex w-full items-center gap-4'>
           <li>
             <a href='/'>Home</a>
@@ -45,7 +45,7 @@ const { user } = Astro.locals
                   </a>
                 </li>
                 <li>
-                  <a href='/logout'>Logout</a>
+                  <a href='/auth/logout'>Logout</a>
                 </li>
               </>
             ) : (
@@ -57,7 +57,7 @@ const { user } = Astro.locals
         </ul>
       </nav>
     </header>
-    <main class='mx-auto flex w-full max-w-screen-xl flex-1 flex-col py-6'>
+    <main class='mx-auto flex w-full max-w-7xl flex-1 flex-col py-6'>
       <slot />
     </main>
     <footer

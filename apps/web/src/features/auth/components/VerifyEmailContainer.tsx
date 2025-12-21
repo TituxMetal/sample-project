@@ -58,7 +58,7 @@ export const VerifyEmailContainer = ({ token }: VerifyEmailContainerProps) => {
       <div className='mx-auto max-w-md rounded-lg bg-red-900/50 p-6 text-center'>
         <h2 className='mb-4 text-2xl font-bold text-red-400'>Verification Failed</h2>
         <p className='mb-6 text-zinc-300'>{errorMessage}</p>
-        <Button as='a' href='/verification-pending'>
+        <Button as='a' href='/auth/verification-pending'>
           Request New Link
         </Button>
       </div>

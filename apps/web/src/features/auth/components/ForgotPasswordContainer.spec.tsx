@@ -47,7 +47,7 @@ describe('ForgotPasswordContainer', () => {
     await waitFor(() => {
       expect(authClient.requestPasswordReset).toHaveBeenCalledWith({
         email: 'test@example.com',
-        redirectTo: '/reset-password'
+        redirectTo: '/auth/reset-password'
       })
     })
   })
