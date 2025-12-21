@@ -1,7 +1,8 @@
 import { api } from '~/lib/apiRequest'
-import type { UpdateProfileSchema } from '~/schemas/user.schema'
 import type { ApiResponse } from '~/types/api.types'
 import type { User } from '~/types/user.types'
+
+import type { UpdateProfileSchema } from '../schemas/user.schema'
 
 /**
  * Helper function for consistent API response handling

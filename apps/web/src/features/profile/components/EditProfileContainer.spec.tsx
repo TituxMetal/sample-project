@@ -1,13 +1,14 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
-import { updateProfile } from '~/services/user.service'
 import { cleanup, fireEvent, render, screen, userEvent, waitFor } from '~/test-utils'
-import type { User } from '~/types/user.types'
+import type { User } from '~/types'
+
+import { updateProfile } from '../api/user.service'
 
 import { EditProfileContainer } from './EditProfileContainer'
 
 // Mock modules
-mock.module('~/services/user.service', () => ({
+mock.module('../api/user.service', () => ({
   updateProfile: mock(() => {})
 }))
 

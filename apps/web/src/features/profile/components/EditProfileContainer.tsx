@@ -2,14 +2,16 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { EditProfileForm } from '~/components/forms/EditProfileForm'
-import { ProfileView } from '~/components/ProfileView'
 import { Button } from '~/components/ui'
 import { FormWrapper } from '~/components/ui/FormWrapper'
-import { updateProfileSchema } from '~/schemas/user.schema'
-import type { UpdateProfileSchema } from '~/schemas/user.schema'
-import { updateProfile } from '~/services/user.service'
-import type { User } from '~/types/user.types'
+import type { User } from '~/types'
+
+import { updateProfile } from '../api/user.service'
+import type { UpdateProfileSchema } from '../schemas/user.schema'
+import { updateProfileSchema } from '../schemas/user.schema'
+
+import { EditProfileForm } from './EditProfileForm'
+import { ProfileView } from './ProfileView'
 
 export interface EditProfileContainerProps {
   userData: User

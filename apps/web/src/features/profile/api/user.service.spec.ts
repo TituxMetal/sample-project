@@ -2,8 +2,9 @@ import type { Mock } from 'bun:test'
 import { afterEach, beforeEach, describe, expect, it, spyOn } from 'bun:test'
 
 import { api } from '~/lib/apiRequest'
-import type { UpdateProfileSchema } from '~/schemas/user.schema'
 import type { User } from '~/types/user.types'
+
+import type { UpdateProfileSchema } from '../schemas/user.schema'
 
 import { updateProfile } from './user.service'
 
