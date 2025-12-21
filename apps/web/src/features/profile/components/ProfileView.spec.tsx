@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 import { cleanup, fireEvent, render, screen } from '~/test-utils'
-import type { User } from '~/types/user.types'
+import type { User } from '~/types'
 
 import { ProfileView } from './ProfileView'
 

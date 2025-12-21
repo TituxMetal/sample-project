@@ -1,9 +1,7 @@
 ---
-import { DeleteAccountSection } from '~/components/containers/DeleteAccountSection'
-import { EditProfileContainer } from '~/components/containers/EditProfileContainer'
-import { ChangePasswordForm } from '~/components/forms/ChangePasswordForm'
+import { ChangePasswordForm, DeleteAccountSection, EditProfileContainer } from '~/features/profile'
 import Main from '~/layouts/Main.astro'
-import type { User } from '~/types/user.types'
+import type { User } from '~/types'
 
 const { user } = Astro.locals
 

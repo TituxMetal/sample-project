@@ -1,7 +1,8 @@
 import { useState } from 'react'
 
-import { DeleteAccountDialog } from '~/components/dialogs'
 import { Button } from '~/components/ui'
+
+import { DeleteAccountDialog } from './DeleteAccountDialog'
 
 export const DeleteAccountSection = () => {
   const [isOpen, setIsOpen] = useState(false)

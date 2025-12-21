@@ -3,9 +3,10 @@ import { beforeEach, describe, expect, it } from 'bun:test'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { updateProfileSchema } from '~/schemas/user.schema'
-import type { UpdateProfileSchema } from '~/schemas/user.schema'
 import { cleanup, render, screen } from '~/test-utils'
+
+import type { UpdateProfileSchema } from '../schemas/user.schema'
+import { updateProfileSchema } from '../schemas/user.schema'
 
 import { EditProfileForm } from './EditProfileForm'
 

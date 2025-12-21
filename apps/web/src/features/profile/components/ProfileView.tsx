@@ -1,5 +1,5 @@
 import { Button } from '~/components/ui'
-import type { User } from '~/types/user.types'
+import type { User } from '~/types'
 
 export interface ProfileViewProps {
   user: User

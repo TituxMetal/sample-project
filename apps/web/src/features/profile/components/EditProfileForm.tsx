@@ -1,7 +1,8 @@
 import type { UseFormReturn } from 'react-hook-form'
 
 import { Input } from '~/components/ui'
-import type { UpdateProfileSchema } from '~/schemas/user.schema'
+
+import type { UpdateProfileSchema } from '../schemas/user.schema'
 
 export interface EditProfileFormProps {
   form: UseFormReturn<UpdateProfileSchema>
