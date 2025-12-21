@@ -25,7 +25,7 @@ export const ForgotPasswordContainer = () => {
 
     const { error } = await authClient.requestPasswordReset({
       email: data.email,
-      redirectTo: '/reset-password'
+      redirectTo: '/auth/reset-password'
     })
 
     if (error) {

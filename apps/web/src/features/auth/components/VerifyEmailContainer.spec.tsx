@@ -68,7 +68,7 @@ describe('VerifyEmailContainer', () => {
 
       expect(screen.getByRole('link', { name: /request new link/i })).toHaveAttribute(
         'href',
-        '/verification-pending'
+        '/auth/verification-pending'
       )
     })
 

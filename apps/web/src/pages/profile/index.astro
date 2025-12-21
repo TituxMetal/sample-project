@@ -16,7 +16,7 @@ const userData = user as User
   <section class='container mx-auto px-4 py-8'>
     <h1 class='mb-8 text-center text-4xl font-bold text-zinc-100'>Welcome {userData.username}</h1>
     <nav class='mb-8 flex justify-center gap-4 text-sky-400'>
-      <a href='/sessions' class='hover:underline'>Manage Sessions</a>
+      <a href='/profile/sessions' class='hover:underline'>Manage Sessions</a>
     </nav>
     <div class='mx-auto max-w-xl space-y-8'>
       <EditProfileContainer client:load userData={userData} />

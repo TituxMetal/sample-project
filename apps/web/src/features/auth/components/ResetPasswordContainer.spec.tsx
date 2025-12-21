@@ -28,7 +28,7 @@ describe('ResetPasswordContainer', () => {
 
       expect(screen.getByRole('link', { name: /request new link/i })).toHaveAttribute(
         'href',
-        '/forgot-password'
+        '/auth/forgot-password'
       )
     })
   })

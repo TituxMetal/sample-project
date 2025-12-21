@@ -44,7 +44,7 @@ export const ResetPasswordContainer = ({ token }: ResetPasswordContainerProps) =
       <div className='mx-auto max-w-md rounded-lg bg-zinc-800/50 p-6 text-center'>
         <h2 className='mb-4 text-2xl font-bold text-red-400'>Invalid Reset Link</h2>
         <p className='mb-6 text-zinc-300'>This password reset link is invalid or has expired.</p>
-        <Button as='a' href='/forgot-password'>
+        <Button as='a' href='/auth/forgot-password'>
           Request New Link
         </Button>
       </div>
