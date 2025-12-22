@@ -22,7 +22,16 @@ import { AuthHooks } from './infrastructure/hooks'
       useFactory: (prisma, configService) => {
         const emailService = new EmailService(new LoggerService('EmailService'))
 
-        return { auth: createBetterAuthConfig(prisma, emailService, configService) }
+        return {
+          auth: createBetterAuthConfig(prisma, emailService, configService),
+          // Fix for Express 5 routing incompatibility with nestjs-better-auth
+          // See: https://github.com/ThallesP/nestjs-better-auth/issues/85
+          middleware: (req, _res, next) => {
+            req.url = req.originalUrl
+            req.baseUrl = ''
+            next()
+          }
+        }
       }
     })
   ],

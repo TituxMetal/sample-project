@@ -100,8 +100,18 @@ export const useAuth = (): UseAuthReturn => {
       $error.set(null)
 
       await signOut()
+
+      // Clear local state
+      $user.set(null)
+
+      // Redirect to home
+      if (typeof window !== 'undefined') {
+        redirect('/')
+      }
     } catch (err) {
       console.warn('Logout error:', err)
+      // Still clear state on error - user wanted to logout
+      $user.set(null)
     } finally {
       $isLoading.set(false)
     }

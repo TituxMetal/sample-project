@@ -1,15 +1,20 @@
 ---
 import { apiRequest } from '~/lib/apiRequest'
 
-try {
-  await apiRequest('/api/auth/sign-out', {
-    method: 'POST'
-  })
+const sessionToken = Astro.cookies.get('better-auth.session_token')?.value
 
-  Astro.cookies.delete('better-auth.session_token')
-} catch (error) {
-  // Silently handle logout errors
+if (sessionToken) {
+  // Call sign-out API with session cookie forwarded
+  await apiRequest('/api/auth/sign-out', {
+    method: 'POST',
+    headers: {
+      Cookie: `better-auth.session_token=${sessionToken}`
+    }
+  })
 }
+
+// Delete all better-auth cookies
+Astro.cookies.delete('better-auth.session_token', { path: '/' })
 
 return Astro.redirect('/')
 ---
