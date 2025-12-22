@@ -13,7 +13,7 @@
   ],
   "author": "Titux Metal",
   "license": "MIT",
-  "packageManager": "bun@1.3.3",
+  "packageManager": "bun@1.3.5",
   "workspaces": [
     "apps/*",
     "packages/*"

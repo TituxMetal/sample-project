@@ -50,5 +50,8 @@
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3",
     "vite": "^7.2.4"
+  },
+  "peerDependencies": {
+    "better-auth": "1.4.7"
   }
 }
