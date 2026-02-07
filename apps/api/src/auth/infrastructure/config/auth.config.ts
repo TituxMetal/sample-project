@@ -15,7 +15,7 @@ export const createBetterAuthConfig = (
 ) => {
   const config = {
     secret: configService.betterAuth.secret,
-    baseURL: configService.betterAuth.baseURL,
+    baseURL: configService.betterAuth.frontendUrl,
     trustedOrigins: [configService.betterAuth.frontendUrl],
     database: prismaAdapter(prisma, { provider: 'sqlite' }),
     emailVerification: {

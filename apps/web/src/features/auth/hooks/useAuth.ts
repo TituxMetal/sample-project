@@ -82,7 +82,7 @@ export const useAuth = (): UseAuthReturn => {
       }
 
       if (typeof window !== 'undefined') {
-        const verificationUrl = `/verification-pending?email=${encodeURIComponent(data.email)}`
+        const verificationUrl = `/auth/verification-pending?email=${encodeURIComponent(data.email)}`
         redirect(verificationUrl)
       }
     } catch (err) {
