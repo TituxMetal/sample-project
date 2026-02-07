@@ -2,7 +2,7 @@ import type { ApiResponse } from '~/types/api.types'
 
 const getBaseUrl = (): string => {
   if (typeof window !== 'undefined') {
-    return import.meta.env.PUBLIC_API_URL || '/api'
+    return import.meta.env.PUBLIC_API_URL || ''
   }
 
   return process.env.API_URL || 'http://localhost:3000'
