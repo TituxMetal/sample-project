@@ -1,5 +1,16 @@
 import type { ApiResponse } from '~/types/api.types'
 
+/**
+ * Returns the base URL for API requests based on the execution context:
+ *
+ * - Browser: '/api' (Vite proxy prefix, forwards to the API server)
+ *   → Client-side services (api.*) should use endpoints WITHOUT /api prefix
+ *   → e.g. api.get('/users/me') resolves to /api/users/me
+ *
+ * - SSR: 'http://localhost:3000' (direct API server URL)
+ *   → Server-side callers (apiRequest) should use endpoints WITH /api prefix
+ *   → e.g. apiRequest('/api/users/me') resolves to http://localhost:3000/api/users/me
+ */
 const getBaseUrl = (): string => {
   if (typeof window !== 'undefined') {
     return import.meta.env.PUBLIC_API_URL || '/api'
