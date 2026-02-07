@@ -173,7 +173,7 @@ describe('Auth Store', () => {
 
         await authActions.refresh()
 
-        expect(api.get).toHaveBeenCalledWith('/api/users/me')
+        expect(api.get).toHaveBeenCalledWith('/users/me')
         expect($user.get()).toEqual(mockUser)
         expect($error.get()).toBe(null)
         expect($isLoading.get()).toBe(false)
@@ -184,7 +184,7 @@ describe('Auth Store', () => {
 
         await authActions.refresh()
 
-        expect(api.get).toHaveBeenCalledWith('/api/users/me')
+        expect(api.get).toHaveBeenCalledWith('/users/me')
         expect($user.get()).toBe(null)
         expect($error.get()).toBe('API Error')
         expect($isLoading.get()).toBe(false)
@@ -254,7 +254,7 @@ describe('Auth Store', () => {
 
         await authActions.silentRefresh()
 
-        expect(api.get).toHaveBeenCalledWith('/api/users/me')
+        expect(api.get).toHaveBeenCalledWith('/users/me')
         expect($user.get()).toEqual(mockUser)
         expect($error.get()).toBe(null)
         expect($isLoading.get()).toBe(false) // Should not affect loading

@@ -15,6 +15,6 @@ const handleApiResponseWithData = <T>(response: ApiResponse<T>): T => {
  * Get current authenticated user (SSR-only - use useAuth hook on client)
  */
 export const getCurrentUser = async (): Promise<User> => {
-  const response = await api.get<User>('/api/users/me')
+  const response = await api.get<User>('/users/me')
   return handleApiResponseWithData(response)
 }
