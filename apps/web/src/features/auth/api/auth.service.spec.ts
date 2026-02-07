@@ -18,7 +18,7 @@ describe('auth service', () => {
   })
 
   describe('getCurrentUser', () => {
-    it('should return user from /api/users/me endpoint', async () => {
+    it('should return user from /users/me endpoint', async () => {
       const mockUser: User = {
         id: '1',
         username: 'testuser',
@@ -38,7 +38,7 @@ describe('auth service', () => {
 
       const result = await getCurrentUser()
 
-      expect(api.get).toHaveBeenCalledWith('/api/users/me')
+      expect(api.get).toHaveBeenCalledWith('/users/me')
       expect(result).toEqual(mockUser)
     })
 

@@ -18,6 +18,6 @@ const handleApiResponse = <T>(response: ApiResponse<T>): T => {
  * Update user profile
  */
 export const updateProfile = async (data: UpdateProfileSchema): Promise<User> => {
-  const response = await api.patch<User>('/api/users/me', data)
+  const response = await api.patch<User>('/users/me', data)
   return handleApiResponse(response)
 }

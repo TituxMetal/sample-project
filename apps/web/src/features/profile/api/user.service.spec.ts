@@ -44,7 +44,7 @@ describe('updateProfile', () => {
 
     const result = await updateProfile(data)
 
-    expect(api.patch).toHaveBeenCalledWith('/api/users/me', data)
+    expect(api.patch).toHaveBeenCalledWith('/users/me', data)
     expect(result).toEqual(mockUser)
   })
 
@@ -69,7 +69,7 @@ describe('updateProfile', () => {
 
     const result = await updateProfile(data)
 
-    expect(api.patch).toHaveBeenCalledWith('/api/users/me', data)
+    expect(api.patch).toHaveBeenCalledWith('/users/me', data)
     expect(result).toEqual(mockUser)
   })
 
